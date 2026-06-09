@@ -1,4 +1,10 @@
-export type GalleryCategory = "星云" | "星系" | "月球" | "行星";
+export type GalleryCategory =
+  | "Nebula"
+  | "Galaxy"
+  | "Moon"
+  | "Planet"
+  | "Black Hole"
+  | "Deep Sky Object";
 
 export interface DailyCosmosItem {
   title: string;
@@ -9,10 +15,14 @@ export interface DailyCosmosItem {
 }
 
 export interface GalleryItem {
+  id: number;
   title: string;
+  subtitle: string;
   category: GalleryCategory;
+  distance: string;
   image: string;
   description: string;
+  tags: string[];
 }
 
 export interface ArticleItem {

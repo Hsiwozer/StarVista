@@ -1,7 +1,6 @@
 import type {
   ArticleItem,
   DailyCosmosItem,
-  GalleryItem,
   GuideItem,
 } from "../types/content";
 
@@ -13,45 +12,6 @@ export const dailyCosmos: DailyCosmosItem = {
   description:
     "在猎户座腰带下方，巨大的气体云孕育着年轻恒星。尘埃、氢气与紫外线交织出粉紫色辉光，也让我们看见恒星诞生时的缓慢风暴。",
 };
-
-export const galleryItems: GalleryItem[] = [
-  {
-    title: "鸢尾回声星云",
-    category: "星云",
-    image: "/images/emission-nebula.png",
-    description: "由炽热恒星点亮的气体云，像深空中缓慢展开的光之花瓣。",
-  },
-  {
-    title: "蓝臂旋涡星系",
-    category: "星系",
-    image: "/images/spiral-galaxy.png",
-    description: "恒星、尘埃与暗物质共同塑造的巨大旋臂，横跨数万光年。",
-  },
-  {
-    title: "新月地平线",
-    category: "月球",
-    image: "/images/crescent-moon.png",
-    description: "斜射阳光勾勒出环形山边缘，让月面像一张古老地形图。",
-  },
-  {
-    title: "环带行星",
-    category: "行星",
-    image: "/images/ringed-planet.png",
-    description: "冰粒与岩屑构成的光环，让行星在黑暗中拥有优雅的轮廓。",
-  },
-  {
-    title: "紫焰恒星育婴室",
-    category: "星云",
-    image: "/images/daily-cosmos.png",
-    description: "电离气体和新生恒星藏在尘埃褶皱里，发出柔和的紫色辉光。",
-  },
-  {
-    title: "深空岛宇宙",
-    category: "星系",
-    image: "/images/spiral-galaxy.png",
-    description: "每一个光点都可能是一个太阳，每一条旋臂都是时间留下的纹理。",
-  },
-];
 
 export const articleItems: ArticleItem[] = [
   {

@@ -282,6 +282,109 @@ button {
   transform: translateY(-50%);
 }
 
+.gallery-progress-fill {
+  transform: scaleX(0);
+  animation: galleryProgress 5s linear forwards;
+}
+
+.gallery-ken-burns {
+  animation: galleryKenBurns 8s ease-out forwards;
+}
+
+.gallery-dust-layer {
+  background-image:
+    radial-gradient(circle at 14% 26%, rgba(246, 248, 255, 0.5) 0 1px, transparent 1.3px),
+    radial-gradient(circle at 68% 38%, rgba(127, 199, 255, 0.46) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 42% 74%, rgba(217, 204, 255, 0.38) 0 1px, transparent 1.2px);
+  background-size: 160px 160px, 230px 230px, 290px 290px;
+  mix-blend-mode: screen;
+}
+
+.gallery-info-panel {
+  animation: galleryPanelFloat 560ms ease-out both;
+}
+
+.gallery-title-shadow {
+  text-shadow:
+    0 2px 18px rgba(2, 3, 10, 0.72),
+    0 0 34px rgba(2, 3, 10, 0.48);
+}
+
+.gallery-panel-copy {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: galleryCopyIn 620ms ease-out forwards;
+}
+
+.gallery-panel-copy:nth-child(3) {
+  animation-delay: 70ms;
+}
+
+.gallery-panel-copy:nth-child(4) {
+  animation-delay: 140ms;
+}
+
+.gallery-panel-copy:nth-child(5) {
+  animation-delay: 210ms;
+}
+
+.gallery-panel-copy:nth-child(6) {
+  animation-delay: 280ms;
+}
+
+.gallery-description-clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.gallery-detail-reveal {
+  opacity: 1;
+  transform: translateY(0);
+  text-shadow: 0 2px 16px rgba(2, 3, 10, 0.7);
+}
+
+@keyframes galleryProgress {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes galleryKenBurns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.065);
+  }
+}
+
+@keyframes galleryPanelFloat {
+  0% {
+    opacity: 0;
+    transform: translate3d(-14px, 16px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes galleryCopyIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes starPulse {
   0%,
   100% {
@@ -344,6 +447,26 @@ button {
   .meteor-random {
     width: calc(var(--meteor-length) * 0.72);
   }
+
+  .gallery-description-clamp {
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (min-width: 640px) {
+  .gallery-detail-reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 520ms ease,
+      transform 520ms ease;
+  }
+
+  .group:hover .gallery-detail-reveal,
+  .group:focus-within .gallery-detail-reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -358,5 +481,14 @@ button {
 
   .meteor-random {
     display: none;
+  }
+
+  .gallery-ken-burns,
+  .gallery-info-panel,
+  .gallery-panel-copy,
+  .gallery-progress-fill {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
