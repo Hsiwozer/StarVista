@@ -9,7 +9,7 @@ export function DailyCosmos() {
   // Replace dailyCosmos with data from https://api.nasa.gov/planetary/apod
   // Expected shape: { title, date, url/hdurl, explanation, copyright }.
   return (
-    <section id="daily" className="section-shell pt-28 md:pt-44">
+    <section id="daily" className="section-shell pt-20 md:pt-28">
       <Reveal>
         <SectionHeading
           eyebrow="Daily Cosmos"

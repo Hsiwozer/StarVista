@@ -59,44 +59,6 @@ export function Hero() {
           </div>
         </div>
       </div>
-
-      <div className="glass-card absolute bottom-0 left-1/2 z-20 hidden w-[min(78rem,calc(100%-2.5rem))] -translate-x-1/2 translate-y-1/2 overflow-hidden md:block">
-        <div className="grid min-h-44 grid-cols-[0.76fr_1fr]">
-          <div className="flex flex-col justify-between p-7">
-            <div>
-              <p className="text-xs uppercase tracking-[0.34em] text-galaxy-400">
-                Daily Cosmos
-              </p>
-              <p className="mt-3 font-display text-3xl text-starlight">
-                每日一图
-              </p>
-              <p className="mt-4 max-w-sm text-sm leading-6 text-white/54">
-                今日归档：猎户座大星云 M42，预留 NASA APOD 接口。
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => scrollToSection("daily")}
-              className="cosmic-text-button mt-5"
-            >
-              探索今日宇宙
-              <ArrowRight size={16} />
-            </button>
-          </div>
-          <div className="relative min-h-full">
-            <img
-              src="/images/daily-cosmos.png"
-              alt="每日宇宙预览图"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-space-950/48 to-transparent" />
-            <div className="absolute bottom-5 right-6 text-right text-xs text-white/58">
-              <span className="block text-starlight">猎户座大星云 M42</span>
-              <span>Mock APOD / Star Archive</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }
