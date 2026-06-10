@@ -1,7 +1,6 @@
 import type {
   ArticleItem,
   DailyCosmosItem,
-  GuideItem,
 } from "../types/content";
 
 export const dailyCosmos: DailyCosmosItem = {
@@ -73,44 +72,5 @@ export const articleItems: ArticleItem[] = [
     tags: ["大爆炸", "CMB", "早期宇宙"],
     readingTime: "9 分钟",
     image: "/images/emission-nebula.png",
-  },
-];
-
-export const guideItems: GuideItem[] = [
-  {
-    manualId: "MANUAL-01",
-    title: "新手观星准备",
-    description: "先从肉眼和双筒望远镜开始。熟悉黑夜，比升级设备更重要。",
-    details: ["带红光手电", "查看月相", "提前下载离线星图"],
-  },
-  {
-    manualId: "MANUAL-02",
-    title: "避开光污染",
-    description: "城市灯光会淹没暗弱天体。真正的星空，往往藏在地图边缘。",
-    details: ["远离商业区", "避开满月夜", "给眼睛 20 分钟适应黑暗"],
-  },
-  {
-    manualId: "MANUAL-03",
-    title: "星座识别",
-    description: "从北斗、猎户、天蝎入手，把天空慢慢变成熟悉的路径。",
-    details: ["先找亮星", "连接主星轮廓", "记录每月同一时间的变化"],
-  },
-  {
-    manualId: "MANUAL-04",
-    title: "望远镜选择",
-    description: "倍率不是答案。稳定、口径与目标，决定你能停留多久。",
-    details: ["月面和行星选折射", "深空目标看口径", "预算留给支架"],
-  },
-  {
-    manualId: "MANUAL-05",
-    title: "手机星空摄影",
-    description: "让手机保持安静，给传感器一点时间，它也能接住星光。",
-    details: ["使用三脚架", "手动对焦到无穷远", "尝试 10-20 秒曝光"],
-  },
-  {
-    manualId: "MANUAL-06",
-    title: "观测安全与天气",
-    description: "一次好的观测，从确认天气、温度和归途开始。",
-    details: ["查看云量和湿度", "准备保暖衣物", "不要独自前往陌生荒野"],
   },
 ];

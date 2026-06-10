@@ -35,9 +35,9 @@ export interface ArticleItem {
   image: string;
 }
 
-export interface GuideItem {
+export interface ManualStepItem {
   manualId: string;
   title: string;
   description: string;
-  details: string[];
+  prompt: string;
 }

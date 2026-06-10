@@ -1,67 +1,37 @@
-import {
-  Aperture,
-  Binoculars,
-  Camera,
-  Map,
-  MoonStar,
-  ShieldCheck,
-  Telescope,
-} from "lucide-react";
-import { guideItems } from "../data/mockData";
-import { ArchiveCard } from "./ArchiveCard";
+import { ManualTimeline } from "./ManualTimeline";
+import { ObservationStatus } from "./ObservationStatus";
 import { Reveal } from "./Reveal";
-import { SectionHeading } from "./SectionHeading";
-
-const icons = [Binoculars, MoonStar, Map, Telescope, Camera, ShieldCheck];
 
 export function Guide() {
   return (
     <section id="guide" className="section-shell">
+      <div className="pointer-events-none absolute inset-x-0 top-4 h-72 bg-[radial-gradient(circle_at_50%_0%,rgba(141,109,255,0.16),transparent_34rem)]" />
+      <div className="pointer-events-none absolute right-8 top-24 h-40 w-40 rounded-full bg-galaxy-500/[0.045] blur-3xl" />
+
       <Reveal>
-        <SectionHeading
-          eyebrow="Observer's Manual"
-          title="观星指南"
-          description="仰望星空之前，先学会在黑暗中等待。"
-        />
+        <div className="relative mx-auto mb-12 max-w-3xl text-center md:mb-16">
+          <p className="mb-3 text-[0.68rem] uppercase tracking-[0.32em] text-galaxy-400/70 sm:text-xs">
+            Observer&apos;s Manual
+          </p>
+          <h2 className="font-display text-4xl font-medium text-starlight sm:text-5xl md:text-6xl">
+            观测手册
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/58 md:text-base">
+            仰望星空之前，先学会在黑暗中等待。
+          </p>
+        </div>
       </Reveal>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {guideItems.map((item, index) => {
-          const Icon = icons[index] ?? Aperture;
-          return (
-            <Reveal key={item.title} delay={index * 80}>
-              <ArchiveCard interactive className="group h-full min-h-[21rem] p-5 sm:p-6">
-                <div className="mb-8 flex items-start justify-between">
-                  <div>
-                    <p className="text-[0.68rem] uppercase tracking-[0.22em] text-nebula-300/66">
-                      {item.manualId}
-                    </p>
-                    <h3 className="mt-4 text-2xl font-medium text-starlight/88 transition duration-700 group-hover:text-starlight">
-                      {item.title}
-                    </h3>
-                  </div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-galaxy-400/14 bg-galaxy-500/[0.04] text-galaxy-400/56 transition duration-700 group-hover:border-galaxy-400/28 group-hover:text-galaxy-400">
-                    <Icon size={21} />
-                  </div>
-                </div>
-                <p className="text-sm leading-7 text-white/52 transition duration-700 group-hover:text-white/66">
-                  {item.description}
-                </p>
-                <ul className="mt-6 space-y-3">
-                  {item.details.map((detail) => (
-                    <li
-                      key={detail}
-                      className="border-l border-nebula-400/20 pl-3 text-sm text-white/46 transition duration-700 group-hover:border-nebula-400/38 group-hover:text-white/62"
-                    >
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              </ArchiveCard>
-            </Reveal>
-          );
-        })}
+      <div className="relative grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-16 xl:gap-24">
+        <ManualTimeline />
+        <ObservationStatus />
       </div>
+
+      <Reveal delay={160}>
+        <p className="mx-auto mt-8 max-w-3xl whitespace-pre-line text-center font-display text-3xl leading-snug text-starlight/68 md:mt-12 md:text-4xl md:leading-snug">
+          {"当你远离灯光，等待眼睛适应黑暗，\n你会发现星空并没有变亮，\n只是你终于学会了看见它。"}
+        </p>
+      </Reveal>
     </section>
   );
 }
