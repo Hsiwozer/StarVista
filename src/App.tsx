@@ -5,17 +5,21 @@ import { Gallery } from "./components/Gallery";
 import { Guide } from "./components/Guide";
 import { Hero } from "./components/Hero";
 import { NavBar } from "./components/NavBar";
+import { CosmicBackground } from "./components/CosmicBackground";
 
 function App() {
   return (
-    <main className="min-h-screen overflow-hidden bg-space-950 text-starlight">
+    <main className="relative isolate min-h-screen overflow-hidden bg-space-950 text-starlight">
+      <CosmicBackground fixed quiet />
       <NavBar />
-      <Hero />
-      <DailyCosmos />
-      <Gallery />
-      <Articles />
-      <Guide />
-      <About />
+      <div className="relative z-10">
+        <Hero />
+        <DailyCosmos />
+        <Gallery />
+        <Articles />
+        <Guide />
+        <About />
+      </div>
     </main>
   );
 }

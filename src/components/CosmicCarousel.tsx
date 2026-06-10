@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { GalleryItem } from "../types/content";
 import { CarouselControls } from "./CarouselControls";
 
-const AUTOPLAY_DELAY = 5000;
+const AUTOPLAY_DELAY = 8000;
 const SWIPE_THRESHOLD = 48;
 
 interface CosmicCarouselProps {
@@ -67,7 +67,7 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
 
   return (
     <div
-      className="group relative min-h-[58vh] overflow-hidden rounded-lg bg-space-900 shadow-[0_34px_110px_rgba(2,3,10,0.62)] sm:min-h-[64vh] md:h-[74vh] md:min-h-[42rem] lg:h-[78vh]"
+      className="group relative min-h-[58vh] overflow-hidden rounded-lg bg-space-900 shadow-[0_34px_110px_rgba(2,3,10,0.58)] sm:min-h-[64vh] md:h-[74vh] md:min-h-[42rem] lg:h-[78vh]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={(event) => {
@@ -106,6 +106,9 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
             src={item.image}
             alt={`${item.subtitle} - ${item.title}`}
             loading={index === 0 ? "eager" : "lazy"}
+            onError={(event) => {
+              event.currentTarget.src = "/images/spiral-galaxy.png";
+            }}
             className={`absolute inset-0 h-full w-full object-cover transition duration-1000 ease-out ${
               activeIndex === index
                 ? "scale-100 opacity-100 gallery-ken-burns"
@@ -115,7 +118,7 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
         ))}
       </div>
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(141,109,255,0.1),transparent_30rem),linear-gradient(90deg,rgba(2,3,10,0.58),transparent_48%),linear-gradient(0deg,rgba(2,3,10,0.9),rgba(2,3,10,0.38)_34%,rgba(2,3,10,0.08)_68%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(141,109,255,0.08),transparent_30rem),linear-gradient(90deg,rgba(2,3,10,0.54),transparent_48%),linear-gradient(0deg,rgba(2,3,10,0.9),rgba(2,3,10,0.34)_34%,rgba(2,3,10,0.06)_68%)]" />
       <div
         className="gallery-dust-layer absolute inset-0 opacity-[0.34]"
         aria-hidden="true"
@@ -134,7 +137,7 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
           </p>
 
           <div className="gallery-detail-reveal mt-4 max-w-xl sm:mt-5">
-            <div className="mb-3 hidden flex-wrap items-center gap-3 text-xs uppercase text-white/46 sm:flex">
+            <div className="mb-3 hidden flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-white/42 sm:flex">
               <span>{activeItem.category}</span>
               <span className="h-1 w-1 rounded-full bg-white/24" />
               <span>{activeItem.distance}</span>

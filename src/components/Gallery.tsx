@@ -17,14 +17,14 @@ export function Gallery() {
       <div className="relative mx-auto max-w-7xl">
         <Reveal>
           <div className="mx-auto mb-7 max-w-2xl text-center md:mb-9">
-            <h2 className="font-display text-[clamp(2.35rem,7vw,3.75rem)] font-medium text-starlight">
+            <h2 className="font-display text-4xl font-medium text-starlight sm:text-5xl md:text-6xl">
               星空图库
             </h2>
             <p className="mt-1 font-display text-xl text-nebula-300/76 sm:text-2xl">
               Deep Space Gallery
             </p>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-white/54 md:text-base">
-              在星云、星系与深空天体之间，收藏来自宇宙深处的光。
+              图像先于语言抵达。悬停时，档案会在暗处慢慢显影。
             </p>
           </div>
         </Reveal>
@@ -33,8 +33,8 @@ export function Gallery() {
           <CosmicCarousel items={galleryItems} />
         </Reveal>
 
-        <p className="mx-auto mt-6 max-w-lg text-center text-xs tracking-[0.18em] text-white/28">
-          悬停影像，阅读来自深空的说明。
+        <p className="mx-auto mt-6 max-w-lg text-center text-xs tracking-[0.18em] text-white/24">
+          DEEP SPACE EXHIBITION / HOVER TO REVEAL
         </p>
       </div>
     </section>

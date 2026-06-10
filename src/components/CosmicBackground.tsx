@@ -26,6 +26,11 @@ interface MeteorParticle {
 
 type ParticleStyle = CSSProperties & Record<`--${string}`, string>;
 
+interface CosmicBackgroundProps {
+  fixed?: boolean;
+  quiet?: boolean;
+}
+
 function createStars(count: number) {
   return Array.from({ length: count }, (_, index): StarParticle => {
     const wave = Math.sin(index * 12.9898) * 43758.5453;
@@ -37,11 +42,11 @@ function createStars(count: number) {
       id: index,
       x: (seed * 100 + index * 7.3) % 100,
       y: (seedTwo * 100 + index * 3.9) % 100,
-      size: index % 11 === 0 ? 2.2 : 0.8 + (seedTwo % 1.4),
-      opacity: 0.32 + (seed % 0.58),
-      delay: (seedTwo * 8) % 8,
-      duration: 4.5 + (seed * 5.5) % 5.5,
-      drift: 8 + (seedTwo * 18) % 18,
+      size: index % 17 === 0 ? 1.8 : 0.65 + (seedTwo % 1.1),
+      opacity: 0.16 + (seed % 0.36),
+      delay: (seedTwo * 14) % 14,
+      duration: 9 + (seed * 9) % 9,
+      drift: 4 + (seedTwo * 10) % 10,
     };
   });
 }
@@ -56,9 +61,9 @@ function createMeteors(count: number) {
       id: index,
       x: -18 + seedTwo * 48,
       y: 8 + normalized * 45,
-      length: 8 + normalized * 9,
-      delay: index * 4.2 + seedTwo * 4,
-      duration: 8 + normalized * 5,
+      length: 6 + normalized * 7,
+      delay: index * 16 + seedTwo * 12,
+      duration: 14 + normalized * 8,
       angle: 20 + seedTwo * 10,
       travelX: 92 + normalized * 36,
       travelY: 34 + seedTwo * 26,
@@ -66,12 +71,21 @@ function createMeteors(count: number) {
   });
 }
 
-export function CosmicBackground() {
-  const stars = useMemo(() => createStars(92), []);
-  const meteors = useMemo(() => createMeteors(5), []);
+export function CosmicBackground({
+  fixed = false,
+  quiet = false,
+}: CosmicBackgroundProps) {
+  const stars = useMemo(() => createStars(quiet ? 70 : 90), [quiet]);
+  const meteors = useMemo(() => createMeteors(quiet ? 2 : 3), [quiet]);
 
   return (
-    <div className="cosmic-background" aria-hidden="true">
+    <div
+      className={`cosmic-background ${fixed ? "cosmic-background-fixed" : ""} ${
+        quiet ? "cosmic-background-quiet" : ""
+      }`}
+      aria-hidden="true"
+    >
+      <div className="cosmic-nebula-drift" />
       <div className="cosmic-dust cosmic-dust-a" />
       <div className="cosmic-dust cosmic-dust-b" />
       <div className="cosmic-starfield">

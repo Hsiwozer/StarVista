@@ -22,8 +22,9 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   background:
-    radial-gradient(circle at 80% 15%, rgba(141, 109, 255, 0.16), transparent 26rem),
-    radial-gradient(circle at 16% 40%, rgba(58, 167, 255, 0.12), transparent 28rem),
+    radial-gradient(circle at 78% 10%, rgba(70, 52, 137, 0.18), transparent 28rem),
+    radial-gradient(circle at 18% 38%, rgba(26, 82, 132, 0.1), transparent 30rem),
+    linear-gradient(180deg, #02030a 0%, #030615 45%, #02030a 100%),
     #02030a;
 }
 
@@ -45,16 +46,14 @@ button {
     position: relative;
     overflow: hidden;
     border-radius: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(127, 199, 255, 0.08);
     background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)),
-      rgba(8, 12, 28, 0.46);
+      linear-gradient(145deg, rgba(127, 199, 255, 0.035), transparent 34%),
+      rgba(3, 6, 18, 0.34);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.035),
-      0 24px 80px rgba(2, 3, 10, 0.34),
-      0 0 42px rgba(58, 167, 255, 0.09);
-    backdrop-filter: blur(22px) saturate(132%);
+      inset 0 1px 0 rgba(255, 255, 255, 0.035),
+      0 22px 82px rgba(2, 3, 10, 0.32);
+    backdrop-filter: blur(12px) saturate(108%);
   }
 
   .glass-card::before {
@@ -63,10 +62,11 @@ button {
     position: absolute;
     inset: 0;
     z-index: 1;
-    opacity: 0.42;
+    opacity: 0;
     background:
-      linear-gradient(120deg, rgba(255, 255, 255, 0.14), transparent 32%),
-      radial-gradient(circle at 82% 8%, rgba(181, 156, 255, 0.14), transparent 28rem);
+      linear-gradient(120deg, rgba(127, 199, 255, 0.14), transparent 34%),
+      radial-gradient(circle at 82% 8%, rgba(141, 109, 255, 0.12), transparent 26rem);
+    transition: opacity 720ms ease;
   }
 
   .glass-card::after {
@@ -75,12 +75,17 @@ button {
     position: absolute;
     inset: 0;
     z-index: 1;
-    opacity: 0.13;
+    opacity: 0;
     background-image:
-      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.5) 0 1px, transparent 1.2px),
-      radial-gradient(circle at 70% 70%, rgba(127, 199, 255, 0.45) 0 1px, transparent 1.2px);
-    background-size: 95px 95px, 130px 130px;
+      linear-gradient(90deg, transparent, rgba(127, 199, 255, 0.18), transparent),
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.26) 0 1px, transparent 1.2px),
+      radial-gradient(circle at 70% 70%, rgba(127, 199, 255, 0.22) 0 1px, transparent 1.2px);
+    background-position: -120% 0, 0 0, 0 0;
+    background-size: 180% 100%, 120px 120px, 160px 160px;
     mix-blend-mode: screen;
+    transition:
+      opacity 720ms ease,
+      background-position 1200ms ease;
   }
 
   .glass-card > * {
@@ -90,34 +95,50 @@ button {
 
   .glass-card-interactive {
     transition:
-      transform 280ms ease,
-      border-color 280ms ease,
-      box-shadow 280ms ease,
-      background 280ms ease;
+      transform 720ms ease,
+      border-color 720ms ease,
+      box-shadow 720ms ease,
+      background 720ms ease;
   }
 
-  .glass-card-interactive:hover {
-    transform: translateY(-4px);
-    border-color: rgba(127, 199, 255, 0.45);
+  .glass-card-interactive:hover,
+  .glass-card-interactive:focus-within {
+    transform: translateY(-3px);
+    border-color: rgba(127, 199, 255, 0.28);
+    background:
+      linear-gradient(145deg, rgba(127, 199, 255, 0.055), transparent 34%),
+      rgba(5, 9, 25, 0.46);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 28px 86px rgba(2, 3, 10, 0.42),
-      0 0 52px rgba(58, 167, 255, 0.18),
-      0 0 70px rgba(141, 109, 255, 0.12);
+      inset 0 1px 0 rgba(255, 255, 255, 0.055),
+      0 30px 90px rgba(2, 3, 10, 0.46),
+      0 0 34px rgba(58, 167, 255, 0.1),
+      0 0 48px rgba(141, 109, 255, 0.08);
+  }
+
+  .glass-card-interactive:hover::before,
+  .glass-card-interactive:hover::after,
+  .glass-card-interactive:focus-within::before,
+  .glass-card-interactive:focus-within::after {
+    opacity: 1;
+  }
+
+  .glass-card-interactive:hover::after,
+  .glass-card-interactive:focus-within::after {
+    background-position: 120% 0, 0 0, 0 0;
   }
 
   .cosmic-button {
-    @apply inline-flex min-h-14 items-center justify-center gap-4 rounded-lg px-8 text-sm font-medium transition focus:outline-none;
+    @apply inline-flex min-h-14 items-center justify-center gap-4 rounded-lg px-8 text-sm font-medium tracking-[0.16em] transition focus:outline-none;
     box-shadow:
       0 0 0 rgba(58, 167, 255, 0),
       0 14px 34px rgba(2, 3, 10, 0.24);
   }
 
   .cosmic-button:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow:
-      0 0 26px rgba(58, 167, 255, 0.28),
-      0 0 42px rgba(141, 109, 255, 0.18),
+      0 0 20px rgba(58, 167, 255, 0.16),
+      0 0 36px rgba(141, 109, 255, 0.12),
       0 18px 42px rgba(2, 3, 10, 0.34);
   }
 
@@ -127,11 +148,14 @@ button {
   }
 
   .cosmic-button-primary {
-    @apply bg-starlight text-space-950;
+    @apply border text-starlight;
+    border-color: rgba(127, 199, 255, 0.28);
+    background: rgba(2, 3, 10, 0.38);
   }
 
   .cosmic-button-primary:hover {
-    background: linear-gradient(135deg, #ffffff, #dfeaff 48%, #ece7ff);
+    border-color: rgba(127, 199, 255, 0.56);
+    background: rgba(58, 167, 255, 0.1);
   }
 
   .cosmic-button-secondary {
@@ -186,7 +210,8 @@ button {
 
   .cosmic-icon-button {
     @apply rounded-lg border transition focus:outline-none;
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.075);
+    background: rgba(2, 3, 10, 0.18);
   }
 
   .cosmic-icon-button:focus-visible {
@@ -196,41 +221,90 @@ button {
 
   .cosmic-icon-button:hover {
     transform: translateY(-1px);
-    border-color: rgba(127, 199, 255, 0.6);
-    box-shadow: 0 0 24px rgba(58, 167, 255, 0.16);
+    border-color: rgba(127, 199, 255, 0.42);
+    box-shadow: 0 0 18px rgba(58, 167, 255, 0.12);
+  }
+
+  .archive-search-button {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .archive-search-button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(127, 199, 255, 0.28),
+      transparent
+    );
+    transform: translateX(-120%);
+    transition:
+      opacity 420ms ease,
+      transform 900ms ease;
+  }
+
+  .archive-search-button:hover::after,
+  .archive-search-button:focus-visible::after {
+    opacity: 1;
+    transform: translateX(120%);
   }
 }
 
 .cosmic-background {
   position: absolute;
   inset: 0;
-  z-index: 4;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
 }
 
+.cosmic-background-fixed {
+  position: fixed;
+  z-index: 0;
+}
+
+.cosmic-background-quiet {
+  opacity: 0.84;
+}
+
 .cosmic-dust,
 .cosmic-starfield,
-.meteor-field {
+.meteor-field,
+.cosmic-nebula-drift {
   position: absolute;
   inset: 0;
 }
 
+.cosmic-nebula-drift {
+  opacity: 0.62;
+  filter: blur(0.4px);
+  background:
+    radial-gradient(circle at 14% 18%, rgba(58, 167, 255, 0.08), transparent 25rem),
+    radial-gradient(circle at 76% 24%, rgba(141, 109, 255, 0.12), transparent 30rem),
+    radial-gradient(circle at 48% 82%, rgba(26, 82, 132, 0.08), transparent 36rem);
+  transform: translate3d(0, 0, 0) scale(1.06);
+  animation: nebulaDrift 96s ease-in-out infinite alternate;
+}
+
 .cosmic-dust {
-  opacity: 0.32;
+  opacity: 0.18;
   filter: blur(0.2px);
   background-image:
-    radial-gradient(circle at 18% 32%, rgba(127, 199, 255, 0.65) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 72% 24%, rgba(217, 204, 255, 0.54) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 42% 78%, rgba(255, 255, 255, 0.5) 0 1px, transparent 1.4px);
-  background-size: 180px 180px, 260px 260px, 220px 220px;
-  animation: cosmicDrift 42s linear infinite;
+    radial-gradient(circle at 18% 32%, rgba(127, 199, 255, 0.35) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 72% 24%, rgba(217, 204, 255, 0.28) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 42% 78%, rgba(255, 255, 255, 0.24) 0 1px, transparent 1.4px);
+  background-size: 210px 210px, 310px 310px, 270px 270px;
+  animation: cosmicDrift 82s linear infinite;
 }
 
 .cosmic-dust-b {
-  opacity: 0.18;
-  background-size: 320px 320px, 410px 410px, 380px 380px;
-  animation-duration: 68s;
+  opacity: 0.1;
+  background-size: 420px 420px, 520px 520px, 480px 480px;
+  animation-duration: 118s;
   animation-direction: reverse;
 }
 
@@ -242,10 +316,10 @@ button {
   height: var(--star-size);
   border-radius: 999px;
   opacity: var(--star-opacity);
-  background: rgba(246, 248, 255, 0.94);
+  background: rgba(246, 248, 255, 0.72);
   box-shadow:
-    0 0 8px rgba(246, 248, 255, 0.48),
-    0 0 16px rgba(127, 199, 255, 0.22);
+    0 0 6px rgba(246, 248, 255, 0.22),
+    0 0 12px rgba(127, 199, 255, 0.1);
   animation:
     starPulse var(--star-duration) ease-in-out infinite,
     starDrift var(--star-drift-duration) ease-in-out infinite;
@@ -260,8 +334,8 @@ button {
   height: 1px;
   border-radius: 999px;
   opacity: 0;
-  background: linear-gradient(90deg, transparent, rgba(246, 248, 255, 0.95));
-  filter: drop-shadow(0 0 9px rgba(127, 199, 255, 0.72));
+  background: linear-gradient(90deg, transparent, rgba(246, 248, 255, 0.62));
+  filter: drop-shadow(0 0 7px rgba(127, 199, 255, 0.42));
   transform: rotate(var(--meteor-angle));
   animation: meteorRandom var(--meteor-duration) linear infinite;
   animation-delay: var(--meteor-delay);
@@ -275,20 +349,20 @@ button {
   width: 3px;
   height: 3px;
   border-radius: 999px;
-  background: #f6f8ff;
+  background: rgba(246, 248, 255, 0.74);
   box-shadow:
-    0 0 12px rgba(255, 255, 255, 0.82),
-    0 0 24px rgba(127, 199, 255, 0.5);
+    0 0 10px rgba(255, 255, 255, 0.42),
+    0 0 20px rgba(127, 199, 255, 0.24);
   transform: translateY(-50%);
 }
 
 .gallery-progress-fill {
   transform: scaleX(0);
-  animation: galleryProgress 5s linear forwards;
+  animation: galleryProgress 8s linear forwards;
 }
 
 .gallery-ken-burns {
-  animation: galleryKenBurns 8s ease-out forwards;
+  animation: galleryKenBurns 12s ease-out forwards;
 }
 
 .gallery-dust-layer {
@@ -301,7 +375,7 @@ button {
 }
 
 .gallery-info-panel {
-  animation: galleryPanelFloat 560ms ease-out both;
+  animation: galleryPanelFloat 900ms ease-out both;
 }
 
 .gallery-title-shadow {
@@ -313,7 +387,7 @@ button {
 .gallery-panel-copy {
   opacity: 0;
   transform: translateY(10px);
-  animation: galleryCopyIn 620ms ease-out forwards;
+  animation: galleryCopyIn 860ms ease-out forwards;
 }
 
 .gallery-panel-copy:nth-child(3) {
@@ -359,7 +433,7 @@ button {
     transform: scale(1);
   }
   100% {
-    transform: scale(1.065);
+    transform: scale(1.038);
   }
 }
 
@@ -390,14 +464,14 @@ button {
   100% {
     opacity: calc(var(--star-opacity) * 0.42);
     box-shadow:
-      0 0 6px rgba(246, 248, 255, 0.3),
-      0 0 12px rgba(127, 199, 255, 0.14);
+      0 0 5px rgba(246, 248, 255, 0.18),
+      0 0 10px rgba(127, 199, 255, 0.08);
   }
   48% {
     opacity: var(--star-opacity);
     box-shadow:
-      0 0 10px rgba(246, 248, 255, 0.58),
-      0 0 20px rgba(127, 199, 255, 0.26);
+      0 0 8px rgba(246, 248, 255, 0.3),
+      0 0 16px rgba(127, 199, 255, 0.14);
   }
 }
 
@@ -416,7 +490,16 @@ button {
     transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(-80px, 48px, 0);
+    transform: translate3d(-56px, 34px, 0);
+  }
+}
+
+@keyframes nebulaDrift {
+  0% {
+    transform: translate3d(-1.5rem, -0.5rem, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(1.5rem, 1rem, 0) scale(1.1);
   }
 }
 
@@ -437,15 +520,20 @@ button {
 
 @media (max-width: 640px) {
   .cosmic-background {
-    opacity: 0.72;
+    opacity: 0.58;
   }
 
-  .star-particle:nth-child(n + 58) {
+  .cosmic-nebula-drift {
+    animation: none;
+    opacity: 0.42;
+  }
+
+  .star-particle:nth-child(n + 44) {
     display: none;
   }
 
   .meteor-random {
-    width: calc(var(--meteor-length) * 0.72);
+    display: none;
   }
 
   .gallery-description-clamp {
@@ -481,6 +569,12 @@ button {
 
   .meteor-random {
     display: none;
+  }
+
+  .cosmic-nebula-drift,
+  .cosmic-dust,
+  .star-particle {
+    animation: none !important;
   }
 
   .gallery-ken-burns,

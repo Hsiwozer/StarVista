@@ -6,15 +6,16 @@ import type {
 
 export const dailyCosmos: DailyCosmosItem = {
   title: "猎户座大星云 M42",
-  date: "2026 / 06 / 09",
+  date: "2026 / 06 / 10",
   image: "/images/daily-cosmos.png",
   credit: "Mock APOD / Star Archive",
   description:
-    "在猎户座腰带下方，巨大的气体云孕育着年轻恒星。尘埃、氢气与紫外线交织出粉紫色辉光，也让我们看见恒星诞生时的缓慢风暴。",
+    "在猎户座腰带下方，巨大的气体云孕育着年轻恒星。尘埃、氢气与紫外线交织出粉紫色辉光，像一段从过去抵达地球的低声讯息。",
 };
 
 export const articleItems: ArticleItem[] = [
   {
+    archiveId: "ARCHIVE-001",
     title: "太阳系不只是八颗行星",
     category: "太阳系",
     excerpt:
@@ -24,6 +25,7 @@ export const articleItems: ArticleItem[] = [
     image: "/images/ringed-planet.png",
   },
   {
+    archiveId: "ARCHIVE-002",
     title: "恒星为何会有颜色",
     category: "恒星",
     excerpt:
@@ -33,6 +35,7 @@ export const articleItems: ArticleItem[] = [
     image: "/images/emission-nebula.png",
   },
   {
+    archiveId: "ARCHIVE-003",
     title: "星云：宇宙里的慢速天气",
     category: "星云",
     excerpt:
@@ -42,6 +45,7 @@ export const articleItems: ArticleItem[] = [
     image: "/images/daily-cosmos.png",
   },
   {
+    archiveId: "ARCHIVE-004",
     title: "黑洞并不是宇宙吸尘器",
     category: "黑洞",
     excerpt:
@@ -51,6 +55,7 @@ export const articleItems: ArticleItem[] = [
     image: "/images/spiral-galaxy.png",
   },
   {
+    archiveId: "ARCHIVE-005",
     title: "星系如何组织光",
     category: "星系",
     excerpt:
@@ -60,6 +65,7 @@ export const articleItems: ArticleItem[] = [
     image: "/images/spiral-galaxy.png",
   },
   {
+    archiveId: "ARCHIVE-006",
     title: "宇宙起源的第一束光",
     category: "宇宙起源",
     excerpt:
@@ -72,28 +78,39 @@ export const articleItems: ArticleItem[] = [
 
 export const guideItems: GuideItem[] = [
   {
+    manualId: "MANUAL-01",
     title: "新手观星准备",
-    description: "先从肉眼和双筒望远镜开始，熟悉天空比升级设备更重要。",
+    description: "先从肉眼和双筒望远镜开始。熟悉黑夜，比升级设备更重要。",
     details: ["带红光手电", "查看月相", "提前下载离线星图"],
   },
   {
+    manualId: "MANUAL-02",
     title: "避开光污染",
-    description: "城市灯光会淹没暗弱天体，选择郊外高处或暗空保护区更理想。",
+    description: "城市灯光会淹没暗弱天体。真正的星空，往往藏在地图边缘。",
     details: ["远离商业区", "避开满月夜", "给眼睛 20 分钟适应黑暗"],
   },
   {
+    manualId: "MANUAL-03",
     title: "星座识别",
-    description: "从北斗、猎户、天蝎等高辨识度星座入手，再建立季节星空地图。",
+    description: "从北斗、猎户、天蝎入手，把天空慢慢变成熟悉的路径。",
     details: ["先找亮星", "连接主星轮廓", "记录每月同一时间的变化"],
   },
   {
+    manualId: "MANUAL-04",
     title: "望远镜选择",
-    description: "入门优先考虑稳定支架、易用性和实际观测目标，而不只看倍率。",
+    description: "倍率不是答案。稳定、口径与目标，决定你能停留多久。",
     details: ["月面和行星选折射", "深空目标看口径", "预算留给支架"],
   },
   {
+    manualId: "MANUAL-05",
     title: "手机星空摄影",
-    description: "固定手机、降低 ISO、延长曝光，并用延时拍摄记录星轨变化。",
+    description: "让手机保持安静，给传感器一点时间，它也能接住星光。",
     details: ["使用三脚架", "手动对焦到无穷远", "尝试 10-20 秒曝光"],
+  },
+  {
+    manualId: "MANUAL-06",
+    title: "观测安全与天气",
+    description: "一次好的观测，从确认天气、温度和归途开始。",
+    details: ["查看云量和湿度", "准备保暖衣物", "不要独自前往陌生荒野"],
   },
 ];

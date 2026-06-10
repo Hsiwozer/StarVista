@@ -26,6 +26,7 @@ export interface GalleryItem {
 }
 
 export interface ArticleItem {
+  archiveId: string;
   title: string;
   category: string;
   excerpt: string;
@@ -35,6 +36,7 @@ export interface ArticleItem {
 }
 
 export interface GuideItem {
+  manualId: string;
   title: string;
   description: string;
   details: string[];

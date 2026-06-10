@@ -4,9 +4,15 @@ interface RevealProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
+  distance?: "short" | "normal";
 }
 
-export function Reveal({ children, className = "", delay = 0 }: RevealProps) {
+export function Reveal({
+  children,
+  className = "",
+  delay = 0,
+  distance = "normal",
+}: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -33,8 +39,10 @@ export function Reveal({ children, className = "", delay = 0 }: RevealProps) {
   return (
     <div
       ref={ref}
-      className={`${className} transition-all duration-1000 ease-out ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+      className={`${className} transition-all duration-[1400ms] ease-out ${
+        visible
+          ? "translate-y-0 opacity-100"
+          : `${distance === "short" ? "translate-y-4" : "translate-y-8"} opacity-0`
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
