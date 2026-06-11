@@ -14,7 +14,7 @@ export function DailyCosmos() {
         <SectionHeading
           eyebrow="Daily Cosmic Signal"
           title="今日宇宙"
-          description="今日抵达地球的，不只是一张图像，也是一束来自过去的光。"
+          description="今日的信号来自猎户座大星云：尘埃与氢气被年轻恒星照亮，展开一片粉紫色的深空云海。"
         />
       </Reveal>
 

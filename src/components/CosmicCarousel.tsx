@@ -100,24 +100,40 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
       }}
     >
       <div className="absolute inset-0">
-        {items.map((item, index) => (
-          <img
-            key={item.id}
-            src={item.image}
-            alt={`${item.subtitle} - ${item.title}`}
-            loading={index === 0 ? "eager" : "lazy"}
-            onError={(event) => {
-              event.currentTarget.src = "/images/spiral-galaxy.png";
-            }}
-            className={`absolute inset-0 h-full w-full object-cover transition duration-1000 ease-out ${
-              activeIndex === index
-                ? "scale-100 opacity-100 gallery-ken-burns"
-                : "scale-105 opacity-0"
-            }`}
-          />
-        ))}
+        {items.map((item, index) => {
+          const isActive = activeIndex === index;
+
+          return (
+            <div
+              key={item.id}
+              aria-hidden={!isActive}
+              className={`gallery-slide absolute inset-0 ${
+                isActive
+                  ? "gallery-slide-active z-10"
+                  : "gallery-slide-resting z-0"
+              }`}
+            >
+              <img
+                src={item.image}
+                alt={`${item.subtitle} - ${item.title}`}
+                loading={index === 0 ? "eager" : "lazy"}
+                onError={(event) => {
+                  event.currentTarget.src = "/images/spiral-galaxy.png";
+                }}
+                className={`gallery-slide-image h-full w-full object-cover ${
+                  isActive ? "gallery-slide-image-active" : ""
+                }`}
+              />
+            </div>
+          );
+        })}
       </div>
 
+      <div
+        key={`veil-${activeItem.id}`}
+        className="gallery-transition-veil pointer-events-none absolute inset-0 z-10"
+        aria-hidden="true"
+      />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(141,109,255,0.08),transparent_30rem),linear-gradient(90deg,rgba(2,3,10,0.54),transparent_48%),linear-gradient(0deg,rgba(2,3,10,0.9),rgba(2,3,10,0.34)_34%,rgba(2,3,10,0.06)_68%)]" />
       <div
         className="gallery-dust-layer absolute inset-0 opacity-[0.34]"

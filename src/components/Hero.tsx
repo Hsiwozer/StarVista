@@ -46,8 +46,8 @@ export function Hero() {
           alt="紫蓝色星云与深夜星空"
           className="h-full w-full object-cover opacity-72"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_66%_20%,rgba(141,109,255,0.10),transparent_26rem),linear-gradient(90deg,rgba(2,3,10,0.9)_0%,rgba(2,3,10,0.62)_48%,rgba(2,3,10,0.28)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,3,10,0.08)_0%,rgba(2,3,10,0.24)_62%,#02030a_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_66%_20%,rgba(141,109,255,0.10),transparent_26rem),linear-gradient(90deg,rgba(2,3,10,0.92)_0%,rgba(2,3,10,0.64)_48%,rgba(2,3,10,0.3)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,3,10,0.18)_0%,rgba(2,3,10,0.24)_58%,rgba(2,3,10,0.76)_84%,#02030a_100%)]" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl items-center px-5 pb-24 pt-28 sm:pb-28 md:px-8 md:pt-32">
@@ -82,12 +82,12 @@ export function Hero() {
         id="archive-path"
         className="relative z-10 mx-auto max-w-7xl px-5 pb-24 md:px-8 md:pb-32"
       >
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-[1240px] text-center">
           <Reveal distance="short">
             <p className="text-[0.68rem] uppercase tracking-[0.34em] text-galaxy-400/70">
               Archive Route
             </p>
-            <h2 className="mt-4 font-display text-4xl font-medium text-starlight sm:text-5xl md:text-6xl">
+            <h2 className="archive-route-heading mt-4 text-balance font-display text-[clamp(2.5rem,8vw,4.1rem)] font-medium leading-[1.04] text-starlight md:whitespace-nowrap md:text-[clamp(3.5rem,5vw,6rem)] md:leading-[0.98]">
               从地球出发，逐渐进入深空。
             </h2>
           </Reveal>
@@ -96,17 +96,17 @@ export function Hero() {
         <div className="mt-14 grid gap-4 md:grid-cols-5">
           {explorationPath.map((item, index) => (
             <Reveal key={item.id} delay={index * 90} distance="short">
-              <article className="group relative min-h-52 overflow-hidden border-l border-white/[0.08] bg-space-950/[0.18] p-5 transition duration-700 hover:border-galaxy-400/35 hover:bg-space-900/26 md:min-h-72">
-                <span className="font-display text-4xl text-white/16 transition duration-700 group-hover:text-galaxy-400/38">
+              <article className="archive-route-item group relative min-h-52 overflow-hidden border-l border-white/[0.055] bg-transparent p-5 md:min-h-72">
+                <span className="archive-route-scan" aria-hidden="true" />
+                <span className="relative z-10 block font-display text-4xl text-white/16 transition duration-[520ms] ease-out group-hover:translate-x-0.5 group-hover:text-galaxy-400/45">
                   {item.id}
                 </span>
-                <h3 className="mt-10 text-lg font-medium text-starlight/84">
+                <h3 className="relative z-10 mt-10 text-lg font-medium text-starlight/84 transition duration-[520ms] ease-out group-hover:translate-x-1 group-hover:text-starlight/92">
                   {item.title}
                 </h3>
-                <p className="mt-4 text-sm leading-7 text-white/48 transition duration-700 group-hover:text-white/64">
+                <p className="relative z-10 mt-4 text-sm leading-7 text-white/46 transition-colors duration-[520ms] ease-out group-hover:text-white/64">
                   {item.text}
                 </p>
-                <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-galaxy-400/0 via-galaxy-400/70 to-transparent transition-all duration-700 group-hover:w-full" />
               </article>
             </Reveal>
           ))}
