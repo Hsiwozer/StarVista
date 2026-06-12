@@ -11,18 +11,18 @@ export function About() {
               Prologue / Star Archive
             </p>
             <h2 className="font-display text-4xl font-medium leading-tight text-starlight sm:text-5xl md:text-6xl">
-              关于这座档案馆
+              序章
             </h2>
           </div>
 
           <div className="max-w-3xl">
             <Sparkles className="mb-8 text-nebula-300/68" size={28} />
             <p className="font-display text-3xl font-medium leading-snug text-starlight/88 sm:text-4xl">
-              这是一座献给星空、时间与未知的数字档案馆。
+              这是一座记录宇宙信号、深空影像与观测手册的数字档案馆。
             </p>
             <div className="mt-8 space-y-6 text-base leading-8 text-white/58">
               <p>
-                我们收藏深空影像、天文知识与观测者的经验，也收藏人类在宇宙面前短暂而浪漫的停顿。
+                我们收藏深空影像、宇宙档案与观测者的经验，也收藏人类在未知面前短暂的停顿。
               </p>
               <p>
                 深空不是空无一物，而是时间留下的档案。每一束星光，都曾穿过漫长的黑暗，才在此刻抵达眼前。

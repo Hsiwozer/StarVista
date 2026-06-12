@@ -10,15 +10,19 @@ export function Articles() {
       <Reveal>
         <SectionHeading
           eyebrow="Cosmic Archives"
-          title="天文文章"
-          description="我们试图用有限的语言，记录无限宇宙的轮廓。"
+          title="宇宙档案"
+          description="每一条记录都来自黑暗深处。它们不解释宇宙，只保存回声。"
         />
       </Reveal>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {articleItems.map((article, index) => (
           <Reveal key={article.title} delay={index * 60}>
-            <ArchiveCard interactive className="group h-full min-h-[25rem] overflow-hidden p-5 sm:p-6">
+            <ArchiveCard
+              interactive
+              className="group h-full min-h-[25rem] overflow-hidden p-5 sm:p-6"
+            >
+              <span id={article.targetId} className="absolute -top-24" />
               <div className="absolute inset-0 opacity-[0.13] transition duration-700 group-hover:opacity-[0.22]">
                 <img
                   src={article.image}
@@ -34,7 +38,9 @@ export function Articles() {
                     <p className="text-[0.68rem] uppercase tracking-[0.22em] text-galaxy-400/70">
                       {article.archiveId}
                     </p>
-                    <p className="mt-2 text-xs text-white/38">{article.category}</p>
+                    <p className="mt-2 text-xs text-white/38">
+                      {article.category} / {article.status}
+                    </p>
                   </div>
                   <FileText size={18} className="text-white/22 transition duration-700 group-hover:text-galaxy-400/60" />
                 </div>
@@ -53,7 +59,9 @@ export function Articles() {
                       <Clock3 size={14} />
                       {article.readingTime}
                     </span>
-                    <span className="tracking-[0.18em] text-white/28">OBSERVATION NOTE</span>
+                    <span className="tracking-[0.18em] text-white/28">
+                      ARCHIVE RECORD
+                    </span>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2 opacity-80 transition duration-700 group-hover:opacity-100">
                     {article.tags.map((tag) => (

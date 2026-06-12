@@ -12,9 +12,9 @@ export function DailyCosmos() {
     <section id="daily" className="section-shell pt-20 md:pt-28">
       <Reveal>
         <SectionHeading
-          eyebrow="Daily Cosmic Signal"
-          title="今日宇宙"
-          description="今日的信号来自猎户座大星云：尘埃与氢气被年轻恒星照亮，展开一片粉紫色的深空云海。"
+          eyebrow="Daily Signal"
+          title="每日星讯"
+          description="今日抵达的信号来自猎户座。尘埃被年轻恒星照亮，像一页刚显影的深空底片。"
         />
       </Reveal>
 
@@ -31,7 +31,7 @@ export function DailyCosmos() {
               <figcaption className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8">
                 <p className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.28em] text-galaxy-400/80">
                   <Radio size={14} />
-                  Incoming Signal
+                  Signal Received
                 </p>
                 <h3 className="mt-4 max-w-2xl font-display text-4xl font-medium text-starlight sm:text-5xl md:text-6xl">
                   {dailyCosmos.title}
@@ -44,14 +44,14 @@ export function DailyCosmos() {
                   <div>
                     <p className="mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
                       <CalendarDays size={13} />
-                      Signal Date
+                      Received Date
                     </p>
                     <p className="text-sm text-starlight/76">{dailyCosmos.date}</p>
                   </div>
                   <div>
                     <p className="mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
                       <Satellite size={13} />
-                      Source
+                      Archive Source
                     </p>
                     <p className="text-sm text-starlight/76">{dailyCosmos.credit}</p>
                   </div>
@@ -59,7 +59,7 @@ export function DailyCosmos() {
 
                 <div>
                   <p className="text-[0.68rem] uppercase tracking-[0.24em] text-white/34">
-                    Description
+                    Signal Notes
                   </p>
                   <p className="mt-4 text-sm leading-7 text-white/58 md:text-base md:leading-8">
                     {dailyCosmos.description}

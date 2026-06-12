@@ -16,6 +16,7 @@ export interface DailyCosmosItem {
 
 export interface GalleryItem {
   id: number;
+  targetId: string;
   title: string;
   subtitle: string;
   category: GalleryCategory;
@@ -27,8 +28,10 @@ export interface GalleryItem {
 
 export interface ArticleItem {
   archiveId: string;
+  targetId: string;
   title: string;
   category: string;
+  status: string;
   excerpt: string;
   tags: string[];
   readingTime: string;

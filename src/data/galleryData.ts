@@ -3,6 +3,7 @@ import type { GalleryItem } from "../types/content";
 export const galleryItems: GalleryItem[] = [
   {
     id: 1,
+    targetId: "gallery-nebula",
     title: "Orion Nebula",
     subtitle: "猎户座大星云",
     category: "Nebula",
@@ -14,6 +15,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: 2,
+    targetId: "gallery-galaxy",
     title: "Andromeda Galaxy",
     subtitle: "仙女座星系",
     category: "Galaxy",
@@ -25,6 +27,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: 3,
+    targetId: "gallery-moon",
     title: "Lunar Terminator",
     subtitle: "月面晨昏线",
     category: "Moon",
@@ -36,6 +39,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: 4,
+    targetId: "gallery-planet",
     title: "Saturn Rings",
     subtitle: "土星环带",
     category: "Planet",
@@ -47,6 +51,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: 5,
+    targetId: "gallery-black-hole",
     title: "M87 Black Hole",
     subtitle: "M87 星系中心黑洞",
     category: "Black Hole",
@@ -59,6 +64,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: 6,
+    targetId: "gallery-pillars",
     title: "Pillars of Creation",
     subtitle: "创生之柱",
     category: "Deep Sky Object",

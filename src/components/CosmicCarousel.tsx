@@ -27,6 +27,16 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
     [items.length, resetProgress],
   );
 
+  const selectTarget = useCallback(
+    (targetId: string) => {
+      const nextIndex = items.findIndex((item) => item.targetId === targetId);
+      if (nextIndex >= 0) {
+        selectSlide(nextIndex);
+      }
+    },
+    [items, selectSlide],
+  );
+
   const showPrevious = useCallback(() => {
     setActiveIndex((index) => (index - 1 + items.length) % items.length);
     resetProgress();
@@ -62,6 +72,19 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [showNext, showPrevious]);
+
+  useEffect(() => {
+    const onGalleryTarget = (event: Event) => {
+      const { targetId } = (event as CustomEvent<{ targetId?: string }>).detail ?? {};
+      if (targetId) {
+        selectTarget(targetId);
+      }
+    };
+
+    window.addEventListener("star-archive:gallery-target", onGalleryTarget);
+    return () =>
+      window.removeEventListener("star-archive:gallery-target", onGalleryTarget);
+  }, [selectTarget]);
 
   const activeItem = items[activeIndex];
 
@@ -106,6 +129,7 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
           return (
             <div
               key={item.id}
+              id={item.targetId}
               aria-hidden={!isActive}
               className={`gallery-slide absolute inset-0 ${
                 isActive

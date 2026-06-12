@@ -5,32 +5,56 @@ const explorationPath = [
   {
     id: "01",
     title: "地球夜空",
+    destination: "Observer’s Manual",
+    sectionId: "guide",
     text: "从熟悉的黑夜出发，辨认第一颗安静的亮星。",
   },
   {
     id: "02",
     title: "月球与行星",
+    destination: "Deep Space Gallery",
+    sectionId: "gallery",
+    targetId: "gallery-moon",
     text: "近处的光，有山脉、环带与缓慢移动的轨道。",
   },
   {
     id: "03",
     title: "星云与恒星诞生",
-    text: "尘埃发光，年轻恒星在深处点亮第一阵风。",
+    destination: "Deep Space Gallery",
+    sectionId: "gallery",
+    targetId: "gallery-nebula",
+    text: "尘埃发光，年轻恒星在深处点亮第一束风。",
   },
   {
     id: "04",
     title: "星系与深空",
+    destination: "Cosmic Archives",
+    sectionId: "articles",
     text: "光年之外，旋臂把时间整理成巨大的档案。",
   },
   {
     id: "05",
     title: "黑洞与未知宇宙",
+    destination: "Deep Space Gallery",
+    sectionId: "gallery",
+    targetId: "gallery-black-hole",
     text: "在看不见的边界，宇宙保留最后的沉默。",
   },
 ];
 
-function scrollToSection(id: string) {
+function signalGalleryTarget(targetId?: string) {
+  if (!targetId) {
+    return;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent("star-archive:gallery-target", { detail: { targetId } }),
+  );
+}
+
+function scrollToSection(id: string, targetId?: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  signalGalleryTarget(targetId);
 }
 
 export function Hero() {
@@ -53,7 +77,7 @@ export function Hero() {
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl items-center px-5 pb-24 pt-28 sm:pb-28 md:px-8 md:pt-32">
         <div className="w-full max-w-3xl animate-float-in">
           <p className="mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-galaxy-400/80 sm:text-xs sm:tracking-[0.48em]">
-            Deep Space Archive
+            Cosmic Signal Archive
           </p>
           <h1 className="font-display text-6xl font-medium leading-[0.94] text-starlight sm:text-7xl md:text-8xl lg:text-9xl">
             星空档案馆
@@ -62,7 +86,7 @@ export function Hero() {
             </span>
           </h1>
           <p className="mt-7 max-w-2xl text-base leading-8 tracking-[0.14em] text-white/66 sm:mt-8 md:text-xl">
-            在寂静之外，宇宙正在低语。
+            在黑暗中，宇宙并非沉默。
           </p>
           <button
             type="button"
@@ -88,7 +112,7 @@ export function Hero() {
               Archive Route
             </p>
             <h2 className="archive-route-heading mt-4 text-balance font-display text-[clamp(2.5rem,8vw,4.1rem)] font-medium leading-[1.04] text-starlight md:whitespace-nowrap md:text-[clamp(3.5rem,5vw,6rem)] md:leading-[0.98]">
-              从地球出发，逐渐进入深空。
+              从地球出发，沿信号进入深空。
             </h2>
           </Reveal>
         </div>
@@ -96,18 +120,26 @@ export function Hero() {
         <div className="mt-14 grid gap-4 md:grid-cols-5">
           {explorationPath.map((item, index) => (
             <Reveal key={item.id} delay={index * 90} distance="short">
-              <article className="archive-route-item group relative min-h-52 overflow-hidden border-l border-white/[0.055] bg-transparent p-5 md:min-h-72">
+              <button
+                type="button"
+                onClick={() => scrollToSection(item.sectionId, item.targetId)}
+                className="archive-route-item group relative min-h-52 w-full overflow-hidden border-l border-white/[0.055] bg-transparent p-5 text-left focus:outline-none focus:ring-2 focus:ring-galaxy-400/36 md:min-h-72"
+                aria-label={`打开${item.title}，前往 ${item.destination}`}
+              >
                 <span className="archive-route-scan" aria-hidden="true" />
                 <span className="relative z-10 block font-display text-4xl text-white/16 transition duration-[520ms] ease-out group-hover:translate-x-0.5 group-hover:text-galaxy-400/45">
                   {item.id}
                 </span>
-                <h3 className="relative z-10 mt-10 text-lg font-medium text-starlight/84 transition duration-[520ms] ease-out group-hover:translate-x-1 group-hover:text-starlight/92">
+                <span className="relative z-10 mt-8 block text-[0.62rem] uppercase tracking-[0.2em] text-galaxy-400/34 transition duration-[520ms] ease-out group-hover:text-galaxy-400/68">
+                  {item.destination}
+                </span>
+                <h3 className="relative z-10 mt-3 text-lg font-medium text-starlight/84 transition duration-[520ms] ease-out group-hover:translate-x-1 group-hover:text-starlight/92">
                   {item.title}
                 </h3>
                 <p className="relative z-10 mt-4 text-sm leading-7 text-white/46 transition-colors duration-[520ms] ease-out group-hover:text-white/64">
                   {item.text}
                 </p>
-              </article>
+              </button>
             </Reveal>
           ))}
         </div>

@@ -17,7 +17,7 @@ export function Guide() {
             观测手册
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/58 md:text-base">
-            仰望星空之前，先学会在黑暗中等待。
+            进入夜色，确认方向，等待眼睛学会看见。
           </p>
         </div>
       </Reveal>

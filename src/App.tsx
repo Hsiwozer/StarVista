@@ -9,7 +9,7 @@ import { CosmicBackground } from "./components/CosmicBackground";
 
 function App() {
   return (
-    <main className="relative isolate min-h-screen overflow-hidden bg-space-950 text-starlight">
+    <main className="app-shell relative isolate min-h-screen overflow-hidden bg-space-950 text-starlight">
       <CosmicBackground fixed quiet />
       <NavBar />
       <div className="relative z-10">
