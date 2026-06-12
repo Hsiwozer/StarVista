@@ -12,6 +12,30 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@property --hero-nebula-x {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --hero-nebula-y {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --hero-dust-x {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --hero-dust-y {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 html {
   scroll-behavior: smooth;
   background: #02030a;
@@ -160,6 +184,265 @@ button {
   .cosmic-button-primary:hover {
     border-color: rgba(127, 199, 255, 0.56);
     background: rgba(58, 167, 255, 0.1);
+  }
+
+  .hero-shell {
+    --hero-nebula-x: 0px;
+    --hero-nebula-y: 0px;
+    --hero-dust-x: 0px;
+    --hero-dust-y: 0px;
+    transition:
+      --hero-nebula-x 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      --hero-nebula-y 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      --hero-dust-x 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      --hero-dust-y 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-nebula-image {
+    position: absolute;
+    inset: -3%;
+    max-width: none;
+    height: 106%;
+    width: 106%;
+    transform: translate3d(var(--hero-nebula-x), var(--hero-nebula-y), 0)
+      scale(1.035);
+    transform-origin: 52% 42%;
+    animation: heroNebulaBreath 48s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .hero-stardust,
+  .hero-meteor {
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .hero-stardust {
+    inset: -5%;
+    mix-blend-mode: screen;
+    transform: translate3d(var(--hero-dust-x), var(--hero-dust-y), 0);
+    will-change: transform, opacity, background-position;
+  }
+
+  .hero-stardust-a {
+    --hero-dust-opacity: 0.2;
+    opacity: var(--hero-dust-opacity);
+    background-image:
+      radial-gradient(circle at 14% 28%, rgba(246, 248, 255, 0.36) 0 1px, transparent 1.35px),
+      radial-gradient(circle at 62% 18%, rgba(127, 199, 255, 0.26) 0 1px, transparent 1.4px),
+      radial-gradient(circle at 82% 66%, rgba(181, 156, 255, 0.22) 0 1px, transparent 1.35px);
+    background-size: 190px 190px, 280px 280px, 340px 340px;
+    animation: heroDustFloat 64s linear infinite;
+  }
+
+  .hero-stardust-b {
+    --hero-dust-opacity: 0.12;
+    opacity: var(--hero-dust-opacity);
+    background-image:
+      radial-gradient(circle at 24% 72%, rgba(127, 199, 255, 0.28) 0 1px, transparent 1.3px),
+      radial-gradient(circle at 70% 42%, rgba(246, 248, 255, 0.22) 0 1px, transparent 1.25px),
+      radial-gradient(circle at 44% 18%, rgba(181, 156, 255, 0.18) 0 1px, transparent 1.3px);
+    background-size: 360px 360px, 460px 460px, 520px 520px;
+    animation: heroDustFloat 92s linear infinite reverse;
+  }
+
+  .hero-meteor {
+    left: -12%;
+    top: 18%;
+    z-index: 1;
+    height: 1px;
+    width: 8.5rem;
+    border-radius: 999px;
+    opacity: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(127, 199, 255, 0.08),
+      rgba(246, 248, 255, 0.42)
+    );
+    filter: drop-shadow(0 0 6px rgba(127, 199, 255, 0.18));
+    transform: rotate(21deg) translate3d(-14vw, 0, 0);
+    animation: heroMeteorPass 16s linear infinite;
+  }
+
+  .hero-meteor::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    width: 2px;
+    border-radius: 999px;
+    background: rgba(246, 248, 255, 0.52);
+    box-shadow:
+      0 0 8px rgba(246, 248, 255, 0.22),
+      0 0 14px rgba(127, 199, 255, 0.14);
+    transform: translateY(-50%);
+  }
+
+  .hero-title {
+    position: relative;
+    isolation: isolate;
+    width: fit-content;
+    text-shadow:
+      0 2px 24px rgba(2, 3, 10, 0.72),
+      0 0 34px rgba(127, 199, 255, 0.06);
+    transition: text-shadow 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-title-line {
+    --hero-title-base: rgba(246, 248, 255, 0.98);
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: fit-content;
+    color: var(--hero-title-base);
+  }
+
+  .hero-title-line-secondary {
+    --hero-title-base: rgba(255, 255, 255, 0.84);
+  }
+
+  .hero-title-stars {
+    pointer-events: none;
+    position: absolute;
+    inset: -1rem -1.5rem;
+    z-index: 1;
+    overflow: visible;
+  }
+
+  .hero-title-star {
+    position: absolute;
+    left: var(--star-x);
+    top: var(--star-y);
+    width: var(--star-size);
+    height: var(--star-size);
+    border-radius: 999px;
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.65);
+    will-change: opacity, transform;
+  }
+
+  .hero-title-star-white {
+    background: rgba(246, 248, 255, 0.9);
+    box-shadow:
+      0 0 6px rgba(246, 248, 255, 0.22),
+      0 0 12px rgba(127, 199, 255, 0.08);
+  }
+
+  .hero-title-star-blue {
+    background: rgba(127, 199, 255, 0.82);
+    box-shadow:
+      0 0 6px rgba(127, 199, 255, 0.2),
+      0 0 12px rgba(58, 167, 255, 0.08);
+  }
+
+  .hero-title-star-purple {
+    background: rgba(217, 204, 255, 0.82);
+    box-shadow:
+      0 0 6px rgba(181, 156, 255, 0.18),
+      0 0 12px rgba(141, 109, 255, 0.08);
+  }
+
+  .hero-entry-button {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+      transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      background 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-entry-button::before,
+  .hero-entry-button::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+  }
+
+  .hero-entry-button::before {
+    right: 2.35rem;
+    top: 50%;
+    height: 1.6rem;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(127, 199, 255, 0.32),
+      transparent
+    );
+    transform: translate3d(0, -1.15rem, 0);
+    transition:
+      opacity 560ms ease,
+      transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-entry-button::after {
+    left: 1rem;
+    right: 1rem;
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(127, 199, 255, 0.2),
+      rgba(181, 156, 255, 0.18),
+      transparent
+    );
+    transform: translateX(-120%);
+    transition:
+      opacity 520ms ease,
+      transform 1050ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-entry-button:hover,
+  .hero-entry-button:focus-visible {
+    border-color: rgba(127, 199, 255, 0.42);
+    background: rgba(2, 3, 10, 0.48);
+    box-shadow:
+      0 0 18px rgba(58, 167, 255, 0.09),
+      0 0 28px rgba(141, 109, 255, 0.065),
+      0 18px 42px rgba(2, 3, 10, 0.32);
+  }
+
+  .hero-entry-button:hover::before,
+  .hero-entry-button:focus-visible::before {
+    opacity: 0.62;
+    transform: translate3d(0, -0.45rem, 0);
+  }
+
+  .hero-entry-button:hover::after,
+  .hero-entry-button:focus-visible::after {
+    opacity: 0.78;
+    transform: translateX(120%);
+  }
+
+  .hero-entry-arrow {
+    filter: drop-shadow(0 0 0 rgba(127, 199, 255, 0));
+  }
+
+  .hero-entry-button:hover .hero-entry-arrow,
+  .hero-entry-button:focus-visible .hero-entry-arrow {
+    filter: drop-shadow(0 0 7px rgba(127, 199, 255, 0.18));
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .hero-title:hover {
+      text-shadow:
+        0 2px 24px rgba(2, 3, 10, 0.72),
+        0 0 18px rgba(127, 199, 255, 0.1),
+        0 0 26px rgba(181, 156, 255, 0.06);
+    }
+
+    .hero-title:hover .hero-title-star {
+      animation: heroTitleStarDrift 1700ms cubic-bezier(0.16, 1, 0.3, 1)
+        both;
+      animation-delay: var(--star-delay);
+    }
   }
 
   .cosmic-button-secondary {
@@ -322,107 +605,199 @@ button {
 
   .archive-route-item {
     isolation: isolate;
-    transition: border-color 560ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: border-color 620ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .archive-route-item::before,
   .archive-route-item::after,
-  .archive-route-scan {
+  .archive-route-scan,
+  .archive-route-axis {
     content: "";
     pointer-events: none;
     position: absolute;
   }
 
   .archive-route-item::before {
-    left: -1px;
-    top: 2rem;
-    z-index: 2;
-    width: 1px;
-    height: 5.25rem;
+    inset: -18% -16% -8% -10%;
+    z-index: 0;
     opacity: 0;
-    background: linear-gradient(
-      180deg,
-      transparent,
-      rgba(127, 199, 255, 0.24),
-      rgba(181, 156, 255, 0.66),
-      transparent
-    );
-    transform: scaleY(0.28);
-    transform-origin: top;
+    background:
+      radial-gradient(circle at 12% 28%, rgba(127, 199, 255, 0.105), transparent 15rem),
+      radial-gradient(circle at 78% 62%, rgba(141, 109, 255, 0.075), transparent 13rem),
+      linear-gradient(105deg, transparent 18%, rgba(8, 14, 34, 0.28), transparent 76%);
+    transform: translate3d(-8px, 6px, 0) scale(0.98);
     transition:
-      opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 560ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 860ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .archive-route-item::after {
     left: 1.25rem;
     right: 1.25rem;
-    bottom: 1.35rem;
+    bottom: 1.25rem;
     z-index: 2;
     height: 1px;
     opacity: 0;
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(127, 199, 255, 0.42),
-      rgba(181, 156, 255, 0.34),
+      rgba(95, 142, 214, 0.16) 18%,
+      rgba(181, 156, 255, 0.38) 52%,
+      rgba(127, 199, 255, 0.2) 78%,
       transparent
     );
-    transform: scaleX(0.08);
+    transform: scaleX(0);
     transform-origin: left;
     transition:
-      opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 860ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .archive-route-scan {
-    inset: 1rem 1.1rem;
+    inset: 1rem;
     z-index: 0;
     opacity: 0;
     background-image:
-      radial-gradient(circle at 16% 22%, rgba(127, 199, 255, 0.28) 0 1px, transparent 1.4px),
-      radial-gradient(circle at 76% 34%, rgba(181, 156, 255, 0.2) 0 1px, transparent 1.4px),
-      radial-gradient(circle at 38% 72%, rgba(246, 248, 255, 0.18) 0 1px, transparent 1.4px),
-      linear-gradient(105deg, transparent 18%, rgba(127, 199, 255, 0.035) 48%, transparent 72%);
-    background-position: 0 0, 0 0, 0 0, -36% 0;
-    background-size: 132px 132px, 176px 176px, 154px 154px, 160% 100%;
+      radial-gradient(circle at 18% 24%, rgba(127, 199, 255, 0.15) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 76% 36%, rgba(181, 156, 255, 0.13) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 42% 74%, rgba(246, 248, 255, 0.1) 0 1px, transparent 1.4px),
+      linear-gradient(100deg, transparent 14%, rgba(127, 199, 255, 0.024) 48%, transparent 74%);
+    background-position: 0 0, 0 0, 0 0, -42% 0;
+    background-size: 142px 142px, 186px 186px, 164px 164px, 170% 100%;
     mix-blend-mode: screen;
-    transform: translate3d(-4px, 4px, 0);
+    transform: translate3d(-5px, 4px, 0);
+    transition:
+      opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1200ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-position 1500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .archive-route-axis {
+    left: -1px;
+    top: 2rem;
+    z-index: 2;
+    width: 1px;
+    height: 5.5rem;
+    opacity: 0.16;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(127, 199, 255, 0.24),
+      rgba(181, 156, 255, 0.32),
+      transparent
+    );
+    transform: scaleY(0.72);
+    transform-origin: top;
     transition:
       opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 1200ms cubic-bezier(0.22, 1, 0.36, 1),
-      background-position 1600ms cubic-bezier(0.22, 1, 0.36, 1);
+      transform 780ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .archive-route-index,
+  .archive-route-label,
+  .archive-route-title,
+  .archive-route-copy {
+    transition:
+      color 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 680ms cubic-bezier(0.22, 1, 0.36, 1),
+      text-shadow 680ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .archive-route-index {
+    color: rgba(246, 248, 255, 0.15);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .archive-route-label {
+    color: rgba(127, 199, 255, 0.34);
+    transform: translate3d(0, 2px, 0);
+  }
+
+  .archive-route-title {
+    color: rgba(246, 248, 255, 0.78);
+    transform: translate3d(0, 1px, 0);
+  }
+
+  .archive-route-copy {
+    color: rgba(255, 255, 255, 0.44);
+    transform: translate3d(0, 2px, 0);
   }
 
   .archive-route-item:hover,
   .archive-route-item:focus-within,
-  .archive-route-item:focus-visible {
-    border-color: rgba(127, 199, 255, 0.18);
+  .archive-route-item:focus-visible,
+  .archive-route-item:active {
+    border-color: rgba(127, 199, 255, 0.13);
   }
 
   .archive-route-item:hover::before,
   .archive-route-item:focus-within::before,
-  .archive-route-item:focus-visible::before {
-    opacity: 0.86;
-    transform: scaleY(1);
-    filter: drop-shadow(0 0 7px rgba(127, 199, 255, 0.24))
-      drop-shadow(0 0 12px rgba(141, 109, 255, 0.14));
+  .archive-route-item:focus-visible::before,
+  .archive-route-item:active::before {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   .archive-route-item:hover::after,
   .archive-route-item:focus-within::after,
-  .archive-route-item:focus-visible::after {
-    opacity: 0.58;
+  .archive-route-item:focus-visible::after,
+  .archive-route-item:active::after {
+    opacity: 0.72;
     transform: scaleX(1);
   }
 
   .archive-route-item:hover .archive-route-scan,
   .archive-route-item:focus-within .archive-route-scan,
-  .archive-route-item:focus-visible .archive-route-scan {
-    opacity: 0.46;
-    background-position: 10px -8px, -8px 10px, 6px 6px, 96% 0;
+  .archive-route-item:focus-visible .archive-route-scan,
+  .archive-route-item:active .archive-route-scan {
+    opacity: 0.34;
+    background-position: 8px -6px, -7px 9px, 5px 5px, 92% 0;
     transform: translate3d(0, 0, 0);
+  }
+
+  .archive-route-item:hover .archive-route-axis,
+  .archive-route-item:focus-within .archive-route-axis,
+  .archive-route-item:focus-visible .archive-route-axis,
+  .archive-route-item:active .archive-route-axis {
+    opacity: 0.7;
+    transform: scaleY(1);
+    filter: drop-shadow(0 0 5px rgba(127, 199, 255, 0.18))
+      drop-shadow(0 0 10px rgba(141, 109, 255, 0.1));
+  }
+
+  .archive-route-item:hover .archive-route-index,
+  .archive-route-item:focus-within .archive-route-index,
+  .archive-route-item:focus-visible .archive-route-index,
+  .archive-route-item:active .archive-route-index {
+    color: rgba(246, 248, 255, 0.76);
+    text-shadow: 0 0 14px rgba(127, 199, 255, 0.14);
+    transform: translate3d(1px, 0, 0) scale(1.035);
+  }
+
+  .archive-route-item:hover .archive-route-label,
+  .archive-route-item:focus-within .archive-route-label,
+  .archive-route-item:focus-visible .archive-route-label,
+  .archive-route-item:active .archive-route-label {
+    color: rgba(127, 199, 255, 0.62);
+    transform: translate3d(2px, 0, 0);
+  }
+
+  .archive-route-item:hover .archive-route-title,
+  .archive-route-item:focus-within .archive-route-title,
+  .archive-route-item:focus-visible .archive-route-title,
+  .archive-route-item:active .archive-route-title {
+    color: rgba(246, 248, 255, 0.92);
+    transform: translate3d(2px, -2px, 0);
+  }
+
+  .archive-route-item:hover .archive-route-copy,
+  .archive-route-item:focus-within .archive-route-copy,
+  .archive-route-item:focus-visible .archive-route-copy,
+  .archive-route-item:active .archive-route-copy {
+    color: rgba(255, 255, 255, 0.62);
+    transform: translate3d(2px, -1px, 0);
   }
 }
 
@@ -434,6 +809,86 @@ button {
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes heroNebulaBreath {
+  0% {
+    transform: translate3d(
+        calc(var(--hero-nebula-x) - 0.22%),
+        calc(var(--hero-nebula-y) - 0.16%),
+        0
+      )
+      scale(1.035);
+  }
+  48% {
+    transform: translate3d(
+        calc(var(--hero-nebula-x) + 0.34%),
+        calc(var(--hero-nebula-y) + 0.18%),
+        0
+      )
+      scale(1.052);
+  }
+  100% {
+    transform: translate3d(
+        calc(var(--hero-nebula-x) - 0.08%),
+        calc(var(--hero-nebula-y) + 0.42%),
+        0
+      )
+      scale(1.06);
+  }
+}
+
+@keyframes heroDustFloat {
+  0%,
+  100% {
+    opacity: var(--hero-dust-opacity, 0.18);
+    background-position: 0 0, 0 0, 0 0;
+    transform: translate3d(var(--hero-dust-x), var(--hero-dust-y), 0);
+  }
+  50% {
+    opacity: calc(var(--hero-dust-opacity, 0.18) + 0.04);
+    background-position: 18px -14px, -16px 12px, 10px 16px;
+    transform: translate3d(
+      calc(var(--hero-dust-x) + 10px),
+      calc(var(--hero-dust-y) - 6px),
+      0
+    );
+  }
+}
+
+@keyframes heroMeteorPass {
+  0%,
+  72% {
+    opacity: 0;
+    transform: rotate(21deg) translate3d(-14vw, 0, 0);
+  }
+  76% {
+    opacity: 0.42;
+  }
+  84%,
+  100% {
+    opacity: 0;
+    transform: rotate(21deg) translate3d(72vw, 28vh, 0);
+  }
+}
+
+@keyframes heroTitleStarDrift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.65);
+  }
+  24% {
+    opacity: 0.72;
+    transform: translate3d(0, 0, 0) scale(0.82);
+  }
+  62% {
+    opacity: 0.42;
+    transform: translate3d(var(--star-mid-x), var(--star-mid-y), 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--star-dx), var(--star-dy), 0) scale(0.9);
   }
 }
 
@@ -750,6 +1205,20 @@ button {
 }
 
 @media (max-width: 640px) {
+  .hero-nebula-image {
+    animation-duration: 68s;
+  }
+
+  .hero-stardust-a {
+    --hero-dust-opacity: 0.12;
+    background-size: 240px 240px, 360px 360px, 420px 420px;
+  }
+
+  .hero-stardust-b,
+  .hero-meteor {
+    display: none;
+  }
+
   .cosmic-background {
     opacity: 0.58;
   }
@@ -800,6 +1269,24 @@ button {
 
   .meteor-random {
     display: none;
+  }
+
+  .hero-meteor {
+    display: none;
+  }
+
+  .hero-nebula-image {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) scale(1.035) !important;
+  }
+
+  .hero-stardust {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .hero-title:hover .hero-title-star {
+    animation: none !important;
   }
 
   .cosmic-nebula-drift,
