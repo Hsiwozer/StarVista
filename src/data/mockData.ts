@@ -1,16 +1,4 @@
-import type {
-  ArticleItem,
-  DailyCosmosItem,
-} from "../types/content";
-
-export const dailyCosmos: DailyCosmosItem = {
-  title: "猎户座大星云 M42",
-  date: "2026 / 06 / 10",
-  image: "/images/daily-cosmos.png",
-  credit: "Mock APOD / Star Archive",
-  description:
-    "在猎户座腰带下方，尘埃、氢气与年轻恒星互相照亮。一束来自过去的光，今日抵达档案馆。",
-};
+import type { ArticleItem } from "../types/content";
 
 export const articleItems: ArticleItem[] = [
   {

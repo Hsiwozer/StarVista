@@ -467,6 +467,63 @@ button {
     text-shadow: 0 0 18px rgba(58, 167, 255, 0.34);
   }
 
+  .daily-signal-card {
+    transform: translateY(0);
+  }
+
+  .daily-signal-card:hover,
+  .daily-signal-card:focus-within {
+    transform: translateY(-4px);
+  }
+
+  .daily-signal-scan,
+  .daily-signal-dust {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    opacity: 0.34;
+  }
+
+  .daily-signal-scan {
+    border-radius: inherit;
+    background:
+      linear-gradient(90deg, transparent, rgba(127, 199, 255, 0.12), transparent),
+      linear-gradient(180deg, rgba(246, 248, 255, 0.08), transparent 18%, transparent 82%, rgba(141, 109, 255, 0.08));
+    background-position: -130% 0, 0 0;
+    background-size: 180% 100%, 100% 100%;
+    mix-blend-mode: screen;
+    animation: dailySignalScan 9s ease-in-out infinite;
+  }
+
+  .daily-signal-dust {
+    opacity: 0;
+    background-image:
+      radial-gradient(circle at 18% 32%, rgba(246, 248, 255, 0.34) 0 1px, transparent 1.25px),
+      radial-gradient(circle at 78% 22%, rgba(127, 199, 255, 0.28) 0 1px, transparent 1.25px),
+      radial-gradient(circle at 62% 78%, rgba(181, 156, 255, 0.24) 0 1px, transparent 1.2px);
+    background-size: 190px 190px, 260px 260px, 330px 330px;
+    mix-blend-mode: screen;
+    transition:
+      opacity 760ms ease,
+      transform 980ms ease;
+  }
+
+  .daily-signal-card:hover .daily-signal-dust,
+  .daily-signal-card:focus-within .daily-signal-dust {
+    opacity: 0.34;
+    transform: scale(1.015);
+  }
+
+  .daily-media {
+    filter: saturate(0.92) contrast(1.03);
+    transform: scale(1.018);
+  }
+
+  .daily-media-ready {
+    animation: dailyMediaArrival 980ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .cosmic-filter-button {
     @apply rounded-full border px-5 py-2 text-sm transition focus:outline-none;
     box-shadow: 0 0 0 rgba(58, 167, 255, 0);
@@ -889,6 +946,38 @@ button {
   100% {
     opacity: 0;
     transform: translate3d(var(--star-dx), var(--star-dy), 0) scale(0.9);
+  }
+}
+
+@keyframes dailySignalScan {
+  0%,
+  18% {
+    background-position: -130% 0, 0 0;
+    opacity: 0.18;
+  }
+
+  46% {
+    opacity: 0.4;
+  }
+
+  72%,
+  100% {
+    background-position: 130% 0, 0 0;
+    opacity: 0.2;
+  }
+}
+
+@keyframes dailyMediaArrival {
+  0% {
+    opacity: 0;
+    transform: scale(1.055);
+    filter: blur(10px) saturate(0.76);
+  }
+
+  100% {
+    opacity: 0.9;
+    transform: scale(1.018);
+    filter: blur(0) saturate(0.92) contrast(1.03);
   }
 }
 

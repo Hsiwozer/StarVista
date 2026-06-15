@@ -6,14 +6,6 @@ export type GalleryCategory =
   | "Black Hole"
   | "Deep Sky Object";
 
-export interface DailyCosmosItem {
-  title: string;
-  date: string;
-  image: string;
-  credit: string;
-  description: string;
-}
-
 export interface GalleryItem {
   id: number;
   targetId: string;
