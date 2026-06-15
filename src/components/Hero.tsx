@@ -1,5 +1,6 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useRef } from "react";
+import { ArrowDown } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 const explorationPath = [
@@ -58,15 +59,12 @@ interface HeroTitleParticle {
 }
 
 type TitleParticleStyle = CSSProperties & Record<`--${string}`, string>;
-type ConstellationPointStyle = CSSProperties & Record<`--${string}`, string>;
 
 const heroParallaxStyle: HeroParallaxStyle = {
   "--hero-nebula-x": "0px",
   "--hero-nebula-y": "0px",
   "--hero-dust-x": "0px",
   "--hero-dust-y": "0px",
-  "--hero-near-x": "0px",
-  "--hero-near-y": "0px",
 };
 
 const heroTitleParticles: HeroTitleParticle[] = [
@@ -90,54 +88,6 @@ const heroTitleParticles: HeroTitleParticle[] = [
   { id: 18, x: 90, y: 64, dx: 24, dy: 8, size: 1, delay: 90, color: "blue" },
 ];
 
-const constellationPoints = [
-  {
-    id: "gallery",
-    label: "星空图库",
-    destination: "Deep Space Gallery",
-    sectionId: "gallery",
-    x: 16,
-    y: 66,
-    size: "sm",
-  },
-  {
-    id: "daily",
-    label: "深空影像",
-    destination: "Daily Signal",
-    sectionId: "daily",
-    x: 33,
-    y: 38,
-    size: "lg",
-  },
-  {
-    id: "articles",
-    label: "天文文章",
-    destination: "Cosmic Archives",
-    sectionId: "articles",
-    x: 52,
-    y: 55,
-    size: "md",
-  },
-  {
-    id: "guide",
-    label: "观星指南",
-    destination: "Observer’s Manual",
-    sectionId: "guide",
-    x: 69,
-    y: 29,
-    size: "lg",
-  },
-  {
-    id: "about",
-    label: "宇宙展厅",
-    destination: "Star Archive",
-    sectionId: "about",
-    x: 84,
-    y: 63,
-    size: "sm",
-  },
-];
-
 function signalGalleryTarget(targetId?: string) {
   if (!targetId) {
     return;
@@ -155,19 +105,10 @@ function scrollToSection(id: string, targetId?: string) {
 
 export function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
-  const titleRef = useRef<HTMLHeadingElement | null>(null);
   const parallaxFrameRef = useRef<number | null>(null);
-  const titleFrameRef = useRef<number | null>(null);
 
   const setHeroParallax = useCallback(
-    (
-      nebulaX: string,
-      nebulaY: string,
-      dustX: string,
-      dustY: string,
-      nearX: string,
-      nearY: string,
-    ) => {
+    (nebulaX: string, nebulaY: string, dustX: string, dustY: string) => {
       const hero = heroRef.current;
 
       if (!hero) {
@@ -178,8 +119,6 @@ export function Hero() {
       hero.style.setProperty("--hero-nebula-y", nebulaY);
       hero.style.setProperty("--hero-dust-x", dustX);
       hero.style.setProperty("--hero-dust-y", dustY);
-      hero.style.setProperty("--hero-near-x", nearX);
-      hero.style.setProperty("--hero-near-y", nearY);
     },
     [],
   );
@@ -207,8 +146,6 @@ export function Hero() {
           `${offsetY * -8}px`,
           `${offsetX * 12}px`,
           `${offsetY * 10}px`,
-          `${offsetX * 20}px`,
-          `${offsetY * 16}px`,
         );
         parallaxFrameRef.current = null;
       });
@@ -222,49 +159,13 @@ export function Hero() {
       parallaxFrameRef.current = null;
     }
 
-    setHeroParallax("0px", "0px", "0px", "0px", "0px", "0px");
+    setHeroParallax("0px", "0px", "0px", "0px");
   }, [setHeroParallax]);
-
-  const handleTitleMouseMove = useCallback(
-    (event: ReactMouseEvent<HTMLHeadingElement>) => {
-      if (
-        typeof window === "undefined" ||
-        !window.matchMedia("(hover: hover) and (pointer: fine)").matches
-      ) {
-        return;
-      }
-
-      const rect = event.currentTarget.getBoundingClientRect();
-      const cursorX = ((event.clientX - rect.left) / rect.width) * 100;
-      const cursorY = ((event.clientY - rect.top) / rect.height) * 100;
-
-      if (titleFrameRef.current !== null) {
-        window.cancelAnimationFrame(titleFrameRef.current);
-      }
-
-      titleFrameRef.current = window.requestAnimationFrame(() => {
-        const title = titleRef.current;
-
-        if (!title) {
-          return;
-        }
-
-        title.style.setProperty("--title-cursor-x", `${cursorX}%`);
-        title.style.setProperty("--title-cursor-y", `${cursorY}%`);
-        titleFrameRef.current = null;
-      });
-    },
-    [],
-  );
 
   useEffect(() => {
     return () => {
       if (parallaxFrameRef.current !== null) {
         window.cancelAnimationFrame(parallaxFrameRef.current);
-      }
-
-      if (titleFrameRef.current !== null) {
-        window.cancelAnimationFrame(titleFrameRef.current);
       }
     };
   }, []);
@@ -287,7 +188,6 @@ export function Hero() {
         />
         <div className="hero-stardust hero-stardust-a" aria-hidden="true" />
         <div className="hero-stardust hero-stardust-b" aria-hidden="true" />
-        <div className="hero-near-stars" aria-hidden="true" />
         <div className="hero-meteor" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_66%_20%,rgba(141,109,255,0.10),transparent_26rem),linear-gradient(90deg,rgba(2,3,10,0.92)_0%,rgba(2,3,10,0.64)_48%,rgba(2,3,10,0.3)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,3,10,0.18)_0%,rgba(2,3,10,0.24)_58%,rgba(2,3,10,0.76)_84%,#02030a_100%)]" />
@@ -298,11 +198,7 @@ export function Hero() {
           <p className="mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-galaxy-400/80 sm:text-xs sm:tracking-[0.48em]">
             Cosmic Signal Archive
           </p>
-          <h1
-            ref={titleRef}
-            className="hero-title hero-title-awakening font-display text-6xl font-medium leading-[0.94] text-starlight sm:text-7xl md:text-8xl lg:text-9xl"
-            onMouseMove={handleTitleMouseMove}
-          >
+          <h1 className="hero-title font-display text-6xl font-medium leading-[0.94] text-starlight sm:text-7xl md:text-8xl lg:text-9xl">
             <span className="hero-title-line">
               星空档案馆
             </span>
@@ -331,52 +227,21 @@ export function Hero() {
                 );
               })}
             </span>
-            <span className="hero-title-links" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </span>
-            <span className="hero-title-scanline" aria-hidden="true" />
           </h1>
           <p className="mt-7 max-w-2xl text-base leading-8 tracking-[0.14em] text-white/66 sm:mt-8 md:text-xl">
             在黑暗中，宇宙并非沉默。
           </p>
-          <div className="constellation-nav mt-12" aria-label="星图导航仪">
-            <svg
-              className="constellation-lines"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <polyline points="16,66 33,38 52,55 69,29 84,63" />
-              <line x1="33" y1="38" x2="69" y2="29" />
-              <line x1="52" y1="55" x2="84" y2="63" />
-            </svg>
-            {constellationPoints.map((point, index) => {
-              const style: ConstellationPointStyle = {
-                "--point-x": `${point.x}%`,
-                "--point-y": `${point.y}%`,
-                "--point-delay": `${index * 80}ms`,
-              };
-
-              return (
-                <button
-                  key={point.id}
-                  type="button"
-                  onClick={() => scrollToSection(point.sectionId)}
-                  className={`constellation-point constellation-point-${point.size}`}
-                  style={style}
-                  aria-label={`前往${point.label}，${point.destination}`}
-                >
-                  <span className="constellation-point-core" aria-hidden="true" />
-                  <span className="constellation-label">
-                    <span>{point.label}</span>
-                    <small>{point.destination}</small>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <button
+            type="button"
+            onClick={() => scrollToSection("archive-path")}
+            className="cosmic-button cosmic-button-primary hero-entry-button group mt-11"
+          >
+            进入星空档案馆
+            <ArrowDown
+              size={17}
+              className="hero-entry-arrow transition duration-500 group-hover:translate-y-1"
+            />
+          </button>
         </div>
       </div>
 
