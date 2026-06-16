@@ -19,7 +19,7 @@ final result: passed
 ## Notes
 
 - The implementation uses locally copied generated astronomy assets in `public/images`.
-- NASA APOD is intentionally left as a mock-data integration point for this first version.
+- Daily Cosmos uses the local deep-space source pool rather than a single external daily-photo entry point.
 
 ## Visual Upgrade QA
 

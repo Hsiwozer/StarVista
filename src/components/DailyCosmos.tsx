@@ -6,15 +6,12 @@ import {
   Satellite,
   Tags,
 } from "lucide-react";
-import {
-  getDailyCosmicItem,
-} from "../data/cosmicDailyPool";
+import { getDailyCosmicItem } from "../data/cosmicDailyPool";
 import { ArchiveCard } from "./ArchiveCard";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 
 const FALLBACK_IMAGE = "/images/daily-cosmos.png";
-const APOD_URL = "https://apod.nasa.gov/apod/astropix.html";
 
 export function DailyCosmos() {
   const [imageReady, setImageReady] = useState(false);
@@ -67,7 +64,7 @@ export function DailyCosmos() {
                 </p>
               </figcaption>
             </figure>
-            <div className="flex flex-col justify-between p-6 sm:p-8 md:p-10">
+            <div className="daily-signal-info flex flex-col justify-between p-6 sm:p-8 md:p-10">
               <div className="space-y-7">
                 <div className="grid gap-4 border-b border-white/[0.07] pb-7 sm:grid-cols-2 lg:grid-cols-1">
                   <div>
@@ -105,7 +102,7 @@ export function DailyCosmos() {
                 </div>
               </div>
 
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="daily-signal-actions mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
                 <a
                   className="cosmic-button cosmic-button-primary min-h-12 px-5 text-xs"
                   href={dailyCosmos.link}
@@ -114,15 +111,6 @@ export function DailyCosmos() {
                 >
                   探索今日图源
                   <ExternalLink size={15} />
-                </a>
-                <a
-                  className="cosmic-text-button text-white/46"
-                  href={APOD_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  NASA APOD
-                  <ExternalLink size={14} />
                 </a>
               </div>
             </div>
