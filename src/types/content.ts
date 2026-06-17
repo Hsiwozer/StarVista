@@ -18,16 +18,21 @@ export interface GalleryItem {
   tags: string[];
 }
 
-export interface ArticleItem {
+export type ArchiveAccent = "nebula" | "galaxy" | "blackHole" | "relic" | "cosmic";
+
+export interface ArchiveRecord {
   archiveId: string;
   targetId: string;
-  title: string;
-  category: string;
-  status: string;
-  excerpt: string;
+  name: string;
+  englishName: string;
+  type: string;
+  distance: string;
+  region: string;
   tags: string[];
-  readingTime: string;
+  summary: string;
+  detail: string;
   image: string;
+  accent: ArchiveAccent;
 }
 
 export interface ManualStepItem {
