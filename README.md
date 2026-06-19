@@ -44,6 +44,10 @@ StarVista 希望把天文内容做成一座可以浏览、停留和探索的「�
 - **Lucide React**：提供轻量图标
 - **Netlify**：承载线上部署与公开访问
 
+## 资源署名
+
+Planet textures by Solar System Scope, licensed under CC BY 4.0.
+
 ## 本地运行方式
 
 确保本地已安装 Node.js 与 npm，然后在项目根目录执行：
@@ -97,4 +101,3 @@ StarVista/
 - 优化图库筛选与详情展示，让影像浏览更接近展厅体验。
 - 增加更多观星场景内容，例如季节星图、月相提示和设备推荐。
 - 持续打磨移动端细节、可访问性与低动效模式体验。
-

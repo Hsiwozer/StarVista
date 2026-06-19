@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { About } from "./components/About";
 import { Articles } from "./components/Articles";
 import { DailyCosmos } from "./components/DailyCosmos";
@@ -7,7 +8,25 @@ import { Hero } from "./components/Hero";
 import { NavBar } from "./components/NavBar";
 import { CosmicBackground } from "./components/CosmicBackground";
 
+const SolarSystemPage = lazy(() =>
+  import("./components/solar-system/SolarSystemPage").then((module) => ({
+    default: module.SolarSystemPage,
+  })),
+);
+
 function App() {
+  if (window.location.pathname === "/solar-system") {
+    return (
+      <Suspense
+        fallback={
+          <main className="min-h-screen bg-space-950 text-starlight" />
+        }
+      >
+        <SolarSystemPage />
+      </Suspense>
+    );
+  }
+
   return (
     <main className="app-shell relative isolate min-h-screen overflow-hidden bg-space-950 text-starlight">
       <CosmicBackground fixed quiet />

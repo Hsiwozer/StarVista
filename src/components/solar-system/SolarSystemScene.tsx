@@ -1,0 +1,611 @@
+import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import type { SolarBody, SolarBodyId } from "../../data/solarSystem";
+import { createAsteroidBelt, type AsteroidBeltResult } from "./AsteroidBelt";
+import { createOrbitLine } from "./OrbitLine";
+import { createPlanetMesh } from "./PlanetMesh";
+
+interface SolarSystemSceneProps {
+  bodies: SolarBody[];
+  selectedBodyId: SolarBodyId | null;
+  timeScale: number;
+  labelsVisible: boolean;
+  onSelect: (body: SolarBody | null) => void;
+  onHover: (body: SolarBody | null) => void;
+}
+
+interface BodyRecord {
+  body: SolarBody;
+  group: THREE.Group;
+  bodyMesh: THREE.Mesh;
+  hoverHalo: THREE.Mesh;
+  sunGlowLayers: THREE.Sprite[];
+  orbitMaterial?: THREE.LineBasicMaterial;
+  disposableTextures: THREE.Texture[];
+}
+
+interface HoverLabel {
+  visible: boolean;
+  text: string;
+  x: number;
+  y: number;
+}
+
+const overviewCameraPosition = new THREE.Vector3(0, 29, 53);
+const overviewTarget = new THREE.Vector3(0, 0, 0);
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+function getBodyPosition(body: SolarBody, elapsedDays: number) {
+  if (body.semiMajorAxis <= 0) {
+    return new THREE.Vector3(0, 0, 0);
+  }
+
+  // Visual-enhanced Kepler orbit: distance is compressed, but eccentricity
+  // and period ratios stay close to the real solar system.
+  const angle = body.initialAngle + elapsedDays * body.orbitSpeed;
+  const a = body.semiMajorAxis;
+  const b = a * Math.sqrt(1 - body.eccentricity ** 2);
+
+  return new THREE.Vector3(a * Math.cos(angle), 0, b * Math.sin(angle));
+}
+
+function getSatellitePosition(
+  body: SolarBody,
+  records: Map<SolarBodyId, BodyRecord>,
+  elapsedDays: number,
+) {
+  const parent = body.parentId ? records.get(body.parentId) : undefined;
+
+  if (!parent) {
+    return getBodyPosition(body, elapsedDays);
+  }
+
+  const angle = body.initialAngle + elapsedDays * body.orbitSpeed;
+  const radius = body.satelliteOrbitRadius ?? parent.body.visualRadius * 2.35;
+  const height = body.satelliteOrbitHeight ?? parent.body.visualRadius * 0.22;
+
+  return parent.group.position.clone().add(
+    new THREE.Vector3(
+      Math.cos(angle) * radius,
+      height + Math.sin(angle * 1.7) * 0.08,
+      Math.sin(angle) * radius * 0.86,
+    ),
+  );
+}
+
+function createStarfield(isMobile: boolean) {
+  const count = isMobile ? 420 : 880;
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const blue = new THREE.Color("#7fc7ff");
+  const purple = new THREE.Color("#b59cff");
+  const amber = new THREE.Color("#fff0c7");
+  const white = new THREE.Color("#f6f8ff");
+
+  for (let index = 0; index < count; index += 1) {
+    const radius = 72 + Math.random() * 78;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const color =
+      index % 41 === 0 ? amber : index % 9 === 0 ? blue : index % 13 === 0 ? purple : white;
+
+    positions[index * 3] = radius * Math.sin(phi) * Math.cos(theta);
+    positions[index * 3 + 1] = radius * Math.cos(phi) * 0.72;
+    positions[index * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
+    colors[index * 3] = color.r;
+    colors[index * 3 + 1] = color.g;
+    colors[index * 3 + 2] = color.b;
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+  const material = new THREE.PointsMaterial({
+    size: isMobile ? 0.064 : 0.052,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.48,
+    depthWrite: false,
+  });
+
+  return new THREE.Points(geometry, material);
+}
+
+function setObjectOpacity(mesh: THREE.Mesh, opacity: number) {
+  const material = mesh.material;
+
+  if (Array.isArray(material)) {
+    material.forEach((item) => {
+      item.transparent = true;
+      item.opacity = opacity;
+    });
+    return;
+  }
+
+  material.transparent = true;
+  material.opacity = opacity;
+}
+
+export function SolarSystemScene({
+  bodies,
+  selectedBodyId,
+  timeScale,
+  labelsVisible,
+  onSelect,
+  onHover,
+}: SolarSystemSceneProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const labelRefs = useRef<Map<SolarBodyId, HTMLSpanElement>>(new Map());
+  const recordsRef = useRef<Map<SolarBodyId, BodyRecord>>(new Map());
+  const clickableRef = useRef<THREE.Object3D[]>([]);
+  const frameRef = useRef<number | null>(null);
+  const elapsedDaysRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const selectedRef = useRef<SolarBodyId | null>(selectedBodyId);
+  const hoveredRef = useRef<SolarBodyId | null>(null);
+  const timeScaleRef = useRef(timeScale);
+  const labelsVisibleRef = useRef(labelsVisible);
+  const cameraMoveRef = useRef<{
+    active: boolean;
+    position: THREE.Vector3;
+    target: THREE.Vector3;
+  }>({
+    active: false,
+    position: overviewCameraPosition.clone(),
+    target: overviewTarget.clone(),
+  });
+  const [hoverLabel, setHoverLabel] = useState<HoverLabel>({
+    visible: false,
+    text: "",
+    x: 0,
+    y: 0,
+  });
+
+  useEffect(() => {
+    timeScaleRef.current = timeScale;
+  }, [timeScale]);
+
+  useEffect(() => {
+    labelsVisibleRef.current = labelsVisible;
+  }, [labelsVisible]);
+
+  useEffect(() => {
+    selectedRef.current = selectedBodyId;
+    const record = selectedBodyId
+      ? recordsRef.current.get(selectedBodyId)
+      : undefined;
+
+    if (selectedBodyId && record) {
+      const offset = new THREE.Vector3(
+        Math.max(5.2, record.body.visualRadius * 4.8),
+        Math.max(2.6, record.body.visualRadius * 2.7),
+        Math.max(5.8, record.body.visualRadius * 5.6),
+      );
+      cameraMoveRef.current = {
+        active: true,
+        position: record.group.position.clone().add(offset),
+        target: record.group.position.clone(),
+      };
+      return;
+    }
+
+    cameraMoveRef.current = {
+      active: true,
+      position: overviewCameraPosition.clone(),
+      target: overviewTarget.clone(),
+    };
+  }, [selectedBodyId]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container) {
+      return undefined;
+    }
+
+    const isMobile = window.matchMedia("(max-width: 720px)").matches;
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2("#02030a", 0.011);
+
+    const camera = new THREE.PerspectiveCamera(
+      48,
+      container.clientWidth / Math.max(container.clientHeight, 1),
+      0.1,
+      260,
+    );
+    camera.position.copy(overviewCameraPosition);
+    cameraRef.current = camera;
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance",
+    });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 1.6));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.32;
+    rendererRef.current = renderer;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.minDistance = 8;
+    controls.maxDistance = 88;
+    controls.maxPolarAngle = Math.PI * 0.82;
+    controls.target.copy(overviewTarget);
+    controlsRef.current = controls;
+
+    scene.add(new THREE.AmbientLight("#7fc7ff", 0.28));
+    scene.add(new THREE.HemisphereLight("#b7ddff", "#02030a", 0.46));
+
+    const sunLight = new THREE.PointLight("#ffd89a", 8.65, 178, 1.38);
+    sunLight.position.set(0, 0, 0);
+    scene.add(sunLight);
+
+    const coolFill = new THREE.DirectionalLight("#9fd7ff", 0.48);
+    coolFill.position.set(-18, 26, 18);
+    scene.add(coolFill);
+
+    const focusFill = new THREE.PointLight("#d7e7ff", 0, 18, 1.8);
+    scene.add(focusFill);
+
+    const starfield = createStarfield(isMobile);
+    scene.add(starfield);
+
+    const records = recordsRef.current;
+    const clickables = clickableRef.current;
+    records.clear();
+    clickables.length = 0;
+
+    const orbitSegments = isMobile ? 128 : 192;
+    const meshQuality = {
+      sphereSegments: isMobile ? 48 : 64,
+      ringSegments: isMobile ? 96 : 160,
+      textureAnisotropy: Math.min(renderer.capabilities.getMaxAnisotropy(), isMobile ? 4 : 8),
+    };
+
+    bodies.forEach((body) => {
+      const planet = createPlanetMesh(body, meshQuality);
+      const orbit = createOrbitLine(body, orbitSegments);
+
+      if (orbit) {
+        scene.add(orbit.line);
+      }
+
+      planet.group.position.copy(
+        body.parentId
+          ? getSatellitePosition(body, records, elapsedDaysRef.current)
+          : getBodyPosition(body, elapsedDaysRef.current),
+      );
+      scene.add(planet.group);
+      planet.group.traverse((object) => clickables.push(object));
+
+      records.set(body.id, {
+        body,
+        group: planet.group,
+        bodyMesh: planet.bodyMesh,
+        hoverHalo: planet.hoverHalo,
+        sunGlowLayers: planet.sunGlowLayers,
+        orbitMaterial: orbit?.material,
+        disposableTextures: planet.disposableTextures,
+      });
+    });
+
+    const mars = bodies.find((body) => body.id === "mars");
+    const jupiter = bodies.find((body) => body.id === "jupiter");
+    let asteroidBelt: AsteroidBeltResult | null = null;
+
+    if (mars && jupiter) {
+      const orbitGap = jupiter.semiMajorAxis - mars.semiMajorAxis;
+      asteroidBelt = createAsteroidBelt({
+        innerRadius: mars.semiMajorAxis + orbitGap * 0.25,
+        outerRadius: mars.semiMajorAxis + orbitGap * 0.55,
+        isMobile,
+        orbitalSpeed: (mars.orbitSpeed + jupiter.orbitSpeed) * 0.24,
+      });
+      scene.add(asteroidBelt.group);
+    }
+
+    const updateHighlight = () => {
+      records.forEach((record) => {
+        const isHovered = hoveredRef.current === record.body.id;
+        const isSelected = selectedRef.current === record.body.id;
+        const isDimmed =
+          (hoveredRef.current !== null || selectedRef.current !== null) &&
+          !isHovered &&
+          !isSelected &&
+          record.body.id !== "sun";
+
+        setObjectOpacity(
+          record.hoverHalo,
+          isHovered || isSelected ? (record.body.id === "sun" ? 0.035 : 0.11) : 0,
+        );
+        record.group.scale.lerp(
+          new THREE.Vector3(
+            isSelected ? 1.24 : isHovered ? 1.12 : 1,
+            isSelected ? 1.24 : isHovered ? 1.12 : 1,
+            isSelected ? 1.24 : isHovered ? 1.12 : 1,
+          ),
+          0.12,
+        );
+
+        if (record.orbitMaterial) {
+          record.orbitMaterial.opacity = isHovered || isSelected ? 0.38 : 0.13;
+        }
+
+        setObjectOpacity(record.bodyMesh, isDimmed ? 0.56 : 1);
+      });
+    };
+
+    const updateLabels = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      const projected = new THREE.Vector3();
+
+      records.forEach((record) => {
+        const label = labelRefs.current.get(record.body.id);
+        if (!label) {
+          return;
+        }
+
+        if (record.body.id === "sun") {
+          label.style.opacity = "0";
+          return;
+        }
+
+        projected
+          .copy(record.group.position)
+          .add(new THREE.Vector3(0, record.body.visualRadius * 1.45, 0))
+          .project(camera);
+
+        const isVisible =
+          labelsVisibleRef.current &&
+          projected.z > -1 &&
+          projected.z < 1 &&
+          projected.x > -1.12 &&
+          projected.x < 1.12 &&
+          projected.y > -1.12 &&
+          projected.y < 1.12;
+        const isActive =
+          hoveredRef.current === record.body.id ||
+          selectedRef.current === record.body.id;
+        const x = THREE.MathUtils.clamp((projected.x * 0.5 + 0.5) * width, 68, width - 68);
+        const y = THREE.MathUtils.clamp((-projected.y * 0.5 + 0.5) * height, 68, height - 40);
+        const hasSelection = selectedRef.current !== null;
+        const shouldShow = isVisible && (!hasSelection || isActive);
+
+        label.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -112%)`;
+        label.style.opacity = shouldShow ? (isActive ? "0.96" : "0.48") : "0";
+        label.dataset.active = isActive ? "true" : "false";
+      });
+    };
+
+    const pickBody = (event: MouseEvent | PointerEvent) => {
+      const bounds = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+      pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+
+      const hits = raycaster.intersectObjects(clickables, true);
+      const hit = hits.find((item) => item.object.userData.bodyId);
+      const bodyId = hit?.object.userData.bodyId as SolarBodyId | undefined;
+
+      return bodyId ? records.get(bodyId)?.body ?? null : null;
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const body = pickBody(event);
+      const bodyId = body?.id ?? null;
+
+      if (hoveredRef.current !== bodyId) {
+        hoveredRef.current = bodyId;
+        onHover(body);
+      }
+
+      if (body) {
+        setHoverLabel({
+          visible: true,
+          text: `${body.nameZh} ${body.name}`,
+          x: event.clientX + 16,
+          y: event.clientY + 16,
+        });
+        return;
+      }
+
+      setHoverLabel((current) =>
+        current.visible ? { ...current, visible: false } : current,
+      );
+    };
+
+    const handlePointerLeave = () => {
+      hoveredRef.current = null;
+      onHover(null);
+      setHoverLabel((current) =>
+        current.visible ? { ...current, visible: false } : current,
+      );
+    };
+
+    const handleClick = (event: MouseEvent) => {
+      const body = pickBody(event);
+      onSelect(body);
+    };
+
+    const handleResize = () => {
+      const width = container.clientWidth;
+      const height = Math.max(container.clientHeight, 1);
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 1.6));
+    };
+
+    renderer.domElement.addEventListener("pointermove", handlePointerMove);
+    renderer.domElement.addEventListener("pointerleave", handlePointerLeave);
+    renderer.domElement.addEventListener("click", handleClick);
+    window.addEventListener("resize", handleResize);
+
+    const animate = (time: number) => {
+      const delta = lastTimeRef.current
+        ? Math.min((time - lastTimeRef.current) / 1000, 0.05)
+        : 0;
+      lastTimeRef.current = time;
+      elapsedDaysRef.current += delta * timeScaleRef.current;
+
+      records.forEach((record) => {
+        record.group.position.copy(
+          record.body.parentId
+            ? getSatellitePosition(record.body, records, elapsedDaysRef.current)
+            : getBodyPosition(record.body, elapsedDaysRef.current),
+        );
+        record.bodyMesh.rotation.y +=
+          delta * record.body.rotationSpeed * record.body.rotationDirection;
+
+        if (record.body.id === "earth") {
+          const cloudLayer = record.group.getObjectByName("Earth-clouds");
+          cloudLayer?.rotateY(delta * 0.18);
+        }
+
+        if (record.body.id === "sun") {
+          const pulse = 1 + Math.sin(time * 0.0012) * 0.025;
+          record.sunGlowLayers.forEach((glow, index) => {
+            const material = glow.material;
+            const baseOpacity = Number(glow.userData.baseOpacity ?? 0.08);
+            const baseDiameter = Number(glow.userData.baseDiameter ?? record.body.visualRadius * 3);
+            const diameter = baseDiameter * (pulse + index * 0.006);
+            glow.scale.set(diameter, diameter, 1);
+
+            material.opacity = baseOpacity * (0.94 + Math.sin(time * 0.0012 + index) * 0.08);
+          });
+          sunLight.intensity = 8.45 + Math.sin(time * 0.0012) * 0.36;
+        }
+      });
+
+      if (selectedRef.current) {
+        const selected = records.get(selectedRef.current);
+        if (selected && cameraMoveRef.current.active) {
+          cameraMoveRef.current.target.copy(selected.group.position);
+        }
+
+        if (selected && selected.body.id !== "sun") {
+          focusFill.position
+            .copy(selected.group.position)
+            .add(new THREE.Vector3(3.2, 2.35, 3.6));
+          focusFill.intensity = THREE.MathUtils.lerp(focusFill.intensity, 0.78, 0.08);
+        }
+      } else {
+        focusFill.intensity = THREE.MathUtils.lerp(focusFill.intensity, 0, 0.08);
+      }
+
+      if (cameraMoveRef.current.active) {
+        camera.position.lerp(cameraMoveRef.current.position, 0.055);
+        controls.target.lerp(cameraMoveRef.current.target, 0.055);
+
+        if (
+          camera.position.distanceTo(cameraMoveRef.current.position) < 0.08 &&
+          controls.target.distanceTo(cameraMoveRef.current.target) < 0.08
+        ) {
+          cameraMoveRef.current.active = false;
+        }
+      }
+
+      asteroidBelt?.update(delta, timeScaleRef.current);
+      starfield.rotation.y += delta * 0.004;
+      starfield.rotation.x += delta * 0.0015;
+      updateHighlight();
+      controls.update();
+      updateLabels();
+      renderer.render(scene, camera);
+      frameRef.current = window.requestAnimationFrame(animate);
+    };
+
+    frameRef.current = window.requestAnimationFrame(animate);
+
+    return () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+
+      renderer.domElement.removeEventListener("pointermove", handlePointerMove);
+      renderer.domElement.removeEventListener("pointerleave", handlePointerLeave);
+      renderer.domElement.removeEventListener("click", handleClick);
+      window.removeEventListener("resize", handleResize);
+      controls.dispose();
+      renderer.dispose();
+
+      records.forEach((record) => {
+        record.disposableTextures.forEach((texture) => texture.dispose());
+      });
+
+      scene.traverse((object) => {
+        if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
+          object.geometry.dispose();
+          const material = object.material;
+          if (Array.isArray(material)) {
+            material.forEach((item) => item.dispose());
+          } else {
+            material.dispose();
+          }
+        }
+
+        if (object instanceof THREE.Points) {
+          object.geometry.dispose();
+          const material = object.material;
+          if (Array.isArray(material)) {
+            material.forEach((item) => item.dispose());
+          } else {
+            material.dispose();
+          }
+        }
+      });
+
+      container.removeChild(renderer.domElement);
+      records.clear();
+      clickables.length = 0;
+      rendererRef.current = null;
+      cameraRef.current = null;
+      controlsRef.current = null;
+    };
+  }, [bodies, onHover, onSelect]);
+
+  return (
+    <div ref={containerRef} className="solar-system-canvas" aria-label="实时 3D 太阳系">
+      <div
+        className={`solar-hover-label ${hoverLabel.visible ? "solar-hover-label-visible" : ""}`}
+        style={{
+          transform: `translate3d(${hoverLabel.x}px, ${hoverLabel.y}px, 0)`,
+        }}
+      >
+        {hoverLabel.text}
+      </div>
+      <div className="solar-orbit-label-layer" aria-hidden="true">
+        {bodies
+          .filter((body) => body.id !== "sun")
+          .map((body) => (
+            <span
+              key={body.id}
+              ref={(element) => {
+                if (element) {
+                  labelRefs.current.set(body.id, element);
+                  return;
+                }
+                labelRefs.current.delete(body.id);
+              }}
+              className="solar-orbit-label"
+            >
+              {body.nameZh} {body.name}
+            </span>
+          ))}
+      </div>
+    </div>
+  );
+}
