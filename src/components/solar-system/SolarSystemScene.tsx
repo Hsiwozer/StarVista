@@ -210,6 +210,7 @@ export function SolarSystemScene({
     }
 
     const isMobile = window.matchMedia("(max-width: 720px)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2("#02030a", 0.011);
 
@@ -219,8 +220,15 @@ export function SolarSystemScene({
       0.1,
       260,
     );
-    camera.position.copy(overviewCameraPosition);
+    camera.position.copy(
+      reducedMotion ? overviewCameraPosition : new THREE.Vector3(0, 36, 74),
+    );
     cameraRef.current = camera;
+    cameraMoveRef.current = {
+      active: !reducedMotion,
+      position: overviewCameraPosition.clone(),
+      target: overviewTarget.clone(),
+    };
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -319,30 +327,50 @@ export function SolarSystemScene({
       records.forEach((record) => {
         const isHovered = hoveredRef.current === record.body.id;
         const isSelected = selectedRef.current === record.body.id;
+        const hasFocus = hoveredRef.current !== null || selectedRef.current !== null;
         const isDimmed =
-          (hoveredRef.current !== null || selectedRef.current !== null) &&
+          hasFocus &&
           !isHovered &&
           !isSelected &&
           record.body.id !== "sun";
 
         setObjectOpacity(
           record.hoverHalo,
-          isHovered || isSelected ? (record.body.id === "sun" ? 0.035 : 0.11) : 0,
+          isSelected
+            ? record.body.id === "sun"
+              ? 0.055
+              : 0.18
+            : isHovered
+              ? record.body.id === "sun"
+                ? 0.035
+                : 0.11
+              : 0,
         );
         record.group.scale.lerp(
           new THREE.Vector3(
-            isSelected ? 1.24 : isHovered ? 1.12 : 1,
-            isSelected ? 1.24 : isHovered ? 1.12 : 1,
-            isSelected ? 1.24 : isHovered ? 1.12 : 1,
+            isSelected ? 1.18 : isHovered ? 1.11 : 1,
+            isSelected ? 1.18 : isHovered ? 1.11 : 1,
+            isSelected ? 1.18 : isHovered ? 1.11 : 1,
           ),
           0.12,
         );
 
         if (record.orbitMaterial) {
-          record.orbitMaterial.opacity = isHovered || isSelected ? 0.38 : 0.13;
+          const targetOrbitOpacity = isSelected
+            ? 0.48
+            : isHovered
+              ? 0.34
+              : hasFocus
+                ? 0.055
+                : 0.13;
+          record.orbitMaterial.opacity = THREE.MathUtils.lerp(
+            record.orbitMaterial.opacity,
+            targetOrbitOpacity,
+            0.16,
+          );
         }
 
-        setObjectOpacity(record.bodyMesh, isDimmed ? 0.56 : 1);
+        setObjectOpacity(record.bodyMesh, isDimmed ? 0.44 : 1);
       });
     };
 
