@@ -1,4 +1,4 @@
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 export function About() {
@@ -28,18 +28,32 @@ export function About() {
                 深空不是空无一物，而是时间留下的档案。每一束星光，都曾穿过漫长的黑暗，才在此刻抵达眼前。
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() =>
-                document
-                  .getElementById("home")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="cosmic-button cosmic-button-secondary mt-10 min-h-12 px-5 py-3"
-            >
-              回到星空
-              <ArrowUpRight size={16} />
-            </button>
+            <div className="about-actions mt-10">
+              <button
+                type="button"
+                onClick={() =>
+                  document
+                    .getElementById("home")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="cosmic-button cosmic-button-secondary min-h-12 px-5 py-3"
+              >
+                回到星空
+                <ArrowUpRight size={16} />
+              </button>
+              <a
+                href="/solar-system"
+                className="cosmic-button about-solar-button group min-h-12 px-5 py-3"
+                aria-label="下一站：太阳系"
+              >
+                下一站：太阳系
+                <ArrowRight
+                  size={16}
+                  className="about-solar-arrow"
+                  aria-hidden="true"
+                />
+              </a>
+            </div>
           </div>
         </div>
       </Reveal>

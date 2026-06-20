@@ -7,10 +7,6 @@ import { SectionHeading } from "./SectionHeading";
 
 const fallbackImage = "/images/hero-nebula.png";
 
-function openSolarSystemExplorer() {
-  window.location.href = "/solar-system";
-}
-
 export function Articles() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isArchiveExpanded, setIsArchiveExpanded] = useState(false);
@@ -32,48 +28,6 @@ export function Articles() {
             className="archive-system-track"
             aria-label="深空档案列表"
           >
-            <button
-              type="button"
-              onClick={openSolarSystemExplorer}
-              className="archive-system-card archive-system-card-feature"
-              aria-label="启动太阳系漫游星轨仪"
-            >
-              <span className="archive-system-card-scan" aria-hidden="true" />
-              <span className="archive-system-card-axis" aria-hidden="true" />
-
-              <span className="flex items-start justify-between gap-4">
-                <span>
-                  <span className="archive-system-id block">ORRERY-000</span>
-                  <span className="mt-2 block text-xs text-white/38">
-                    实时日心轨道
-                  </span>
-                </span>
-                <Sparkles
-                  size={17}
-                  className="mt-0.5 text-galaxy-400/36 transition duration-700"
-                  aria-hidden="true"
-                />
-              </span>
-
-              <span className="mt-8 block">
-                <span className="block text-lg font-medium leading-snug text-starlight/88">
-                  太阳系漫游
-                </span>
-                <span className="mt-2 block text-xs uppercase tracking-[0.18em] text-galaxy-400/52">
-                  Solar System Explorer
-                </span>
-              </span>
-
-              <span className="mt-7 block text-sm leading-6 text-white/52">
-                进入实时运行的日心轨道，观察八大行星在深空中的运动。
-              </span>
-
-              <span className="archive-system-open mt-7 inline-flex items-center gap-2 text-xs tracking-[0.18em] text-white/42">
-                启动星轨仪
-                <ArrowRight size={14} aria-hidden="true" />
-              </span>
-            </button>
-
             {archiveRecords.map((archive, index) => {
               const isActive = activeIndex === index;
 

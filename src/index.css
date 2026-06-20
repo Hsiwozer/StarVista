@@ -430,6 +430,202 @@ button {
     filter: drop-shadow(0 0 7px rgba(127, 199, 255, 0.18));
   }
 
+  .solar-easter-egg {
+    position: absolute;
+    right: clamp(4rem, 8vw, 8rem);
+    bottom: clamp(4.75rem, 12vh, 8.25rem);
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.15rem;
+    width: 3.15rem;
+    color: rgba(246, 248, 255, 0.44);
+    cursor: pointer;
+    opacity: 0.52;
+    text-decoration: none;
+    filter: drop-shadow(0 0 10px rgba(120, 150, 255, 0.035));
+    animation: solarEasterFloat 8.8s ease-in-out infinite;
+    transition:
+      opacity 420ms ease,
+      filter 420ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .solar-easter-egg:hover,
+  .solar-easter-egg:focus-visible {
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 22px rgba(120, 150, 255, 0.18))
+      drop-shadow(0 0 36px rgba(141, 109, 255, 0.1));
+    outline: none;
+  }
+
+  .solar-easter-egg:focus-visible {
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px rgba(127, 199, 255, 0.34);
+  }
+
+  .solar-easter-icon {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    height: 2.5rem;
+    width: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(170, 190, 255, 0.07);
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 44% 38%, rgba(127, 199, 255, 0.11), transparent 1.05rem),
+      rgba(5, 8, 18, 0.12);
+    color: rgba(220, 230, 255, 0.38);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.018),
+      0 0 14px rgba(120, 150, 255, 0.04);
+    backdrop-filter: blur(5px);
+    animation: solarEasterBeacon 6.2s ease-in-out infinite;
+    transition:
+      border-color 420ms ease,
+      background 420ms ease,
+      color 420ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 420ms ease;
+  }
+
+  .solar-easter-icon::before,
+  .solar-easter-icon::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0.48rem;
+    border-radius: 999px;
+  }
+
+  .solar-easter-icon::before {
+    opacity: 0.1;
+    background:
+      radial-gradient(circle at 68% 24%, rgba(246, 248, 255, 0.36) 0 1px, transparent 1.35px),
+      radial-gradient(circle at 26% 72%, rgba(127, 199, 255, 0.28) 0 1px, transparent 1.3px);
+    animation: solarEasterPulse 6.4s ease-in-out infinite;
+  }
+
+  .solar-easter-icon::after {
+    border: 1px solid rgba(181, 156, 255, 0.06);
+    transform: rotate(-24deg) scaleX(1.18);
+  }
+
+  .solar-easter-ring {
+    pointer-events: none;
+    position: absolute;
+    inset: 0.28rem;
+    border: 1px solid rgba(127, 199, 255, 0.045);
+    border-left-color: rgba(181, 156, 255, 0.12);
+    border-radius: 999px;
+    transform: rotate(-18deg) scaleX(1.2);
+    animation: solarEasterOrbit 34s linear infinite;
+    transition:
+      border-color 420ms ease,
+      filter 420ms ease;
+  }
+
+  .solar-easter-hint {
+    pointer-events: none;
+    position: absolute;
+    right: calc(100% + 0.7rem);
+    top: 50%;
+    min-width: 11.25rem;
+    border: 1px solid rgba(170, 190, 255, 0.11);
+    border-radius: 0.5rem;
+    background:
+      radial-gradient(circle at 92% 24%, rgba(141, 109, 255, 0.09), transparent 8rem),
+      rgba(5, 8, 18, 0.34);
+    padding: 0.72rem 0.88rem;
+    text-align: left;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 16px 40px rgba(2, 3, 10, 0.26),
+      0 0 18px rgba(120, 150, 255, 0.045);
+    opacity: 0;
+    transform: translate3d(0.56rem, -50%, 0) scale(0.96);
+    transform-origin: right center;
+    filter: blur(4px);
+    backdrop-filter: blur(12px);
+    transition:
+      opacity 360ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 360ms ease,
+      border-color 360ms ease;
+  }
+
+  .solar-easter-hint::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    right: -0.7rem;
+    top: 50%;
+    height: 1px;
+    width: 0.7rem;
+    opacity: 0;
+    background: linear-gradient(90deg, rgba(170, 190, 255, 0.18), transparent);
+    transform: translateY(-50%) scaleX(0.45);
+    transform-origin: left;
+    transition:
+      opacity 320ms ease,
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .solar-easter-hint span:last-child {
+    display: inline-block;
+    transition:
+      color 320ms ease,
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .solar-easter-egg:hover .solar-easter-hint,
+  .solar-easter-egg:focus-visible .solar-easter-hint {
+    pointer-events: auto;
+    border-color: rgba(170, 190, 255, 0.2);
+    opacity: 0.94;
+    transform: translate3d(0, -50%, 0) scale(1);
+    filter: blur(0);
+  }
+
+  .solar-easter-egg:hover .solar-easter-hint::after,
+  .solar-easter-egg:focus-visible .solar-easter-hint::after {
+    opacity: 1;
+    transform: translateY(-50%) scaleX(1);
+  }
+
+  .solar-easter-egg:hover .solar-easter-hint span:last-child,
+  .solar-easter-egg:focus-visible .solar-easter-hint span:last-child {
+    color: rgba(198, 227, 255, 0.74);
+    transform: translateX(2px);
+  }
+
+  .solar-easter-egg:hover .solar-easter-icon,
+  .solar-easter-egg:focus-visible .solar-easter-icon {
+    border-color: rgba(170, 190, 255, 0.24);
+    background:
+      radial-gradient(circle at 44% 38%, rgba(127, 199, 255, 0.13), transparent 1.08rem),
+      rgba(6, 11, 28, 0.34);
+    color: rgba(246, 248, 255, 0.78);
+    transform: translate3d(0, -1px, 0) scale(1.045);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 0 24px rgba(120, 150, 255, 0.12),
+      0 0 36px rgba(141, 109, 255, 0.06);
+  }
+
+  .solar-easter-egg:hover .solar-easter-ring,
+  .solar-easter-egg:focus-visible .solar-easter-ring {
+    border-color: rgba(127, 199, 255, 0.12);
+    border-left-color: rgba(181, 156, 255, 0.34);
+    filter: drop-shadow(0 0 5px rgba(127, 199, 255, 0.1));
+    animation-duration: 14s;
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .hero-title:hover {
       text-shadow:
@@ -454,6 +650,100 @@ button {
   .cosmic-button-secondary:hover {
     border-color: rgba(127, 199, 255, 0.72);
     background: rgba(255, 255, 255, 0.075);
+  }
+
+  .about-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .about-solar-button {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgba(127, 199, 255, 0.24);
+    background:
+      radial-gradient(circle at 86% 18%, rgba(141, 109, 255, 0.12), transparent 7rem),
+      rgba(2, 3, 10, 0.36);
+    color: rgba(246, 248, 255, 0.82);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 14px 36px rgba(2, 3, 10, 0.24),
+      0 0 24px rgba(58, 167, 255, 0.075);
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 320ms ease,
+      background 320ms ease,
+      box-shadow 320ms ease;
+  }
+
+  .about-solar-button::before,
+  .about-solar-button::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    opacity: 0;
+    transition:
+      opacity 320ms ease,
+      transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .about-solar-button::before {
+    right: 0.82rem;
+    top: 50%;
+    height: 1.55rem;
+    width: 4.15rem;
+    border-top: 1px solid rgba(181, 156, 255, 0.24);
+    border-radius: 999px 999px 0 0;
+    transform: translate3d(0.45rem, -50%, 0) rotate(-13deg);
+  }
+
+  .about-solar-button::after {
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(90deg, transparent, rgba(127, 199, 255, 0.13), transparent),
+      radial-gradient(circle at 74% 42%, rgba(141, 109, 255, 0.13), transparent 8rem);
+    transform: translateX(-42%);
+  }
+
+  .about-solar-arrow {
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 320ms ease;
+  }
+
+  .about-solar-button:hover,
+  .about-solar-button:focus-visible {
+    border-color: rgba(127, 199, 255, 0.46);
+    background:
+      radial-gradient(circle at 86% 18%, rgba(141, 109, 255, 0.17), transparent 7rem),
+      rgba(4, 9, 27, 0.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 0 20px rgba(58, 167, 255, 0.13),
+      0 0 34px rgba(141, 109, 255, 0.08),
+      0 18px 42px rgba(2, 3, 10, 0.34);
+  }
+
+  .about-solar-button:hover::before,
+  .about-solar-button:focus-visible::before {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(-13deg);
+  }
+
+  .about-solar-button:hover::after,
+  .about-solar-button:focus-visible::after {
+    opacity: 1;
+    transform: translateX(42%);
+  }
+
+  .about-solar-button:hover .about-solar-arrow,
+  .about-solar-button:focus-visible .about-solar-arrow {
+    filter: drop-shadow(0 0 7px rgba(127, 199, 255, 0.22));
+    transform: translateX(3px);
   }
 
   .daily-signal-card {
@@ -1054,18 +1344,6 @@ button {
     background:
       linear-gradient(145deg, rgba(127, 199, 255, 0.05), transparent 36%),
       rgba(6, 11, 28, 0.48);
-  }
-
-  .archive-system-card-feature {
-    border-color: rgba(127, 199, 255, 0.18);
-    background:
-      radial-gradient(circle at 84% 10%, rgba(141, 109, 255, 0.14), transparent 12rem),
-      linear-gradient(145deg, rgba(127, 199, 255, 0.07), transparent 38%),
-      rgba(6, 11, 28, 0.52);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 22px 72px rgba(2, 3, 10, 0.36),
-      0 0 34px rgba(58, 167, 255, 0.08);
   }
 
   .archive-system-id,
@@ -2129,6 +2407,49 @@ button {
   }
 }
 
+@keyframes solarEasterFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-0.04rem, -0.1rem, 0);
+  }
+}
+
+@keyframes solarEasterBeacon {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.016),
+      0 0 12px rgba(120, 150, 255, 0.032);
+  }
+  48% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.022),
+      0 0 16px rgba(120, 150, 255, 0.07);
+  }
+}
+
+@keyframes solarEasterOrbit {
+  0% {
+    transform: rotate(-18deg) scaleX(1.2);
+  }
+  100% {
+    transform: rotate(342deg) scaleX(1.2);
+  }
+}
+
+@keyframes solarEasterPulse {
+  0%,
+  100% {
+    opacity: 0.08;
+  }
+  48% {
+    opacity: 0.15;
+  }
+}
+
 @keyframes dailySignalScan {
   0%,
   18% {
@@ -2528,6 +2849,41 @@ button {
     display: none;
   }
 
+  .solar-easter-egg {
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    gap: 0;
+    min-height: 2.75rem;
+    opacity: 0.64;
+    animation-duration: 9.2s;
+  }
+
+  .solar-easter-icon {
+    height: 2.75rem;
+    width: 2.75rem;
+    border-color: rgba(170, 190, 255, 0.1);
+    background:
+      radial-gradient(circle at 44% 38%, rgba(127, 199, 255, 0.1), transparent 1.02rem),
+      rgba(5, 8, 18, 0.18);
+    color: rgba(220, 230, 255, 0.48);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.024),
+      0 0 16px rgba(120, 150, 255, 0.06);
+    backdrop-filter: blur(7px);
+  }
+
+  .solar-easter-hint {
+    display: none;
+  }
+
+  .about-actions {
+    align-items: stretch;
+  }
+
+  .about-actions .cosmic-button {
+    width: 100%;
+  }
+
   .cosmic-background {
     opacity: 0.58;
   }
@@ -2716,6 +3072,20 @@ button {
 
   .hero-title:hover .hero-title-star {
     animation: none !important;
+  }
+
+  .solar-easter-egg,
+  .solar-easter-icon,
+  .solar-easter-icon::before,
+  .solar-easter-ring,
+  .solar-easter-hint,
+  .about-solar-button,
+  .about-solar-button::before,
+  .about-solar-button::after,
+  .about-solar-arrow {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 
   .cosmic-nebula-drift,

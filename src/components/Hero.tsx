@@ -1,6 +1,6 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useRef } from "react";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Orbit } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 const explorationPath = [
@@ -243,6 +243,25 @@ export function Hero() {
             />
           </button>
         </div>
+
+        <a
+          href="/solar-system"
+          className="solar-easter-egg group"
+          aria-label="太阳系漫游，开启轨道旅程"
+        >
+          <span className="solar-easter-hint" aria-hidden="true">
+            <span className="block text-sm font-medium text-starlight/86">
+              太阳系漫游
+            </span>
+            <span className="mt-1 block text-[0.68rem] tracking-[0.16em] text-galaxy-300/68">
+              开启轨道旅程 →
+            </span>
+          </span>
+          <span className="solar-easter-icon" aria-hidden="true">
+            <span className="solar-easter-ring" />
+            <Orbit size={25} strokeWidth={1.45} />
+          </span>
+        </a>
       </div>
 
       <div
