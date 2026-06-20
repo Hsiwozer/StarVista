@@ -2,6 +2,7 @@ import type { SolarBodyId } from "./solarSystem";
 
 export interface SolarTextureConfig {
   texture?: string;
+  nightTexture?: string;
   cloudTexture?: string;
   ringTexture?: string;
   fallback: string;
@@ -32,6 +33,7 @@ export const solarSystemTextures: Record<SolarBodyId, SolarTextureConfig> = {
   },
   earth: {
     texture: `${textureBase}/earth_day.jpg`,
+    nightTexture: `${textureBase}/earth_night_2k.jpg`,
     cloudTexture: `${textureBase}/earth_clouds.png`,
     fallback: "#426f9e",
     roughness: 0.68,
@@ -47,6 +49,12 @@ export const solarSystemTextures: Record<SolarBodyId, SolarTextureConfig> = {
     texture: `${textureBase}/mars.jpg`,
     fallback: "#a85a3c",
     roughness: 0.9,
+  },
+  "asteroid-belt": {
+    fallback: "#7c7365",
+    roughness: 0.98,
+    emissive: "#171512",
+    emissiveIntensity: 0.025,
   },
   jupiter: {
     texture: `${textureBase}/jupiter.jpg`,

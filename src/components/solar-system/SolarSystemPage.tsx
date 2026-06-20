@@ -49,10 +49,13 @@ export function SolarSystemPage() {
   const [controlsOpen, setControlsOpen] = useState(false);
   const [immersiveMode, setImmersiveMode] = useState(false);
   const [immersiveEdgeActive, setImmersiveEdgeActive] = useState(false);
+  const [immersiveToggleLocked, setImmersiveToggleLocked] = useState(false);
   const [meteors, setMeteors] = useState<MeteorTrace[]>([]);
   const controlPanelRef = useRef<HTMLElement | null>(null);
   const controlCloseTimerRef = useRef<number | null>(null);
   const immersiveEdgeTimerRef = useRef<number | null>(null);
+  const immersiveToggleLockTimerRef = useRef<number | null>(null);
+  const immersiveToggleLockedRef = useRef(false);
   const meteorRemovalTimerRefs = useRef<number[]>([]);
   const meteorIdRef = useRef(0);
 
@@ -86,6 +89,33 @@ export function SolarSystemPage() {
       setControlsOpen(false);
     }, 950);
   }, [clearControlCloseTimer]);
+
+  const lockImmersiveToggle = useCallback(() => {
+    immersiveToggleLockedRef.current = true;
+    setImmersiveToggleLocked(true);
+
+    if (immersiveToggleLockTimerRef.current !== null) {
+      window.clearTimeout(immersiveToggleLockTimerRef.current);
+    }
+
+    immersiveToggleLockTimerRef.current = window.setTimeout(() => {
+      immersiveToggleLockedRef.current = false;
+      immersiveToggleLockTimerRef.current = null;
+      setImmersiveToggleLocked(false);
+    }, 1000);
+  }, []);
+
+  const requestImmersiveMode = useCallback(
+    (nextMode: boolean) => {
+      if (immersiveToggleLockedRef.current || immersiveMode === nextMode) {
+        return;
+      }
+
+      lockImmersiveToggle();
+      setImmersiveMode(nextMode);
+    },
+    [immersiveMode, lockImmersiveToggle],
+  );
 
   const revealImmersiveExit = useCallback(() => {
     setImmersiveEdgeActive(true);
@@ -125,6 +155,10 @@ export function SolarSystemPage() {
 
       if (immersiveEdgeTimerRef.current !== null) {
         window.clearTimeout(immersiveEdgeTimerRef.current);
+      }
+
+      if (immersiveToggleLockTimerRef.current !== null) {
+        window.clearTimeout(immersiveToggleLockTimerRef.current);
       }
 
       meteorRemovalTimerRefs.current.forEach((timer) => window.clearTimeout(timer));
@@ -316,7 +350,8 @@ export function SolarSystemPage() {
         type="button"
         className="solar-immersive-toggle"
         aria-pressed={immersiveMode}
-        onClick={() => setImmersiveMode(true)}
+        disabled={immersiveToggleLocked}
+        onClick={() => requestImmersiveMode(true)}
       >
         <Maximize2 size={15} aria-hidden="true" />
         沉浸模式
@@ -326,7 +361,8 @@ export function SolarSystemPage() {
         className={`solar-immersive-exit ${
           immersiveEdgeActive ? "solar-immersive-exit-visible" : ""
         }`}
-        onClick={() => setImmersiveMode(false)}
+        disabled={immersiveToggleLocked}
+        onClick={() => requestImmersiveMode(false)}
         aria-label="退出沉浸模式"
       >
         <Minimize2 size={15} aria-hidden="true" />

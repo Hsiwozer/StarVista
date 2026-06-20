@@ -5,6 +5,7 @@ export type SolarBodyId =
   | "earth"
   | "moon"
   | "mars"
+  | "asteroid-belt"
   | "jupiter"
   | "saturn"
   | "uranus"
@@ -316,5 +317,33 @@ export const solarSystemBodies: SolarBody[] = [
     initialAngle: 2.15,
   },
 ];
+
+export const asteroidBeltBody: SolarBody = {
+  id: "asteroid-belt",
+  name: "Asteroid Belt",
+  nameZh: "小行星带",
+  radius: 0,
+  visualRadius: 0.62,
+  semiMajorAxis: 18.45,
+  eccentricity: 0.12,
+  orbitalPeriod: 1680,
+  orbitSpeed: orbitSpeed(1680),
+  color: "#8a8174",
+  type: "岩石与金属碎片区域",
+  rotationPeriod: "各不相同",
+  rotationSpeed: 0.08,
+  rotationDirection: 1,
+  axialTilt: 0,
+  description:
+    "小行星带位于火星轨道与木星轨道之间，由大量不规则小天体、碎石和极淡尘埃组成。这里的天体大小、形状与轨道倾角各不相同，其中包含谷神星、灶神星、智神星和健神星等代表性天体。",
+  facts: [
+    { label: "位置", value: "火星轨道与木星轨道之间" },
+    { label: "类型", value: "岩石与金属碎片区域" },
+    { label: "主要成分", value: "硅酸盐岩石、金属、尘埃" },
+    { label: "代表天体", value: "谷神星、灶神星、智神星、健神星" },
+    { label: "视觉特征", value: "稀疏碎屑带、轻微空间厚度" },
+  ],
+  initialAngle: 0,
+};
 
 export const defaultSolarBody = solarSystemBodies[0];

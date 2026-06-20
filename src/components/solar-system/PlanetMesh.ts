@@ -23,6 +23,13 @@ type TextureMappedMaterial = THREE.Material & {
   color?: THREE.Color;
 };
 
+interface EarthDayNightMaterial extends THREE.MeshStandardMaterial {
+  userData: THREE.MeshStandardMaterial["userData"] & {
+    nightMapUniform?: { value: THREE.Texture };
+    sunDirection?: THREE.Vector3;
+  };
+}
+
 function configureTexture(texture: THREE.Texture, anisotropy: number) {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = anisotropy;
@@ -75,6 +82,25 @@ function createFallbackSurfaceTexture(
   }
 
   context.putImageData(image, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  configureTexture(texture, anisotropy);
+
+  return texture;
+}
+
+function createFallbackNightLightsTexture(anisotropy: number) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 8;
+  canvas.height = 4;
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return null;
+  }
+
+  context.fillStyle = "#00030a";
+  context.fillRect(0, 0, canvas.width, canvas.height);
 
   const texture = new THREE.CanvasTexture(canvas);
   configureTexture(texture, anisotropy);
@@ -146,6 +172,86 @@ function loadMapIntoMaterial(
   disposableTextures.push(loadedTexture);
 }
 
+function loadEarthNightTexture(
+  material: EarthDayNightMaterial,
+  path: string | undefined,
+  disposableTextures: THREE.Texture[],
+  anisotropy: number,
+) {
+  if (!path || !material.userData.nightMapUniform) {
+    return;
+  }
+
+  const loadedTexture = textureLoader.load(
+    path,
+    (texture) => {
+      configureTexture(texture, anisotropy);
+      material.userData.nightMapUniform!.value = texture;
+    },
+    undefined,
+    () => {
+      console.warn(`[SolarSystem] Failed to load Earth night texture: ${path}`);
+      material.needsUpdate = true;
+    },
+  );
+  disposableTextures.push(loadedTexture);
+}
+
+function extendEarthDayNightShader(
+  material: EarthDayNightMaterial,
+  nightTexture: THREE.Texture,
+) {
+  const sunDirection = new THREE.Vector3(-1, 0, 0);
+  const nightMapUniform = { value: nightTexture };
+
+  material.userData.nightMapUniform = nightMapUniform;
+  material.userData.sunDirection = sunDirection;
+
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.earthNightMap = nightMapUniform;
+    shader.uniforms.earthSunDirection = { value: sunDirection };
+
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+varying vec3 vEarthWorldNormal;`,
+      )
+      .replace(
+        "#include <defaultnormal_vertex>",
+        `#include <defaultnormal_vertex>
+vEarthWorldNormal = normalize(inverseTransformDirection(transformedNormal, viewMatrix));`,
+      );
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+uniform sampler2D earthNightMap;
+uniform vec3 earthSunDirection;
+varying vec3 vEarthWorldNormal;`,
+      )
+      .replace(
+        "#include <emissivemap_fragment>",
+        `#include <emissivemap_fragment>
+
+vec3 earthNormal = normalize(vEarthWorldNormal);
+float lightDot = dot(earthNormal, normalize(earthSunDirection));
+float dayFactor = smoothstep(-0.08, 0.18, lightDot);
+float nightFactor = 1.0 - dayFactor;
+vec3 nightColor = texture2D(earthNightMap, vMapUv).rgb;
+float cityMask = smoothstep(0.045, 0.36, max(max(nightColor.r, nightColor.g), nightColor.b));
+vec3 darkSurface = diffuseColor.rgb * vec3(0.035, 0.052, 0.09) * nightFactor;
+vec3 cityLights = nightColor * vec3(1.28, 1.12, 0.86) * cityMask * nightFactor * 1.24;
+float atmosphereRim = pow(1.0 - saturate(abs(vNormal.z)), 2.35) * (0.028 + nightFactor * 0.052);
+totalEmissiveRadiance += darkSurface + cityLights + vec3(0.16, 0.34, 0.62) * atmosphereRim;`,
+      );
+
+  };
+
+  material.customProgramCacheKey = () => "earth-day-night-v1";
+}
+
 function createPlanetMaterial(
   body: SolarBody,
   quality: MeshQuality,
@@ -195,6 +301,22 @@ function createPlanetMaterial(
   }
 
   const material = new THREE.MeshStandardMaterial(materialOptions);
+
+  if (body.id === "earth") {
+    const earthMaterial = material as EarthDayNightMaterial;
+    const fallbackNightTexture = createFallbackNightLightsTexture(quality.textureAnisotropy);
+
+    if (fallbackNightTexture) {
+      disposableTextures.push(fallbackNightTexture);
+      extendEarthDayNightShader(earthMaterial, fallbackNightTexture);
+      loadEarthNightTexture(
+        earthMaterial,
+        textureConfig.nightTexture,
+        disposableTextures,
+        quality.textureAnisotropy,
+      );
+    }
+  }
 
   loadMapIntoMaterial(
     material,

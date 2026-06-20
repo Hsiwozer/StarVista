@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import type { SolarBody, SolarBodyId } from "../../data/solarSystem";
+import { asteroidBeltBody, type SolarBody, type SolarBodyId } from "../../data/solarSystem";
 import { createAsteroidBelt, type AsteroidBeltResult } from "./AsteroidBelt";
 import { createOrbitLine } from "./OrbitLine";
 import { createPlanetMesh } from "./PlanetMesh";
@@ -30,6 +30,14 @@ interface HoverLabel {
   text: string;
   x: number;
   y: number;
+}
+
+interface PickableObject extends THREE.Object3D {
+  userData: {
+    bodyId?: SolarBodyId;
+    selectableBody?: SolarBody;
+    hoverLabel?: string;
+  };
 }
 
 const overviewCameraPosition = new THREE.Vector3(0, 29, 53);
@@ -127,6 +135,26 @@ function setObjectOpacity(mesh: THREE.Mesh, opacity: number) {
 
   material.transparent = true;
   material.opacity = opacity;
+}
+
+function updateEarthSunDirection(record: BodyRecord) {
+  const material = Array.isArray(record.bodyMesh.material)
+    ? record.bodyMesh.material[0]
+    : record.bodyMesh.material;
+  const sunDirection = material.userData.sunDirection as THREE.Vector3 | undefined;
+
+  if (!sunDirection) {
+    return;
+  }
+
+  sunDirection.copy(record.group.position).multiplyScalar(-1);
+
+  if (sunDirection.lengthSq() < 0.0001) {
+    sunDirection.set(-1, 0, 0);
+    return;
+  }
+
+  sunDirection.normalize();
 }
 
 export function SolarSystemScene({
@@ -316,10 +344,15 @@ export function SolarSystemScene({
       const orbitGap = jupiter.semiMajorAxis - mars.semiMajorAxis;
       asteroidBelt = createAsteroidBelt({
         innerRadius: mars.semiMajorAxis + orbitGap * 0.25,
-        outerRadius: mars.semiMajorAxis + orbitGap * 0.55,
+        outerRadius: jupiter.semiMajorAxis - orbitGap * 0.24,
         isMobile,
         orbitalSpeed: (mars.orbitSpeed + jupiter.orbitSpeed) * 0.24,
       });
+      asteroidBelt.clickTargets.forEach((target) => {
+        target.userData.bodyId = asteroidBeltBody.id;
+        target.userData.selectableBody = asteroidBeltBody;
+      });
+      clickables.push(...asteroidBelt.clickTargets);
       scene.add(asteroidBelt.group);
     }
 
@@ -372,6 +405,11 @@ export function SolarSystemScene({
 
         setObjectOpacity(record.bodyMesh, isDimmed ? 0.44 : 1);
       });
+
+      asteroidBelt?.setHovered(
+        hoveredRef.current === asteroidBeltBody.id ||
+          selectedRef.current === asteroidBeltBody.id,
+      );
     };
 
     const updateLabels = () => {
@@ -424,14 +462,32 @@ export function SolarSystemScene({
       raycaster.setFromCamera(pointer, camera);
 
       const hits = raycaster.intersectObjects(clickables, true);
-      const hit = hits.find((item) => item.object.userData.bodyId);
-      const bodyId = hit?.object.userData.bodyId as SolarBodyId | undefined;
+      const hit = hits.find((item) => {
+        const object = item.object as PickableObject;
+        return object.userData.bodyId || object.userData.selectableBody;
+      });
+      const object = hit?.object as PickableObject | undefined;
+      const body = object?.userData.selectableBody;
+      const bodyId = object?.userData.bodyId;
 
-      return bodyId ? records.get(bodyId)?.body ?? null : null;
+      if (body) {
+        return {
+          body,
+          hoverLabel: object?.userData.hoverLabel ?? `${body.nameZh} ${body.name}`,
+        };
+      }
+
+      const recordBody = bodyId ? records.get(bodyId)?.body ?? null : null;
+
+      return {
+        body: recordBody,
+        hoverLabel: recordBody ? `${recordBody.nameZh} ${recordBody.name}` : "",
+      };
     };
 
     const handlePointerMove = (event: PointerEvent) => {
-      const body = pickBody(event);
+      const picked = pickBody(event);
+      const body = picked.body;
       const bodyId = body?.id ?? null;
 
       if (hoveredRef.current !== bodyId) {
@@ -442,7 +498,7 @@ export function SolarSystemScene({
       if (body) {
         setHoverLabel({
           visible: true,
-          text: `${body.nameZh} ${body.name}`,
+          text: picked.hoverLabel,
           x: event.clientX + 16,
           y: event.clientY + 16,
         });
@@ -463,7 +519,7 @@ export function SolarSystemScene({
     };
 
     const handleClick = (event: MouseEvent) => {
-      const body = pickBody(event);
+      const { body } = pickBody(event);
       onSelect(body);
     };
 
@@ -499,6 +555,7 @@ export function SolarSystemScene({
           delta * record.body.rotationSpeed * record.body.rotationDirection;
 
         if (record.body.id === "earth") {
+          updateEarthSunDirection(record);
           const cloudLayer = record.group.getObjectByName("Earth-clouds");
           cloudLayer?.rotateY(delta * 0.18);
         }
