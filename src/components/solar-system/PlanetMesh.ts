@@ -182,9 +182,12 @@ function createPlanetMaterial(
     map: fallbackTexture ?? undefined,
     roughness: body.id === "moon" ? textureConfig.roughness : Math.min(textureConfig.roughness, 0.82),
     metalness: 0,
-    emissive: new THREE.Color(textureConfig.emissive ?? "#111827"),
-    emissiveIntensity: textureConfig.emissiveIntensity ?? 0.045,
   };
+
+  if (textureConfig.emissive && textureConfig.emissiveIntensity) {
+    materialOptions.emissive = new THREE.Color(textureConfig.emissive);
+    materialOptions.emissiveIntensity = textureConfig.emissiveIntensity;
+  }
 
   if (body.id === "moon" && fallbackTexture) {
     materialOptions.bumpMap = fallbackTexture;

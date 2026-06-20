@@ -239,7 +239,7 @@ export function SolarSystemScene({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 1.6));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.32;
+    renderer.toneMappingExposure = 1.08;
     rendererRef.current = renderer;
     container.appendChild(renderer.domElement);
 
@@ -252,14 +252,14 @@ export function SolarSystemScene({
     controls.target.copy(overviewTarget);
     controlsRef.current = controls;
 
-    scene.add(new THREE.AmbientLight("#7fc7ff", 0.28));
-    scene.add(new THREE.HemisphereLight("#b7ddff", "#02030a", 0.46));
+    scene.add(new THREE.AmbientLight("#7fc7ff", 0.045));
+    scene.add(new THREE.HemisphereLight("#a8cfff", "#02030a", 0.075));
 
-    const sunLight = new THREE.PointLight("#ffd89a", 8.65, 178, 1.38);
+    const sunLight = new THREE.PointLight("#ffe6b0", 28.5, 190, 1.12);
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
 
-    const coolFill = new THREE.DirectionalLight("#9fd7ff", 0.48);
+    const coolFill = new THREE.DirectionalLight("#9fd7ff", 0.035);
     coolFill.position.set(-18, 26, 18);
     scene.add(coolFill);
 
@@ -514,7 +514,7 @@ export function SolarSystemScene({
 
             material.opacity = baseOpacity * (0.94 + Math.sin(time * 0.0012 + index) * 0.08);
           });
-          sunLight.intensity = 8.45 + Math.sin(time * 0.0012) * 0.36;
+          sunLight.intensity = 28.25 + Math.sin(time * 0.0012) * 0.95;
         }
       });
 
@@ -528,7 +528,7 @@ export function SolarSystemScene({
           focusFill.position
             .copy(selected.group.position)
             .add(new THREE.Vector3(3.2, 2.35, 3.6));
-          focusFill.intensity = THREE.MathUtils.lerp(focusFill.intensity, 0.78, 0.08);
+          focusFill.intensity = THREE.MathUtils.lerp(focusFill.intensity, 0.18, 0.08);
         }
       } else {
         focusFill.intensity = THREE.MathUtils.lerp(focusFill.intensity, 0, 0.08);
@@ -573,6 +573,7 @@ export function SolarSystemScene({
       records.forEach((record) => {
         record.disposableTextures.forEach((texture) => texture.dispose());
       });
+      asteroidBelt?.disposableTextures.forEach((texture) => texture.dispose());
 
       scene.traverse((object) => {
         if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
