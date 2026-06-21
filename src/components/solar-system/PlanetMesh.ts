@@ -154,6 +154,7 @@ function loadMapIntoMaterial(
   label: string,
   disposableTextures: THREE.Texture[],
   anisotropy: number,
+  mapTint: THREE.ColorRepresentation = "#ffffff",
 ) {
   if (!path) {
     return;
@@ -164,7 +165,7 @@ function loadMapIntoMaterial(
     (texture) => {
       configureTexture(texture, anisotropy);
       material.map = texture;
-      material.color?.set("#ffffff");
+      material.color?.set(mapTint);
       material.needsUpdate = true;
     },
     undefined,
@@ -204,6 +205,7 @@ function loadEarthNightTexture(
 function extendEarthDayNightShader(
   material: EarthDayNightMaterial,
   nightTexture: THREE.Texture,
+  solarLightFactor: number,
 ) {
   const sunDirection = new THREE.Vector3(-1, 0, 0);
   const nightMapUniform = { value: nightTexture };
@@ -214,6 +216,7 @@ function extendEarthDayNightShader(
   material.onBeforeCompile = (shader) => {
     shader.uniforms.earthNightMap = nightMapUniform;
     shader.uniforms.earthSunDirection = { value: sunDirection };
+    shader.uniforms.earthSolarLightFactor = { value: solarLightFactor };
 
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -233,6 +236,7 @@ vEarthWorldNormal = normalize(inverseTransformDirection(transformedNormal, viewM
         `#include <common>
 uniform sampler2D earthNightMap;
 uniform vec3 earthSunDirection;
+uniform float earthSolarLightFactor;
 varying vec3 vEarthWorldNormal;`,
       )
       .replace(
@@ -245,7 +249,7 @@ float dayFactor = smoothstep(-0.08, 0.18, lightDot);
 float nightFactor = 1.0 - dayFactor;
 vec3 nightColor = texture2D(earthNightMap, vMapUv).rgb;
 float cityMask = smoothstep(0.045, 0.36, max(max(nightColor.r, nightColor.g), nightColor.b));
-vec3 darkSurface = diffuseColor.rgb * vec3(0.035, 0.052, 0.09) * nightFactor;
+vec3 darkSurface = diffuseColor.rgb * vec3(0.035, 0.052, 0.09) * nightFactor * mix(0.82, 1.0, earthSolarLightFactor);
 vec3 cityLights = nightColor * vec3(1.28, 1.12, 0.86) * cityMask * nightFactor * 1.24;
 float atmosphereRim = pow(1.0 - saturate(abs(vNormal.z)), 2.35) * (0.028 + nightFactor * 0.052);
 totalEmissiveRadiance += darkSurface + cityLights + vec3(0.16, 0.34, 0.62) * atmosphereRim;`,
@@ -254,6 +258,27 @@ totalEmissiveRadiance += darkSurface + cityLights + vec3(0.16, 0.34, 0.62) * atm
   };
 
   material.customProgramCacheKey = () => "earth-day-night-v1";
+}
+
+function getVisibleLightTint(body: SolarBody) {
+  if (body.id === "sun") {
+    return new THREE.Color("#ffffff");
+  }
+
+  const tint =
+    body.solarLightFactor >= 1
+      ? body.solarLightFactor
+      : 0.45 + body.solarLightFactor * 0.55;
+
+  return new THREE.Color(tint, tint, tint);
+}
+
+function getTintedFallbackColor(body: SolarBody, color: string) {
+  if (body.id === "sun") {
+    return new THREE.Color(color);
+  }
+
+  return new THREE.Color(color).multiply(getVisibleLightTint(body));
 }
 
 function createPlanetMaterial(
@@ -287,8 +312,12 @@ function createPlanetMaterial(
     return material;
   }
 
+  const lightTint = getVisibleLightTint(body);
+
   const materialOptions: THREE.MeshStandardMaterialParameters = {
-    color: fallbackTexture ? "#ffffff" : textureConfig.fallback,
+    color: fallbackTexture
+      ? lightTint
+      : getTintedFallbackColor(body, textureConfig.fallback),
     map: fallbackTexture ?? undefined,
     roughness: body.id === "moon" ? textureConfig.roughness : Math.min(textureConfig.roughness, 0.82),
     metalness: 0,
@@ -312,7 +341,7 @@ function createPlanetMaterial(
 
     if (fallbackNightTexture) {
       disposableTextures.push(fallbackNightTexture);
-      extendEarthDayNightShader(earthMaterial, fallbackNightTexture);
+      extendEarthDayNightShader(earthMaterial, fallbackNightTexture, body.solarLightFactor);
       loadEarthNightTexture(
         earthMaterial,
         textureConfig.nightTexture,
@@ -328,6 +357,7 @@ function createPlanetMaterial(
     body.name,
     disposableTextures,
     quality.textureAnisotropy,
+    lightTint,
   );
 
   return material;
@@ -355,9 +385,13 @@ function applyRadialRingUvs(
   uvs.needsUpdate = true;
 }
 
-function extendSaturnRingShader(material: THREE.MeshBasicMaterial) {
+function extendSaturnRingShader(
+  material: THREE.MeshBasicMaterial,
+  solarLightFactor: number,
+) {
   material.onBeforeCompile = (shader) => {
     shader.uniforms.saturnRingBaseOpacity = { value: 0.9 };
+    shader.uniforms.saturnRingDistanceLight = { value: solarLightFactor };
 
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -380,6 +414,7 @@ vSaturnRingCenter = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;`,
         "#include <common>",
         `#include <common>
 uniform float saturnRingBaseOpacity;
+uniform float saturnRingDistanceLight;
 varying vec2 vSaturnRingUv;
 varying vec3 vSaturnRingWorldPosition;
 varying vec3 vSaturnRingCenter;
@@ -436,6 +471,7 @@ diffuseColor.rgb *= 0.88 + saturnParticleLift;
 diffuseColor.rgb *= 1.0 - saturnInnerHaze * 0.22;
 diffuseColor.rgb *= 1.0 - saturnOuterHaze * 0.11;
 diffuseColor.rgb *= 1.0 - saturnPlanetShadow * 0.7;
+diffuseColor.rgb *= mix(0.58, 1.0, saturnRingDistanceLight);
 diffuseColor.a *= saturnRingBaseOpacity * saturnRingEdgeFade;
 diffuseColor.a *= 1.0 - saturnInnerHaze * 0.2;
 diffuseColor.a *= 1.0 - saturnOuterHaze * (0.24 + (1.0 - saturnOuterBreakup) * 0.12);
@@ -448,7 +484,7 @@ diffuseColor.a *= 0.985 + saturnParticleLift;`,
       );
   };
 
-  material.customProgramCacheKey = () => "saturn-ring-texture-depth-v1";
+  material.customProgramCacheKey = () => "saturn-ring-texture-depth-v2";
 }
 
 function addSaturnRing(
@@ -479,7 +515,7 @@ function addSaturnRing(
     alphaTest: 0.04,
   });
   material.forceSinglePass = true;
-  extendSaturnRingShader(material);
+  extendSaturnRingShader(material, body.solarLightFactor);
 
   const ringTexturePath = solarSystemTextures.saturn.ringTexture;
   if (ringTexturePath) {

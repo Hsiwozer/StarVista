@@ -4,6 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { asteroidBeltBody, type SolarBody, type SolarBodyId } from "../../data/solarSystem";
 import { createAsteroidBelt, type AsteroidBeltResult } from "./AsteroidBelt";
 import { createOrbitLine } from "./OrbitLine";
+import { getInclinedOrbitPosition, getOrbitAngle } from "./orbitMath";
 import { createPlanetMesh } from "./PlanetMesh";
 import {
   updatePlanetSelectionIndicator,
@@ -119,13 +120,9 @@ function getBodyPosition(body: SolarBody, elapsedDays: number) {
     return new THREE.Vector3(0, 0, 0);
   }
 
-  // Visual-enhanced Kepler orbit: distance is compressed, but eccentricity
-  // and period ratios stay close to the real solar system.
-  const angle = body.initialAngle + elapsedDays * body.orbitSpeed;
-  const a = body.semiMajorAxis;
-  const b = a * Math.sqrt(1 - body.eccentricity ** 2);
-
-  return new THREE.Vector3(a * Math.cos(angle), 0, b * Math.sin(angle));
+  // Visual-enhanced Kepler orbit: distance is compressed, but eccentricity,
+  // inclination, and period ratios stay close to the real solar system.
+  return getInclinedOrbitPosition(body, getOrbitAngle(body, elapsedDays));
 }
 
 function getSatellitePosition(
@@ -139,7 +136,7 @@ function getSatellitePosition(
     return getBodyPosition(body, elapsedDays);
   }
 
-  const angle = body.initialAngle + elapsedDays * body.orbitSpeed;
+  const angle = getOrbitAngle(body, elapsedDays);
   const radius = body.satelliteOrbitRadius ?? parent.body.visualRadius * 2.35;
   const height = body.satelliteOrbitHeight ?? parent.body.visualRadius * 0.22;
 
@@ -456,7 +453,7 @@ export function SolarSystemScene({
     records.clear();
     clickables.length = 0;
 
-    const orbitSegments = isMobile ? 128 : 192;
+    const orbitSegments = isMobile ? 256 : 360;
     const meshQuality = {
       sphereSegments: isMobile ? 48 : 64,
       ringSegments: isMobile ? 96 : 160,

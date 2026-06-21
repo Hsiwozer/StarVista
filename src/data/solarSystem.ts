@@ -21,11 +21,16 @@ export interface SolarBody {
   name: string;
   nameZh: string;
   radius: number;
+  radiusKm: number;
+  distanceAU: number;
   visualRadius: number;
   semiMajorAxis: number;
   eccentricity: number;
+  inclination: number;
   orbitalPeriod: number;
+  orbitalPeriodDays: number;
   orbitSpeed: number;
+  solarLightFactor: number;
   color: string;
   type: string;
   rotationPeriod: string;
@@ -39,8 +44,46 @@ export interface SolarBody {
   satelliteOrbitHeight?: number;
 }
 
+const EARTH_RADIUS_KM = 6371;
+const EARTH_ORBIT_VISUAL_RADIUS = 12.2;
+const ORBIT_LOG_GROWTH = 2.25;
+const ORBIT_LOG_SCALE =
+  (EARTH_ORBIT_VISUAL_RADIUS - 2.4) / Math.log1p(ORBIT_LOG_GROWTH);
+
 const orbitSpeed = (orbitalPeriod: number) =>
   orbitalPeriod > 0 ? (Math.PI * 2) / orbitalPeriod : 0;
+
+export const getOrbitalAngularSpeed = orbitSpeed;
+
+/*
+ * Solar-system distances and planet sizes use a deliberate visual compression
+ * model, not strict real scale. Distances are logarithmically compressed so the
+ * outer planets remain reachable in the scene, while radii are mildly enlarged
+ * and then manually tuned in this central table for readability.
+ */
+export function getCompressedOrbitRadius(distanceAU: number) {
+  if (distanceAU <= 0) {
+    return 0;
+  }
+
+  return 2.4 + ORBIT_LOG_SCALE * Math.log1p(distanceAU * ORBIT_LOG_GROWTH);
+}
+
+export function getCompressedPlanetRadius(radiusKm: number) {
+  if (radiusKm <= 0) {
+    return 0;
+  }
+
+  return 0.94 * Math.pow(radiusKm / EARTH_RADIUS_KM, 0.46);
+}
+
+export function getDistanceLightFactor(distanceAU: number) {
+  if (distanceAU <= 0) {
+    return 1;
+  }
+
+  return Math.min(1.42, Math.max(0.34, 1 / Math.pow(distanceAU, 0.42)));
+}
 
 export type RotatingSolarBodyId = Exclude<SolarBodyId, "asteroid-belt">;
 
@@ -63,11 +106,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Sun",
     nameZh: "太阳",
     radius: 696340,
+    radiusKm: 696340,
+    distanceAU: 0,
     visualRadius: 3.6,
     semiMajorAxis: 0,
     eccentricity: 0,
+    inclination: 0,
     orbitalPeriod: 0,
+    orbitalPeriodDays: 0,
     orbitSpeed: 0,
+    solarLightFactor: 1,
     color: "#ffb04a",
     type: "恒星",
     rotationPeriod: "约 25-35 天",
@@ -89,11 +137,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Mercury",
     nameZh: "水星",
     radius: 2440,
-    visualRadius: 0.52,
-    semiMajorAxis: 6.8,
+    radiusKm: 2440,
+    distanceAU: 0.387,
+    visualRadius: getCompressedPlanetRadius(2440) * 0.86,
+    semiMajorAxis: getCompressedOrbitRadius(0.387),
     eccentricity: 0.2056,
+    inclination: 7,
     orbitalPeriod: 87.97,
+    orbitalPeriodDays: 87.97,
     orbitSpeed: orbitSpeed(87.97),
+    solarLightFactor: getDistanceLightFactor(0.387),
     color: "#9c8b7a",
     type: "类地行星",
     rotationPeriod: "58.6 天",
@@ -115,11 +168,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Venus",
     nameZh: "金星",
     radius: 6052,
-    visualRadius: 0.86,
-    semiMajorAxis: 9.2,
+    radiusKm: 6052,
+    distanceAU: 0.723,
+    visualRadius: getCompressedPlanetRadius(6052) * 0.94,
+    semiMajorAxis: getCompressedOrbitRadius(0.723),
     eccentricity: 0.0068,
+    inclination: 3.4,
     orbitalPeriod: 224.7,
+    orbitalPeriodDays: 224.7,
     orbitSpeed: orbitSpeed(224.7),
+    solarLightFactor: getDistanceLightFactor(0.723),
     color: "#d8b06a",
     type: "类地行星",
     rotationPeriod: "243 天",
@@ -141,11 +199,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Earth",
     nameZh: "地球",
     radius: 6371,
-    visualRadius: 0.94,
-    semiMajorAxis: 12.2,
+    radiusKm: 6371,
+    distanceAU: 1,
+    visualRadius: getCompressedPlanetRadius(6371),
+    semiMajorAxis: getCompressedOrbitRadius(1),
     eccentricity: 0.0167,
+    inclination: 0,
     orbitalPeriod: 365.25,
+    orbitalPeriodDays: 365.25,
     orbitSpeed: orbitSpeed(365.25),
+    solarLightFactor: getDistanceLightFactor(1),
     color: "#4a8fe8",
     type: "类地行星",
     rotationPeriod: "23.9 小时",
@@ -167,11 +230,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Moon",
     nameZh: "月球",
     radius: 1737,
-    visualRadius: 0.36,
+    radiusKm: 1737,
+    distanceAU: 0,
+    visualRadius: getCompressedPlanetRadius(1737) * 0.7,
     semiMajorAxis: 0,
     eccentricity: 0.0549,
+    inclination: 5.15,
     orbitalPeriod: 27.3,
+    orbitalPeriodDays: 27.3,
     orbitSpeed: orbitSpeed(27.3),
+    solarLightFactor: getDistanceLightFactor(1),
     color: "#b8b5ad",
     type: "天然卫星",
     rotationPeriod: "27.3 天",
@@ -195,11 +263,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Mars",
     nameZh: "火星",
     radius: 3390,
-    visualRadius: 0.72,
-    semiMajorAxis: 15.6,
+    radiusKm: 3390,
+    distanceAU: 1.524,
+    visualRadius: getCompressedPlanetRadius(3390) * 1.02,
+    semiMajorAxis: getCompressedOrbitRadius(1.524),
     eccentricity: 0.0934,
+    inclination: 1.85,
     orbitalPeriod: 686.98,
+    orbitalPeriodDays: 686.98,
     orbitSpeed: orbitSpeed(686.98),
+    solarLightFactor: getDistanceLightFactor(1.524),
     color: "#c55c3c",
     type: "类地行星",
     rotationPeriod: "24.6 小时",
@@ -221,11 +294,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Jupiter",
     nameZh: "木星",
     radius: 69911,
-    visualRadius: 2.08,
-    semiMajorAxis: 21.5,
+    radiusKm: 69911,
+    distanceAU: 5.203,
+    visualRadius: getCompressedPlanetRadius(69911) * 0.735,
+    semiMajorAxis: getCompressedOrbitRadius(5.203),
     eccentricity: 0.0489,
+    inclination: 1.3,
     orbitalPeriod: 4332.59,
+    orbitalPeriodDays: 4332.59,
     orbitSpeed: orbitSpeed(4332.59),
+    solarLightFactor: getDistanceLightFactor(5.203),
     color: "#d6ad82",
     type: "气态巨行星",
     rotationPeriod: "9.9 小时",
@@ -247,11 +325,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Saturn",
     nameZh: "土星",
     radius: 58232,
-    visualRadius: 1.72,
-    semiMajorAxis: 27.5,
+    radiusKm: 58232,
+    distanceAU: 9.537,
+    visualRadius: getCompressedPlanetRadius(58232) * 0.654,
+    semiMajorAxis: getCompressedOrbitRadius(9.537),
     eccentricity: 0.0565,
+    inclination: 2.49,
     orbitalPeriod: 10759.22,
+    orbitalPeriodDays: 10759.22,
     orbitSpeed: orbitSpeed(10759.22),
+    solarLightFactor: getDistanceLightFactor(9.537),
     color: "#d9c08d",
     type: "气态巨行星",
     rotationPeriod: "10.7 小时",
@@ -273,11 +356,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Uranus",
     nameZh: "天王星",
     radius: 25362,
-    visualRadius: 1.2,
-    semiMajorAxis: 33.2,
+    radiusKm: 25362,
+    distanceAU: 19.191,
+    visualRadius: getCompressedPlanetRadius(25362) * 0.675,
+    semiMajorAxis: getCompressedOrbitRadius(19.191),
     eccentricity: 0.0457,
+    inclination: 0.77,
     orbitalPeriod: 30688.5,
+    orbitalPeriodDays: 30688.5,
     orbitSpeed: orbitSpeed(30688.5),
+    solarLightFactor: getDistanceLightFactor(19.191),
     color: "#7ed0d7",
     type: "冰巨星",
     rotationPeriod: "17.2 小时",
@@ -299,11 +387,16 @@ export const solarSystemBodies: SolarBody[] = [
     name: "Neptune",
     nameZh: "海王星",
     radius: 24622,
-    visualRadius: 1.16,
-    semiMajorAxis: 38.5,
+    radiusKm: 24622,
+    distanceAU: 30.07,
+    visualRadius: getCompressedPlanetRadius(24622) * 0.66,
+    semiMajorAxis: getCompressedOrbitRadius(30.07),
     eccentricity: 0.0113,
+    inclination: 1.77,
     orbitalPeriod: 60182,
+    orbitalPeriodDays: 60182,
     orbitSpeed: orbitSpeed(60182),
+    solarLightFactor: getDistanceLightFactor(30.07),
     color: "#426dff",
     type: "冰巨星",
     rotationPeriod: "16.1 小时",
@@ -327,11 +420,16 @@ export const asteroidBeltBody: SolarBody = {
   name: "Asteroid Belt",
   nameZh: "小行星带",
   radius: 0,
+  radiusKm: 0,
+  distanceAU: 2.8,
   visualRadius: 0.62,
-  semiMajorAxis: 18.45,
+  semiMajorAxis: getCompressedOrbitRadius(2.8),
   eccentricity: 0.12,
+  inclination: 0.9,
   orbitalPeriod: 1680,
+  orbitalPeriodDays: 1680,
   orbitSpeed: orbitSpeed(1680),
+  solarLightFactor: getDistanceLightFactor(2.8),
   color: "#8a8174",
   type: "岩石与金属碎片区域",
   rotationPeriod: "各不相同",

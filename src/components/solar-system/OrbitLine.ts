@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { SolarBody } from "../../data/solarSystem";
+import { getInclinedOrbitPosition, sampleOrbitAngles } from "./orbitMath";
 
 interface OrbitLineResult {
   line: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
@@ -14,14 +15,12 @@ export function createOrbitLine(
     return null;
   }
 
-  const a = body.semiMajorAxis;
-  const b = a * Math.sqrt(1 - body.eccentricity ** 2);
   const positions: number[] = [];
 
-  for (let index = 0; index <= segmentCount; index += 1) {
-    const angle = (index / segmentCount) * Math.PI * 2;
-    positions.push(a * Math.cos(angle), 0, b * Math.sin(angle));
-  }
+  sampleOrbitAngles(segmentCount).forEach((angle) => {
+    const point = getInclinedOrbitPosition(body, angle);
+    positions.push(point.x, point.y, point.z);
+  });
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute(
