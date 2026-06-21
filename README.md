@@ -48,6 +48,9 @@ StarVista 希望把天文内容做成一座可以浏览、停留和探索的「�
 
 Planet textures by Solar System Scope, licensed under CC BY 4.0.
 
+- Saturn Ring texture: Solar System Scope, CC BY 4.0.
+- Source: Solar System Scope Textures.
+
 ## 本地运行方式
 
 确保本地已安装 Node.js 与 npm，然后在项目根目录执行：

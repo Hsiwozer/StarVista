@@ -62,6 +62,8 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const echoTargetClockAngleDegrees = 9 * 30 + 19 * 0.5;
 const echoToleranceDegrees = 4;
+const VISUAL_ROTATION_FACTOR = 0.34;
+const EARTH_CLOUD_RELATIVE_DRIFT = 0.015;
 
 function normalizeDegrees(angle: number) {
   return ((angle % 360) + 360) % 360;
@@ -76,6 +78,27 @@ function isEarthAtEchoCoordinate(earthClockAngleDegrees: number) {
   return (
     getAngleDistanceDegrees(earthClockAngleDegrees, echoTargetClockAngleDegrees) <=
     echoToleranceDegrees
+  );
+}
+
+function getRotationDelta(
+  rotationPeriodHours: number | null,
+  deltaTime: number,
+  timeScale: number,
+) {
+  if (!rotationPeriodHours) {
+    return 0;
+  }
+
+  const direction = rotationPeriodHours < 0 ? -1 : 1;
+  const period = Math.abs(rotationPeriodHours);
+
+  return (
+    direction *
+    ((2 * Math.PI) / period) *
+    deltaTime *
+    timeScale *
+    VISUAL_ROTATION_FACTOR
   );
 }
 
@@ -769,13 +792,19 @@ export function SolarSystemScene({
             ? getSatellitePosition(record.body, records, elapsedDaysRef.current)
             : getBodyPosition(record.body, elapsedDaysRef.current),
         );
-        record.bodyMesh.rotation.y +=
-          delta * record.body.rotationSpeed * record.body.rotationDirection;
+        const rotationDelta = getRotationDelta(
+          record.body.rotationPeriodHours,
+          delta,
+          timeScaleRef.current,
+        );
+        record.bodyMesh.rotation.y += rotationDelta;
 
         if (record.body.id === "earth") {
           updateEarthSunDirection(record);
           const cloudLayer = record.group.getObjectByName("Earth-clouds");
-          cloudLayer?.rotateY(delta * 0.18);
+          if (cloudLayer) {
+            cloudLayer.rotation.y += rotationDelta * (1 + EARTH_CLOUD_RELATIVE_DRIFT);
+          }
         }
 
         if (record.body.id === "sun") {

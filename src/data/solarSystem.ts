@@ -29,8 +29,7 @@ export interface SolarBody {
   color: string;
   type: string;
   rotationPeriod: string;
-  rotationSpeed: number;
-  rotationDirection: 1 | -1;
+  rotationPeriodHours: number | null;
   axialTilt: number;
   description: string;
   facts: SolarFact[];
@@ -42,6 +41,21 @@ export interface SolarBody {
 
 const orbitSpeed = (orbitalPeriod: number) =>
   orbitalPeriod > 0 ? (Math.PI * 2) / orbitalPeriod : 0;
+
+export type RotatingSolarBodyId = Exclude<SolarBodyId, "asteroid-belt">;
+
+export const CELESTIAL_ROTATION_PERIOD_HOURS: Record<RotatingSolarBodyId, number> = {
+  sun: 609.12,
+  mercury: 1407.6,
+  venus: -5832.5,
+  earth: 23.9,
+  moon: 655.7,
+  mars: 24.6,
+  jupiter: 9.9,
+  saturn: 10.7,
+  uranus: -17.2,
+  neptune: 16.1,
+};
 
 export const solarSystemBodies: SolarBody[] = [
   {
@@ -57,8 +71,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#ffb04a",
     type: "恒星",
     rotationPeriod: "约 25-35 天",
-    rotationSpeed: 0.16,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.sun,
     axialTilt: 7.25,
     description:
       "太阳是太阳系的中心恒星，以强大的引力束缚着八大行星。它持续释放光与热，是地球生命赖以存在的能量源泉。",
@@ -84,8 +97,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#9c8b7a",
     type: "类地行星",
     rotationPeriod: "58.6 天",
-    rotationSpeed: 0.32,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.mercury,
     axialTilt: 0.03,
     description:
       "水星是距离太阳最近的行星。它体积小、表面布满陨石坑，在强烈日照与漫长黑夜之间经历极端温差。",
@@ -111,8 +123,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#d8b06a",
     type: "类地行星",
     rotationPeriod: "243 天",
-    rotationSpeed: 0.24,
-    rotationDirection: -1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.venus,
     axialTilt: 177.4,
     description:
       "金星被厚重云层包裹，是太阳系中最炽热的行星之一。它明亮而神秘，常被称为地球的姐妹星。",
@@ -138,8 +149,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#4a8fe8",
     type: "类地行星",
     rotationPeriod: "23.9 小时",
-    rotationSpeed: 0.42,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.earth,
     axialTilt: 23.44,
     description:
       "地球是目前已知唯一孕育生命的行星。蓝色海洋、白色云层与稳定的大气层，让它成为深空中罕见的生命绿洲。",
@@ -165,8 +175,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#b8b5ad",
     type: "天然卫星",
     rotationPeriod: "27.3 天",
-    rotationSpeed: 0.2,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.moon,
     axialTilt: 6.68,
     description:
       "月球是地球唯一的天然卫星，也是人类最熟悉的近邻天体。它布满环形山与月海，在漫长的岁月中记录着太阳系早期撞击的痕迹，并深刻影响着地球的潮汐与夜空景观。",
@@ -194,8 +203,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#c55c3c",
     type: "类地行星",
     rotationPeriod: "24.6 小时",
-    rotationSpeed: 0.4,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.mars,
     axialTilt: 25.19,
     description:
       "火星拥有红褐色的荒凉地表，是人类最向往探索的邻近行星之一。它的峡谷、沙尘与极冠记录着古老环境的痕迹。",
@@ -221,8 +229,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#d6ad82",
     type: "气态巨行星",
     rotationPeriod: "9.9 小时",
-    rotationSpeed: 0.62,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.jupiter,
     axialTilt: 3.13,
     description:
       "木星是太阳系中体积最大的行星，拥有壮观的云带和强大的磁场。它的大红斑是一场持续数百年的巨大风暴。",
@@ -248,8 +255,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#d9c08d",
     type: "气态巨行星",
     rotationPeriod: "10.7 小时",
-    rotationSpeed: 0.56,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.saturn,
     axialTilt: 26.73,
     description:
       "土星以壮丽的环系统闻名。无数冰粒与岩石碎片在引力中排列成环，使它成为太阳系中最优雅的行星之一。",
@@ -275,8 +281,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#7ed0d7",
     type: "冰巨星",
     rotationPeriod: "17.2 小时",
-    rotationSpeed: 0.34,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.uranus,
     axialTilt: 97.77,
     description:
       "天王星是一颗寒冷的冰巨星，呈现淡青色光泽。它独特的自转轴几乎横躺在轨道面上，如同在深空中侧身前行。",
@@ -302,8 +307,7 @@ export const solarSystemBodies: SolarBody[] = [
     color: "#426dff",
     type: "冰巨星",
     rotationPeriod: "16.1 小时",
-    rotationSpeed: 0.36,
-    rotationDirection: 1,
+    rotationPeriodHours: CELESTIAL_ROTATION_PERIOD_HOURS.neptune,
     axialTilt: 28.32,
     description:
       "海王星位于太阳系遥远边缘，呈现深蓝色。它拥有强烈风暴和高速大气流动，是寒冷而神秘的远方行星。",
@@ -331,8 +335,7 @@ export const asteroidBeltBody: SolarBody = {
   color: "#8a8174",
   type: "岩石与金属碎片区域",
   rotationPeriod: "各不相同",
-  rotationSpeed: 0.08,
-  rotationDirection: 1,
+  rotationPeriodHours: null,
   axialTilt: 0,
   description:
     "小行星带位于火星轨道与木星轨道之间，由大量不规则小天体、碎石和极淡尘埃组成。这里的天体大小、形状与轨道倾角各不相同，其中包含谷神星、灶神星、智神星和健神星等代表性天体。",

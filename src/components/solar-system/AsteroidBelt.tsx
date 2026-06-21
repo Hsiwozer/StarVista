@@ -26,9 +26,9 @@ interface AsteroidState {
   scale: THREE.Vector3;
   orientation: THREE.Quaternion;
   spinAxis: THREE.Vector3;
-  spinSpeed: number;
+  rollRate: number;
   tumbleAxis: THREE.Vector3;
-  tumbleSpeed: number;
+  wobbleRate: number;
   orbitSpeed: number;
 }
 
@@ -258,9 +258,11 @@ function createAsteroidState(
       ),
     orientation: overrides.orientation ?? orientation,
     spinAxis: overrides.spinAxis ?? spinAxis,
-    spinSpeed: overrides.spinSpeed ?? randomBetween(random, 0.035, 0.22),
+    rollRate: overrides.rollRate ?? randomBetween(random, 0.035, 0.22),
     tumbleAxis: overrides.tumbleAxis ?? tumbleAxis,
-    tumbleSpeed: overrides.tumbleSpeed ?? (random() < 0.16 ? randomBetween(random, 0.016, 0.052) : 0),
+    wobbleRate:
+      overrides.wobbleRate ??
+      (random() < 0.16 ? randomBetween(random, 0.016, 0.052) : 0),
     orbitSpeed:
       overrides.orbitSpeed ??
       orbitalSpeed * THREE.MathUtils.lerp(1.28, 0.72, innerRatio) * randomBetween(random, 0.82, 1.16),
@@ -455,7 +457,7 @@ export function createAsteroidBelt({
         height: randomSigned(random) * 0.16,
         inclination: randomSigned(random) * 0.018,
         scale: new THREE.Vector3(config.size * 1.16, config.size * 0.78, config.size),
-        spinSpeed: randomBetween(random, 0.028, 0.08),
+        rollRate: randomBetween(random, 0.028, 0.08),
         orbitSpeed: orbitalSpeed * randomBetween(random, 0.78, 0.98),
       });
       return createRepresentativeAsteroid(config.name, config.seed, state, diffuseMap);
@@ -508,11 +510,11 @@ export function createAsteroidBelt({
         const mesh = meshes[meshIndex];
         meshStates.forEach((state, index) => {
           state.angle += scaledDelta * state.orbitSpeed;
-          spinDelta.setFromAxisAngle(state.spinAxis, scaledDelta * state.spinSpeed);
+          spinDelta.setFromAxisAngle(state.spinAxis, scaledDelta * state.rollRate);
           state.orientation.multiply(spinDelta).normalize();
 
-          if (state.tumbleSpeed > 0) {
-            tumbleDelta.setFromAxisAngle(state.tumbleAxis, scaledDelta * state.tumbleSpeed);
+          if (state.wobbleRate > 0) {
+            tumbleDelta.setFromAxisAngle(state.tumbleAxis, scaledDelta * state.wobbleRate);
             state.orientation.multiply(tumbleDelta).normalize();
           }
 
@@ -524,7 +526,7 @@ export function createAsteroidBelt({
 
       representatives.forEach((state) => {
         state.angle += scaledDelta * state.orbitSpeed;
-        spinDelta.setFromAxisAngle(state.spinAxis, scaledDelta * state.spinSpeed);
+        spinDelta.setFromAxisAngle(state.spinAxis, scaledDelta * state.rollRate);
         state.orientation.multiply(spinDelta).normalize();
         writeAsteroidMatrix(state, matrix, position);
         state.mesh.matrix.copy(matrix);

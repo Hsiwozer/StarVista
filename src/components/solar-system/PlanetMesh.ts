@@ -343,12 +343,112 @@ function applyRadialRingUvs(
   const radiusSpan = outerRadius - innerRadius;
 
   for (let index = 0; index < positions.count; index += 1) {
-    const radius = Math.hypot(positions.getX(index), positions.getY(index));
+    const x = positions.getX(index);
+    const y = positions.getY(index);
+    const radius = Math.hypot(x, y);
+    const angle = Math.atan2(y, x);
     const u = THREE.MathUtils.clamp((radius - innerRadius) / radiusSpan, 0, 1);
-    uvs.setXY(index, u, 0.5);
+    const v = THREE.MathUtils.euclideanModulo(angle / (Math.PI * 2), 1);
+    uvs.setXY(index, u, v);
   }
 
   uvs.needsUpdate = true;
+}
+
+function extendSaturnRingShader(material: THREE.MeshBasicMaterial) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.saturnRingBaseOpacity = { value: 0.9 };
+
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+varying vec2 vSaturnRingUv;
+varying vec3 vSaturnRingWorldPosition;
+varying vec3 vSaturnRingCenter;`,
+      )
+      .replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>
+vSaturnRingUv = uv;
+vSaturnRingWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+vSaturnRingCenter = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;`,
+      );
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+uniform float saturnRingBaseOpacity;
+varying vec2 vSaturnRingUv;
+varying vec3 vSaturnRingWorldPosition;
+varying vec3 vSaturnRingCenter;
+
+float saturnRingGrain(vec2 uv) {
+  float dust =
+    sin(uv.x * 1193.0 + sin(uv.y * 31.0) * 1.9) *
+    sin(uv.x * 2087.0 + cos(uv.y * 47.0) * 1.4);
+  return dust * 0.5 + 0.5;
+}`,
+      )
+      .replace(
+        "#include <map_fragment>",
+        `#include <map_fragment>
+
+float saturnRingRadius = clamp(vSaturnRingUv.x, 0.0, 1.0);
+float saturnRingEdgeFade =
+  smoothstep(0.022, 0.105, saturnRingRadius) *
+  (1.0 - smoothstep(0.89, 1.0, saturnRingRadius));
+float saturnInnerHaze = 1.0 - smoothstep(0.08, 0.25, saturnRingRadius);
+float saturnOuterHaze = smoothstep(0.8, 1.0, saturnRingRadius);
+float saturnMainBRing = smoothstep(0.25, 0.42, saturnRingRadius) * (1.0 - smoothstep(0.58, 0.69, saturnRingRadius));
+float saturnARing = smoothstep(0.66, 0.72, saturnRingRadius) * (1.0 - smoothstep(0.84, 0.95, saturnRingRadius));
+float saturnCassiniCore = exp(-pow((saturnRingRadius - 0.635) / 0.017, 2.0));
+float saturnCassiniDust = exp(-pow((saturnRingRadius - 0.635) / 0.042, 2.0));
+
+vec3 saturnRingVector = normalize(vSaturnRingWorldPosition - vSaturnRingCenter);
+vec3 saturnSunDirection = normalize(-vSaturnRingCenter);
+vec3 saturnShadowAxis = -saturnSunDirection;
+float saturnShadowCore = smoothstep(0.865, 0.99, dot(saturnRingVector, saturnShadowAxis));
+float saturnShadowRadial =
+  smoothstep(0.1, 0.25, saturnRingRadius) *
+  (1.0 - smoothstep(0.82, 0.98, saturnRingRadius));
+float saturnPlanetShadow = saturnShadowCore * saturnShadowRadial;
+
+vec3 saturnCameraDirection = normalize(cameraPosition - vSaturnRingCenter);
+float saturnNearSide = smoothstep(-0.18, 0.78, dot(saturnRingVector, saturnCameraDirection));
+float saturnGrain = saturnRingGrain(vSaturnRingUv);
+float saturnAngularDust = sin(vSaturnRingUv.y * 19.0 + sin(saturnRingRadius * 27.0) * 1.6) * 0.5 + 0.5;
+float saturnOuterBreakup = smoothstep(0.84, 1.0, saturnRingRadius) * (saturnAngularDust * 0.65 + saturnGrain * 0.35);
+float saturnFarMainLift = (1.0 - saturnNearSide) * saturnMainBRing;
+float saturnForegroundDust = saturnNearSide * (saturnMainBRing * 0.7 + saturnARing * 0.3) * (saturnGrain - 0.5);
+float saturnParticleLift = (saturnGrain - 0.5) * 0.034 + (saturnAngularDust - 0.5) * 0.018 + saturnForegroundDust * 0.036;
+
+float saturnLuma = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114));
+diffuseColor.rgb = mix(vec3(saturnLuma), diffuseColor.rgb, 0.54);
+diffuseColor.rgb *= mix(vec3(0.62, 0.64, 0.68), vec3(1.05, 0.98, 0.84), saturnMainBRing * 0.68);
+diffuseColor.rgb *= mix(vec3(1.0), vec3(0.82, 0.86, 0.92), saturnARing * 0.32);
+diffuseColor.rgb *= mix(vec3(0.68, 0.66, 0.62), vec3(1.04, 1.02, 0.96), saturnNearSide * 0.34);
+diffuseColor.rgb *= 1.0 + saturnFarMainLift * 0.065;
+diffuseColor.rgb *= 1.0 - saturnCassiniCore * 0.41;
+diffuseColor.rgb += vec3(0.016, 0.015, 0.014) * saturnCassiniDust;
+diffuseColor.rgb *= 0.88 + saturnParticleLift;
+diffuseColor.rgb *= 1.0 - saturnInnerHaze * 0.22;
+diffuseColor.rgb *= 1.0 - saturnOuterHaze * 0.11;
+diffuseColor.rgb *= 1.0 - saturnPlanetShadow * 0.7;
+diffuseColor.a *= saturnRingBaseOpacity * saturnRingEdgeFade;
+diffuseColor.a *= 1.0 - saturnInnerHaze * 0.2;
+diffuseColor.a *= 1.0 - saturnOuterHaze * (0.24 + (1.0 - saturnOuterBreakup) * 0.12);
+diffuseColor.a *= 1.0 - saturnCassiniCore * 0.36;
+diffuseColor.a += saturnCassiniDust * saturnRingEdgeFade * 0.01;
+diffuseColor.a *= 1.0 + saturnFarMainLift * 0.055;
+diffuseColor.a *= mix(0.8, 1.07, saturnNearSide);
+diffuseColor.a *= 1.0 - saturnPlanetShadow * 0.72;
+diffuseColor.a *= 0.985 + saturnParticleLift;`,
+      );
+  };
+
+  material.customProgramCacheKey = () => "saturn-ring-texture-depth-v1";
 }
 
 function addSaturnRing(
@@ -357,22 +457,29 @@ function addSaturnRing(
   quality: MeshQuality,
   disposableTextures: THREE.Texture[],
 ) {
-  const innerRadius = body.visualRadius * 1.35;
-  const outerRadius = body.visualRadius * 2.32;
+  const innerRadius = body.visualRadius * 1.18;
+  const outerRadius = body.visualRadius * 2.48;
+  const thetaSegments = Math.max(256, quality.ringSegments);
+  const radialSegments = Math.max(18, Math.round(thetaSegments / 12));
   const geometry = new THREE.RingGeometry(
     innerRadius,
     outerRadius,
-    quality.ringSegments,
+    thetaSegments,
+    radialSegments,
   );
   applyRadialRingUvs(geometry, innerRadius, outerRadius);
 
   const material = new THREE.MeshBasicMaterial({
-    color: "#ffffff",
+    color: "#d8cfbb",
     transparent: true,
-    opacity: 0.86,
+    opacity: 0.69,
     side: THREE.DoubleSide,
     depthWrite: false,
+    depthTest: true,
+    alphaTest: 0.04,
   });
+  material.forceSinglePass = true;
+  extendSaturnRingShader(material);
 
   const ringTexturePath = solarSystemTextures.saturn.ringTexture;
   if (ringTexturePath) {
@@ -383,7 +490,6 @@ function addSaturnRing(
         texture.wrapS = THREE.ClampToEdgeWrapping;
         texture.wrapT = THREE.ClampToEdgeWrapping;
         material.map = texture;
-        material.alphaMap = texture;
         material.needsUpdate = true;
       },
       undefined,

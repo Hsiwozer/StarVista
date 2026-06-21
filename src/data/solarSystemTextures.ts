@@ -63,7 +63,7 @@ export const solarSystemTextures: Record<SolarBodyId, SolarTextureConfig> = {
   },
   saturn: {
     texture: `${textureBase}/saturn.jpg`,
-    ringTexture: `${textureBase}/saturn_ring.png`,
+    ringTexture: `${textureBase}/saturn_ring_2k.png`,
     fallback: "#c4ad78",
     roughness: 0.82,
   },
