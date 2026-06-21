@@ -29,12 +29,16 @@ export function createOrbitLine(
     new THREE.Float32BufferAttribute(positions, 3),
   );
 
+  const baseColor = new THREE.Color(body.color).lerp(new THREE.Color("#7fc7ff"), 0.34);
+  const selectedColor = new THREE.Color("#b9dcff");
   const material = new THREE.LineBasicMaterial({
-    color: new THREE.Color(body.color).lerp(new THREE.Color("#7fc7ff"), 0.34),
+    color: baseColor,
     transparent: true,
     opacity: 0.16,
     depthWrite: false,
   });
+  material.userData.baseColor = baseColor.clone();
+  material.userData.selectedColor = selectedColor;
 
   const line = new THREE.Line(geometry, material);
   line.name = `${body.name}-orbit`;

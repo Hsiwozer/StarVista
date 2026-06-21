@@ -179,6 +179,9 @@ export function SolarSystemPage() {
   }, []);
 
   useEffect(() => {
+    setTimeScale(1);
+    setLabelsVisible(false);
+
     if (!immersiveMode) {
       return;
     }

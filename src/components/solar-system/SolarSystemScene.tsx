@@ -5,6 +5,10 @@ import { asteroidBeltBody, type SolarBody, type SolarBodyId } from "../../data/s
 import { createAsteroidBelt, type AsteroidBeltResult } from "./AsteroidBelt";
 import { createOrbitLine } from "./OrbitLine";
 import { createPlanetMesh } from "./PlanetMesh";
+import {
+  updatePlanetSelectionIndicator,
+  type PlanetSelectionIndicator,
+} from "./SelectionIndicator";
 
 interface SolarSystemSceneProps {
   bodies: SolarBody[];
@@ -19,7 +23,7 @@ interface BodyRecord {
   body: SolarBody;
   group: THREE.Group;
   bodyMesh: THREE.Mesh;
-  hoverHalo: THREE.Mesh;
+  selectionIndicator: PlanetSelectionIndicator | null;
   sunGlowLayers: THREE.Sprite[];
   orbitMaterial?: THREE.LineBasicMaterial;
   disposableTextures: THREE.Texture[];
@@ -329,7 +333,7 @@ export function SolarSystemScene({
         body,
         group: planet.group,
         bodyMesh: planet.bodyMesh,
-        hoverHalo: planet.hoverHalo,
+        selectionIndicator: planet.selectionIndicator,
         sunGlowLayers: planet.sunGlowLayers,
         orbitMaterial: orbit?.material,
         disposableTextures: planet.disposableTextures,
@@ -356,7 +360,7 @@ export function SolarSystemScene({
       scene.add(asteroidBelt.group);
     }
 
-    const updateHighlight = () => {
+    const updateHighlight = (delta: number, time: number) => {
       records.forEach((record) => {
         const isHovered = hoveredRef.current === record.body.id;
         const isSelected = selectedRef.current === record.body.id;
@@ -367,40 +371,51 @@ export function SolarSystemScene({
           !isSelected &&
           record.body.id !== "sun";
 
-        setObjectOpacity(
-          record.hoverHalo,
-          isSelected
-            ? record.body.id === "sun"
-              ? 0.055
-              : 0.18
-            : isHovered
-              ? record.body.id === "sun"
-                ? 0.035
-                : 0.11
-              : 0,
-        );
+        if (record.selectionIndicator) {
+          updatePlanetSelectionIndicator(
+            record.selectionIndicator,
+            record.group,
+            camera,
+            isSelected,
+            isHovered,
+            delta,
+            time,
+          );
+        }
+
         record.group.scale.lerp(
           new THREE.Vector3(
-            isSelected ? 1.18 : isHovered ? 1.11 : 1,
-            isSelected ? 1.18 : isHovered ? 1.11 : 1,
-            isSelected ? 1.18 : isHovered ? 1.11 : 1,
+            isSelected ? 1.1 : isHovered ? 1.07 : 1,
+            isSelected ? 1.1 : isHovered ? 1.07 : 1,
+            isSelected ? 1.1 : isHovered ? 1.07 : 1,
           ),
           0.12,
         );
 
         if (record.orbitMaterial) {
           const targetOrbitOpacity = isSelected
-            ? 0.48
+            ? 0.27
             : isHovered
-              ? 0.34
+              ? 0.2
               : hasFocus
                 ? 0.055
                 : 0.13;
+          const baseColor = record.orbitMaterial.userData.baseColor as THREE.Color | undefined;
+          const selectedColor = record.orbitMaterial.userData.selectedColor as
+            | THREE.Color
+            | undefined;
+          const targetOrbitColor =
+            isSelected && selectedColor ? selectedColor : baseColor;
+
           record.orbitMaterial.opacity = THREE.MathUtils.lerp(
             record.orbitMaterial.opacity,
             targetOrbitOpacity,
             0.16,
           );
+
+          if (targetOrbitColor) {
+            record.orbitMaterial.color.lerp(targetOrbitColor, 0.12);
+          }
         }
 
         setObjectOpacity(record.bodyMesh, isDimmed ? 0.44 : 1);
@@ -441,9 +456,9 @@ export function SolarSystemScene({
           projected.x < 1.12 &&
           projected.y > -1.12 &&
           projected.y < 1.12;
-        const isActive =
-          hoveredRef.current === record.body.id ||
-          selectedRef.current === record.body.id;
+        const isSelectedLabel = selectedRef.current === record.body.id;
+        const isHoveredLabel = hoveredRef.current === record.body.id;
+        const isActive = isSelectedLabel || isHoveredLabel;
         const x = THREE.MathUtils.clamp((projected.x * 0.5 + 0.5) * width, 68, width - 68);
         const y = THREE.MathUtils.clamp((-projected.y * 0.5 + 0.5) * height, 68, height - 40);
         const hasSelection = selectedRef.current !== null;
@@ -452,6 +467,7 @@ export function SolarSystemScene({
         label.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -112%)`;
         label.style.opacity = shouldShow ? (isActive ? "0.96" : "0.48") : "0";
         label.dataset.active = isActive ? "true" : "false";
+        label.dataset.state = isSelectedLabel ? "selected" : isHoveredLabel ? "hover" : "idle";
       });
     };
 
@@ -606,7 +622,7 @@ export function SolarSystemScene({
       asteroidBelt?.update(delta, timeScaleRef.current);
       starfield.rotation.y += delta * 0.004;
       starfield.rotation.x += delta * 0.0015;
-      updateHighlight();
+      updateHighlight(delta, time);
       controls.update();
       updateLabels();
       renderer.render(scene, camera);
@@ -645,6 +661,15 @@ export function SolarSystemScene({
 
         if (object instanceof THREE.Points) {
           object.geometry.dispose();
+          const material = object.material;
+          if (Array.isArray(material)) {
+            material.forEach((item) => item.dispose());
+          } else {
+            material.dispose();
+          }
+        }
+
+        if (object instanceof THREE.Sprite) {
           const material = object.material;
           if (Array.isArray(material)) {
             material.forEach((item) => item.dispose());

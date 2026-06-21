@@ -1,11 +1,15 @@
 import * as THREE from "three";
 import type { SolarBody } from "../../data/solarSystem";
 import { solarSystemTextures } from "../../data/solarSystemTextures";
+import {
+  createPlanetSelectionIndicator,
+  type PlanetSelectionIndicator,
+} from "./SelectionIndicator";
 
 export interface PlanetMeshResult {
   group: THREE.Group;
   bodyMesh: THREE.Mesh;
-  hoverHalo: THREE.Mesh;
+  selectionIndicator: PlanetSelectionIndicator | null;
   sunGlowLayers: THREE.Sprite[];
   disposableTextures: THREE.Texture[];
 }
@@ -559,23 +563,6 @@ export function createPlanetMesh(
   bodyMesh.name = `${body.name}-mesh`;
   group.add(bodyMesh);
 
-  const hoverHalo = new THREE.Mesh(
-    new THREE.SphereGeometry(
-      body.visualRadius * (body.id === "sun" ? 1.08 : 1.34),
-      Math.max(32, quality.sphereSegments / 1.5),
-      Math.max(18, quality.sphereSegments / 2),
-    ),
-    new THREE.MeshBasicMaterial({
-      color: body.id === "sun" ? "#ffe2a4" : "#9fd7ff",
-      transparent: true,
-      opacity: 0,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-  );
-  hoverHalo.name = `${body.name}-hover-halo`;
-  group.add(hoverHalo);
-
   const sunGlowLayers =
     body.id === "sun" ? addSunGlow(group, body, disposableTextures) : [];
 
@@ -602,5 +589,16 @@ export function createPlanetMesh(
     object.userData.bodyId = body.id;
   });
 
-  return { group, bodyMesh, hoverHalo, sunGlowLayers, disposableTextures };
+  const selectionIndicator = createPlanetSelectionIndicator(body, disposableTextures);
+  if (selectionIndicator) {
+    group.add(selectionIndicator.group);
+  }
+
+  return {
+    group,
+    bodyMesh,
+    selectionIndicator,
+    sunGlowLayers,
+    disposableTextures,
+  };
 }
