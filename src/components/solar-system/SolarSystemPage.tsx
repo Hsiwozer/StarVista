@@ -29,6 +29,26 @@ interface MeteorTrace {
 
 const meteorLifetime = 2400;
 const deepSpaceEchoGazeDuration = 3000;
+const speedControlCollapseDelay = 950;
+
+function isPointerInsideElementRect(
+  element: HTMLElement | null,
+  event: PointerEvent,
+  buffer = 0,
+) {
+  if (!element) {
+    return false;
+  }
+
+  const rect = element.getBoundingClientRect();
+
+  return (
+    event.clientX >= rect.left - buffer &&
+    event.clientX <= rect.right + buffer &&
+    event.clientY >= rect.top - buffer &&
+    event.clientY <= rect.bottom + buffer
+  );
+}
 
 function createMeteorTrace(id: number): MeteorTrace {
   const fromLeft = Math.random() > 0.5;
@@ -95,6 +115,8 @@ export function SolarSystemPage() {
   const [timeScale, setTimeScale] = useState(1);
   const [labelsVisible, setLabelsVisible] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [isSpeedIconHovered, setIsSpeedIconHovered] = useState(false);
+  const [isSpeedPanelHovered, setIsSpeedPanelHovered] = useState(false);
   const [immersiveMode, setImmersiveMode] = useState(false);
   const [immersiveEdgeActive, setImmersiveEdgeActive] = useState(false);
   const [immersiveToggleLocked, setImmersiveToggleLocked] = useState(false);
@@ -105,7 +127,12 @@ export function SolarSystemPage() {
   const [deepSpaceEchoHandled, setDeepSpaceEchoHandled] = useState(false);
   const [deepSpaceEchoTriggered, setDeepSpaceEchoTriggered] = useState(false);
   const controlPanelRef = useRef<HTMLElement | null>(null);
+  const speedControlTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const speedControlDrawerRef = useRef<HTMLDivElement | null>(null);
   const controlCloseTimerRef = useRef<number | null>(null);
+  const speedIconHoveredRef = useRef(false);
+  const speedPanelHoveredRef = useRef(false);
+  const speedControlHoveredRef = useRef(false);
   const immersiveEdgeTimerRef = useRef<number | null>(null);
   const immersiveToggleLockTimerRef = useRef<number | null>(null);
   const immersiveToggleLockedRef = useRef(false);
@@ -121,6 +148,7 @@ export function SolarSystemPage() {
         window.location.hostname === "127.0.0.1") &&
       new URLSearchParams(window.location.search).has("echoDebug"),
   );
+  const isSpeedControlHovered = isSpeedIconHovered || isSpeedPanelHovered;
 
   const handleSelect = useCallback((body: SolarBody | null) => {
     setSelectedBody(body);
@@ -170,11 +198,83 @@ export function SolarSystemPage() {
     setControlsOpen(true);
   }, [clearControlCloseTimer]);
 
+  const syncSpeedControlHover = useCallback(
+    ({
+      iconHovered,
+      panelHovered,
+      transitionHovered = false,
+    }: {
+      iconHovered: boolean;
+      panelHovered: boolean;
+      transitionHovered?: boolean;
+    }) => {
+      if (speedIconHoveredRef.current !== iconHovered) {
+        speedIconHoveredRef.current = iconHovered;
+        setIsSpeedIconHovered(iconHovered);
+      }
+
+      if (speedPanelHoveredRef.current !== panelHovered) {
+        speedPanelHoveredRef.current = panelHovered;
+        setIsSpeedPanelHovered(panelHovered);
+      }
+
+      speedControlHoveredRef.current =
+        iconHovered || panelHovered || transitionHovered;
+    },
+    [],
+  );
+
   const closeControlsSoon = useCallback(() => {
-    clearControlCloseTimer();
+    if (speedControlHoveredRef.current || controlCloseTimerRef.current !== null) {
+      return;
+    }
+
     controlCloseTimerRef.current = window.setTimeout(() => {
+      controlCloseTimerRef.current = null;
+
+      if (speedControlHoveredRef.current) {
+        return;
+      }
+
       setControlsOpen(false);
-    }, 950);
+    }, speedControlCollapseDelay);
+  }, []);
+
+  const handleSpeedIconPointerEnter = useCallback(() => {
+    syncSpeedControlHover({
+      iconHovered: true,
+      panelHovered: speedPanelHoveredRef.current,
+    });
+    openControls();
+  }, [openControls, syncSpeedControlHover]);
+
+  const handleSpeedIconPointerLeave = useCallback(() => {
+    syncSpeedControlHover({
+      iconHovered: false,
+      panelHovered: speedPanelHoveredRef.current,
+    });
+    closeControlsSoon();
+  }, [closeControlsSoon, syncSpeedControlHover]);
+
+  const handleSpeedPanelPointerEnter = useCallback(() => {
+    syncSpeedControlHover({
+      iconHovered: speedIconHoveredRef.current,
+      panelHovered: true,
+    });
+    openControls();
+  }, [openControls, syncSpeedControlHover]);
+
+  const handleSpeedPanelPointerLeave = useCallback(() => {
+    syncSpeedControlHover({
+      iconHovered: speedIconHoveredRef.current,
+      panelHovered: false,
+    });
+    closeControlsSoon();
+  }, [closeControlsSoon, syncSpeedControlHover]);
+
+  const handleControlTriggerClick = useCallback(() => {
+    clearControlCloseTimer();
+    setControlsOpen((open) => !open);
   }, [clearControlCloseTimer]);
 
   const lockImmersiveToggle = useCallback(() => {
@@ -322,32 +422,42 @@ export function SolarSystemPage() {
     }
 
     const handleGlobalPointerMove = (event: PointerEvent) => {
-      const panel = controlPanelRef.current;
-
-      if (!panel) {
-        return;
-      }
-
-      const rect = panel.getBoundingClientRect();
-      const buffer = 10;
+      const buffer = 18;
+      const iconHovered = isPointerInsideElementRect(
+        speedControlTriggerRef.current,
+        event,
+      );
+      const panelHovered = isPointerInsideElementRect(
+        speedControlDrawerRef.current,
+        event,
+      );
       const inside =
-        event.clientX >= rect.left - buffer &&
-        event.clientX <= rect.right + buffer &&
-        event.clientY >= rect.top - buffer &&
-        event.clientY <= rect.bottom + buffer;
+        iconHovered ||
+        panelHovered ||
+        isPointerInsideElementRect(speedControlTriggerRef.current, event, buffer) ||
+        isPointerInsideElementRect(speedControlDrawerRef.current, event, buffer);
 
       if (inside) {
+        syncSpeedControlHover({
+          iconHovered,
+          panelHovered,
+          transitionHovered: true,
+        });
         openControls();
         return;
       }
 
+      syncSpeedControlHover({
+        iconHovered: false,
+        panelHovered: false,
+      });
       closeControlsSoon();
     };
 
     window.addEventListener("pointermove", handleGlobalPointerMove);
 
     return () => window.removeEventListener("pointermove", handleGlobalPointerMove);
-  }, [closeControlsSoon, controlsOpen, openControls]);
+  }, [closeControlsSoon, controlsOpen, openControls, syncSpeedControlHover]);
 
   useEffect(() => {
     if (controlsOpen || controlCloseTimerRef.current === null) {
@@ -526,20 +636,31 @@ export function SolarSystemPage() {
         className={`solar-control-panel ${
           controlsOpen ? "solar-control-panel-open" : ""
         }`}
+        data-hovered={isSpeedControlHovered ? "true" : "false"}
         aria-label="太阳系控制面板"
-        onMouseEnter={openControls}
-        onMouseLeave={closeControlsSoon}
       >
         <button
+          ref={speedControlTriggerRef}
           type="button"
           className="solar-control-trigger"
           aria-label={controlsOpen ? "收起太阳系控制" : "展开太阳系控制"}
           aria-expanded={controlsOpen}
-          onClick={() => setControlsOpen((open) => !open)}
+          onPointerEnter={handleSpeedIconPointerEnter}
+          onPointerLeave={handleSpeedIconPointerLeave}
+          onFocus={openControls}
+          onBlur={closeControlsSoon}
+          onClick={handleControlTriggerClick}
         >
           <Gauge size={17} aria-hidden="true" />
         </button>
-        <div className="solar-control-drawer">
+        <div
+          ref={speedControlDrawerRef}
+          className="solar-control-drawer"
+          onPointerEnter={handleSpeedPanelPointerEnter}
+          onPointerLeave={handleSpeedPanelPointerLeave}
+          onFocus={openControls}
+          onBlur={closeControlsSoon}
+        >
           <TimeControl value={timeScale} onChange={setTimeScale} />
           <div className="solar-label-control" aria-label="行星标签显示控制">
             <span className="solar-control-label">Planet Labels</span>

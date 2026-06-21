@@ -32,6 +32,7 @@ interface BodyRecord {
 
 interface HoverLabel {
   visible: boolean;
+  bodyId: SolarBodyId | null;
   text: string;
   x: number;
   y: number;
@@ -256,6 +257,7 @@ export function SolarSystemScene({
   const isUserOrbitingRef = useRef(false);
   const [hoverLabel, setHoverLabel] = useState<HoverLabel>({
     visible: false,
+    bodyId: null,
     text: "",
     x: 0,
     y: 0,
@@ -642,6 +644,7 @@ export function SolarSystemScene({
       if (body) {
         setHoverLabel({
           visible: true,
+          bodyId,
           text: picked.hoverLabel,
           x: event.clientX + 16,
           y: event.clientY + 16,
@@ -895,10 +898,15 @@ export function SolarSystemScene({
     };
   }, [bodies, onDeepSpaceEchoTelemetry, onHover, onSelect]);
 
+  const shouldShowHoverLabel =
+    hoverLabel.visible && (!labelsVisible || hoverLabel.bodyId === "sun");
+
   return (
     <div ref={containerRef} className="solar-system-canvas" aria-label="实时 3D 太阳系">
       <div
-        className={`solar-hover-label ${hoverLabel.visible ? "solar-hover-label-visible" : ""}`}
+        className={`solar-hover-label ${
+          shouldShowHoverLabel ? "solar-hover-label-visible" : ""
+        }`}
         style={{
           transform: `translate3d(${hoverLabel.x}px, ${hoverLabel.y}px, 0)`,
         }}
