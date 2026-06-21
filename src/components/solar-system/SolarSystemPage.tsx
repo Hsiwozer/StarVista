@@ -10,9 +10,17 @@ import { Gauge, Maximize2, Minimize2 } from "lucide-react";
 import type { SolarBody } from "../../data/solarSystem";
 import { solarSystemBodies } from "../../data/solarSystem";
 import { BackToHomeButton } from "./BackToHomeButton";
+import { DeepSpaceEchoFlow } from "./DeepSpaceEchoFlow";
 import { PlanetInfoPanel } from "./PlanetInfoPanel";
-import { SolarSystemScene } from "./SolarSystemScene";
+import { SolarSystemScene, type DeepSpaceEchoTelemetry } from "./SolarSystemScene";
 import { TimeControl } from "./TimeControl";
+
+declare global {
+  interface Window {
+    showDeepSpaceEchoPrompt?: () => boolean;
+    openDeepSpaceEchoFlow?: () => boolean;
+  }
+}
 
 interface MeteorTrace {
   id: number;
@@ -20,6 +28,7 @@ interface MeteorTrace {
 }
 
 const meteorLifetime = 2400;
+const deepSpaceEchoGazeDuration = 3000;
 
 function createMeteorTrace(id: number): MeteorTrace {
   const fromLeft = Math.random() > 0.5;
@@ -41,6 +50,45 @@ function createMeteorTrace(id: number): MeteorTrace {
   };
 }
 
+function isGazingAtEarth({
+  immersiveMode,
+  selectedBody,
+  telemetry,
+}: {
+  immersiveMode: boolean;
+  selectedBody: SolarBody | null;
+  telemetry: DeepSpaceEchoTelemetry | null;
+}) {
+  return Boolean(
+    immersiveMode &&
+      selectedBody?.id === "earth" &&
+      telemetry?.isCameraTargetNearEarth &&
+      telemetry?.isEarthNearViewportCenter,
+  );
+}
+
+function checkDeepSpaceEchoTrigger({
+  hasTriggered,
+  isEarthGazeReady,
+  telemetry,
+  gazeStartedAt,
+  now,
+}: {
+  hasTriggered: boolean;
+  isEarthGazeReady: boolean;
+  telemetry: DeepSpaceEchoTelemetry | null;
+  gazeStartedAt: number | null;
+  now: number;
+}) {
+  return Boolean(
+    !hasTriggered &&
+      isEarthGazeReady &&
+      telemetry?.isEarthInEchoWindow &&
+      gazeStartedAt !== null &&
+      now - gazeStartedAt >= deepSpaceEchoGazeDuration,
+  );
+}
+
 export function SolarSystemPage() {
   const [selectedBody, setSelectedBody] = useState<SolarBody | null>(null);
   const [hoveredBody, setHoveredBody] = useState<SolarBody | null>(null);
@@ -51,13 +99,28 @@ export function SolarSystemPage() {
   const [immersiveEdgeActive, setImmersiveEdgeActive] = useState(false);
   const [immersiveToggleLocked, setImmersiveToggleLocked] = useState(false);
   const [meteors, setMeteors] = useState<MeteorTrace[]>([]);
+  const [deepSpaceEchoTelemetry, setDeepSpaceEchoTelemetry] =
+    useState<DeepSpaceEchoTelemetry | null>(null);
+  const [deepSpaceEchoActive, setDeepSpaceEchoActive] = useState(false);
+  const [deepSpaceEchoHandled, setDeepSpaceEchoHandled] = useState(false);
+  const [deepSpaceEchoTriggered, setDeepSpaceEchoTriggered] = useState(false);
   const controlPanelRef = useRef<HTMLElement | null>(null);
   const controlCloseTimerRef = useRef<number | null>(null);
   const immersiveEdgeTimerRef = useRef<number | null>(null);
   const immersiveToggleLockTimerRef = useRef<number | null>(null);
   const immersiveToggleLockedRef = useRef(false);
+  const deepSpaceEchoGazeStartedAtRef = useRef<number | null>(null);
+  const deepSpaceEchoLastDebugAtRef = useRef(0);
+  const deepSpaceEchoActiveRef = useRef(false);
+  const deepSpaceEchoHandledRef = useRef(false);
   const meteorRemovalTimerRefs = useRef<number[]>([]);
   const meteorIdRef = useRef(0);
+  const deepSpaceEchoDebugEnabledRef = useRef(
+    typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1") &&
+      new URLSearchParams(window.location.search).has("echoDebug"),
+  );
 
   const handleSelect = useCallback((body: SolarBody | null) => {
     setSelectedBody(body);
@@ -65,6 +128,30 @@ export function SolarSystemPage() {
 
   const handleHover = useCallback((body: SolarBody | null) => {
     setHoveredBody(body);
+  }, []);
+
+  const handleDeepSpaceEchoTelemetry = useCallback((telemetry: DeepSpaceEchoTelemetry) => {
+    setDeepSpaceEchoTelemetry(telemetry);
+  }, []);
+
+  const openDeepSpaceEchoFlow = useCallback(() => {
+    if (deepSpaceEchoHandledRef.current || deepSpaceEchoActiveRef.current) {
+      return false;
+    }
+
+    deepSpaceEchoActiveRef.current = true;
+    setDeepSpaceEchoActive(true);
+    return true;
+  }, []);
+
+  const handleDeepSpaceEchoHandled = useCallback(() => {
+    deepSpaceEchoHandledRef.current = true;
+    setDeepSpaceEchoHandled(true);
+  }, []);
+
+  const handleDeepSpaceEchoClose = useCallback(() => {
+    deepSpaceEchoActiveRef.current = false;
+    setDeepSpaceEchoActive(false);
   }, []);
 
   const handleReturn = useCallback(() => {
@@ -167,6 +254,44 @@ export function SolarSystemPage() {
   }, [clearControlCloseTimer]);
 
   useEffect(() => {
+    const showDeepSpaceEchoPrompt = () => openDeepSpaceEchoFlow();
+    const handleDeepSpaceEchoOpen = () => {
+      openDeepSpaceEchoFlow();
+    };
+
+    window.showDeepSpaceEchoPrompt = showDeepSpaceEchoPrompt;
+    window.openDeepSpaceEchoFlow = showDeepSpaceEchoPrompt;
+    window.addEventListener("starvista:open-deep-space-echo", handleDeepSpaceEchoOpen);
+
+    return () => {
+      window.removeEventListener(
+        "starvista:open-deep-space-echo",
+        handleDeepSpaceEchoOpen,
+      );
+
+      if (window.showDeepSpaceEchoPrompt === showDeepSpaceEchoPrompt) {
+        delete window.showDeepSpaceEchoPrompt;
+      }
+
+      if (window.openDeepSpaceEchoFlow === showDeepSpaceEchoPrompt) {
+        delete window.openDeepSpaceEchoFlow;
+      }
+    };
+  }, [openDeepSpaceEchoFlow]);
+
+  useEffect(() => {
+    const isLocalPreview =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (!isLocalPreview || !new URLSearchParams(window.location.search).has("echoPrompt")) {
+      return;
+    }
+
+    window.setTimeout(() => openDeepSpaceEchoFlow(), 0);
+  }, [openDeepSpaceEchoFlow]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setImmersiveMode(false);
@@ -181,6 +306,7 @@ export function SolarSystemPage() {
   useEffect(() => {
     setTimeScale(1);
     setLabelsVisible(false);
+    setSelectedBody(null);
 
     if (!immersiveMode) {
       return;
@@ -230,6 +356,80 @@ export function SolarSystemPage() {
 
     clearControlCloseTimer();
   }, [clearControlCloseTimer, controlsOpen]);
+
+  useEffect(() => {
+    const now = window.performance.now();
+    const isEarthGazeReady = isGazingAtEarth({
+      immersiveMode,
+      selectedBody,
+      telemetry: deepSpaceEchoTelemetry,
+    });
+
+    if (!isEarthGazeReady) {
+      deepSpaceEchoGazeStartedAtRef.current = null;
+      return;
+    }
+
+    if (deepSpaceEchoGazeStartedAtRef.current === null) {
+      deepSpaceEchoGazeStartedAtRef.current = now;
+    }
+
+    if (
+      checkDeepSpaceEchoTrigger({
+        hasTriggered:
+          deepSpaceEchoTriggered || deepSpaceEchoHandled || deepSpaceEchoActive,
+        isEarthGazeReady,
+        telemetry: deepSpaceEchoTelemetry,
+        gazeStartedAt: deepSpaceEchoGazeStartedAtRef.current,
+        now,
+      })
+    ) {
+      setDeepSpaceEchoTriggered(true);
+      openDeepSpaceEchoFlow();
+    }
+  }, [
+    deepSpaceEchoActive,
+    deepSpaceEchoHandled,
+    deepSpaceEchoTelemetry,
+    deepSpaceEchoTriggered,
+    immersiveMode,
+    openDeepSpaceEchoFlow,
+    selectedBody,
+  ]);
+
+  useEffect(() => {
+    if (!deepSpaceEchoDebugEnabledRef.current || !deepSpaceEchoTelemetry) {
+      return;
+    }
+
+    const now = window.performance.now();
+
+    if (now - deepSpaceEchoLastDebugAtRef.current < 1000) {
+      return;
+    }
+
+    deepSpaceEchoLastDebugAtRef.current = now;
+    console.debug("[DeepSpaceEcho]", {
+      earthClockAngle: Number(deepSpaceEchoTelemetry.earthClockAngleDegrees.toFixed(2)),
+      targetClockAngle: deepSpaceEchoTelemetry.echoTargetClockAngleDegrees,
+      tolerance: deepSpaceEchoTelemetry.echoToleranceDegrees,
+      isEchoWindow: deepSpaceEchoTelemetry.isEarthInEchoWindow,
+      immersiveMode,
+      isGazingAtEarth: isGazingAtEarth({
+        immersiveMode,
+        selectedBody,
+        telemetry: deepSpaceEchoTelemetry,
+      }),
+      hasTriggered: deepSpaceEchoTriggered,
+      handled: deepSpaceEchoHandled,
+    });
+  }, [
+    deepSpaceEchoHandled,
+    deepSpaceEchoTelemetry,
+    deepSpaceEchoTriggered,
+    immersiveMode,
+    selectedBody,
+  ]);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -293,9 +493,16 @@ export function SolarSystemPage() {
         labelsVisible={labelsVisible && !immersiveMode}
         onSelect={handleSelect}
         onHover={handleHover}
+        onDeepSpaceEchoTelemetry={handleDeepSpaceEchoTelemetry}
       />
 
       <div className="solar-system-vignette" aria-hidden="true" />
+      {deepSpaceEchoActive ? (
+        <DeepSpaceEchoFlow
+          onHandled={handleDeepSpaceEchoHandled}
+          onClose={handleDeepSpaceEchoClose}
+        />
+      ) : null}
 
       <header
         className={`solar-page-header ${

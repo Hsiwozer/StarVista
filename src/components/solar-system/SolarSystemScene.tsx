@@ -17,6 +17,7 @@ interface SolarSystemSceneProps {
   labelsVisible: boolean;
   onSelect: (body: SolarBody | null) => void;
   onHover: (body: SolarBody | null) => void;
+  onDeepSpaceEchoTelemetry?: (telemetry: DeepSpaceEchoTelemetry) => void;
 }
 
 interface BodyRecord {
@@ -44,10 +45,50 @@ interface PickableObject extends THREE.Object3D {
   };
 }
 
+export interface DeepSpaceEchoTelemetry {
+  earthClockAngleDegrees: number;
+  echoTargetClockAngleDegrees: number;
+  echoToleranceDegrees: number;
+  isEarthInEchoWindow: boolean;
+  isEarthNearViewportCenter: boolean;
+  isCameraTargetNearEarth: boolean;
+}
+
 const overviewCameraPosition = new THREE.Vector3(0, 29, 53);
 const overviewTarget = new THREE.Vector3(0, 0, 0);
+const focusedPlanetFollowLerpFactor = 0.1;
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+const echoTargetClockAngleDegrees = 9 * 30 + 19 * 0.5;
+const echoToleranceDegrees = 4;
+
+function normalizeDegrees(angle: number) {
+  return ((angle % 360) + 360) % 360;
+}
+
+function getAngleDistanceDegrees(angle: number, target: number) {
+  const distance = Math.abs(normalizeDegrees(angle) - normalizeDegrees(target));
+  return Math.min(distance, 360 - distance);
+}
+
+function isEarthAtEchoCoordinate(earthClockAngleDegrees: number) {
+  return (
+    getAngleDistanceDegrees(earthClockAngleDegrees, echoTargetClockAngleDegrees) <=
+    echoToleranceDegrees
+  );
+}
+
+function getEarthClockAngleDegrees(position: THREE.Vector3) {
+  /*
+   * "9:19 回响坐标" 是 StarVista 内部宇宙的轨道方位，不是现实日期或时间。
+   * 当前太阳系轨道位于 x/z 平面：太阳在原点，日地连线是放平钟面的指针。
+   * 这里把 +z 视作 12 点方向，并沿钟面顺时针转向 +x；因此钟面角度使用
+   * atan2(x, z)。若换成项目内部常见的数学角 atan2(z, x)，则等价于
+   * internalAngle = 90deg - clockAngle。
+   */
+  return normalizeDegrees(THREE.MathUtils.radToDeg(Math.atan2(position.x, position.z)));
+}
+
 
 function getBodyPosition(body: SolarBody, elapsedDays: number) {
   if (body.semiMajorAxis <= 0) {
@@ -161,6 +202,18 @@ function updateEarthSunDirection(record: BodyRecord) {
   sunDirection.normalize();
 }
 
+function getFocusDistance(body: SolarBody) {
+  if (body.id === "sun") {
+    return Math.max(body.visualRadius * 6.2, 22);
+  }
+
+  if (body.id === "moon") {
+    return Math.max(body.visualRadius * 13, 8.2);
+  }
+
+  return Math.max(body.visualRadius * 6.4, 8.4);
+}
+
 export function SolarSystemScene({
   bodies,
   selectedBodyId,
@@ -168,6 +221,7 @@ export function SolarSystemScene({
   labelsVisible,
   onSelect,
   onHover,
+  onDeepSpaceEchoTelemetry,
 }: SolarSystemSceneProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -187,11 +241,19 @@ export function SolarSystemScene({
     active: boolean;
     position: THREE.Vector3;
     target: THREE.Vector3;
+    startedAt: number;
   }>({
     active: false,
     position: overviewCameraPosition.clone(),
     target: overviewTarget.clone(),
+    startedAt: 0,
   });
+  const focusTargetRef = useRef<THREE.Object3D | null>(null);
+  const cameraOffsetRef = useRef(new THREE.Vector3());
+  const focusTargetWorldPositionRef = useRef(new THREE.Vector3());
+  const desiredCameraPositionRef = useRef(new THREE.Vector3());
+  const focusDirectionRef = useRef(new THREE.Vector3());
+  const isUserOrbitingRef = useRef(false);
   const [hoverLabel, setHoverLabel] = useState<HoverLabel>({
     visible: false,
     text: "",
@@ -209,28 +271,50 @@ export function SolarSystemScene({
 
   useEffect(() => {
     selectedRef.current = selectedBodyId;
+
     const record = selectedBodyId
       ? recordsRef.current.get(selectedBodyId)
       : undefined;
 
     if (selectedBodyId && record) {
-      const offset = new THREE.Vector3(
-        Math.max(5.2, record.body.visualRadius * 4.8),
-        Math.max(2.6, record.body.visualRadius * 2.7),
-        Math.max(5.8, record.body.visualRadius * 5.6),
-      );
+      const camera = cameraRef.current;
+      const targetWorldPosition = focusTargetWorldPositionRef.current;
+      const cameraOffset = cameraOffsetRef.current;
+      const focusDirection = focusDirectionRef.current;
+      const desiredCameraPosition = desiredCameraPositionRef.current;
+      const focusDistance = getFocusDistance(record.body);
+
+      record.group.getWorldPosition(targetWorldPosition);
+
+      if (camera) {
+        focusDirection.copy(camera.position).sub(targetWorldPosition);
+      } else {
+        focusDirection.set(0.58, 0.32, 0.72);
+      }
+
+      if (focusDirection.lengthSq() < 0.0001) {
+        focusDirection.set(0.58, 0.32, 0.72);
+      }
+
+      focusDirection.normalize();
+      cameraOffset.copy(focusDirection).multiplyScalar(focusDistance);
+      desiredCameraPosition.copy(targetWorldPosition).add(cameraOffset);
+      focusTargetRef.current = record.group;
       cameraMoveRef.current = {
         active: true,
-        position: record.group.position.clone().add(offset),
-        target: record.group.position.clone(),
+        position: desiredCameraPosition.clone(),
+        target: targetWorldPosition.clone(),
+        startedAt: window.performance.now(),
       };
       return;
     }
 
+    focusTargetRef.current = null;
     cameraMoveRef.current = {
       active: true,
       position: overviewCameraPosition.clone(),
       target: overviewTarget.clone(),
+      startedAt: window.performance.now(),
     };
   }, [selectedBodyId]);
 
@@ -260,6 +344,7 @@ export function SolarSystemScene({
       active: !reducedMotion,
       position: overviewCameraPosition.clone(),
       target: overviewTarget.clone(),
+      startedAt: window.performance.now(),
     };
 
     const renderer = new THREE.WebGLRenderer({
@@ -283,6 +368,46 @@ export function SolarSystemScene({
     controls.maxPolarAngle = Math.PI * 0.82;
     controls.target.copy(overviewTarget);
     controlsRef.current = controls;
+
+    const updateFocusedPlanetOffset = () => {
+      const focusTarget = focusTargetRef.current;
+
+      if (!focusTarget || !focusTarget.parent) {
+        focusTargetRef.current = null;
+        return;
+      }
+
+      focusTarget.getWorldPosition(focusTargetWorldPositionRef.current);
+      cameraOffsetRef.current
+        .copy(camera.position)
+        .sub(focusTargetWorldPositionRef.current);
+    };
+
+    const handleControlsStart = () => {
+      isUserOrbitingRef.current = true;
+
+      if (focusTargetRef.current) {
+        cameraMoveRef.current.active = false;
+      }
+    };
+
+    const handleControlsChange = () => {
+      if (isUserOrbitingRef.current && focusTargetRef.current) {
+        updateFocusedPlanetOffset();
+      }
+    };
+
+    const handleControlsEnd = () => {
+      if (isUserOrbitingRef.current && focusTargetRef.current) {
+        updateFocusedPlanetOffset();
+      }
+
+      isUserOrbitingRef.current = false;
+    };
+
+    controls.addEventListener("start", handleControlsStart);
+    controls.addEventListener("change", handleControlsChange);
+    controls.addEventListener("end", handleControlsEnd);
 
     scene.add(new THREE.AmbientLight("#7fc7ff", 0.045));
     scene.add(new THREE.HemisphereLight("#a8cfff", "#02030a", 0.075));
@@ -343,6 +468,9 @@ export function SolarSystemScene({
     const mars = bodies.find((body) => body.id === "mars");
     const jupiter = bodies.find((body) => body.id === "jupiter");
     let asteroidBelt: AsteroidBeltResult | null = null;
+    let lastEchoTelemetryAt = 0;
+    const echoProjectedPosition = new THREE.Vector3();
+    const focusFillOffset = new THREE.Vector3(3.2, 2.35, 3.6);
 
     if (mars && jupiter) {
       const orbitGap = jupiter.semiMajorAxis - mars.semiMajorAxis;
@@ -549,6 +677,77 @@ export function SolarSystemScene({
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 1.6));
     };
 
+    const updateFocusedPlanetTracking = () => {
+      const focusTarget = focusTargetRef.current;
+
+      if (!focusTarget || !focusTarget.parent) {
+        focusTargetRef.current = null;
+        return;
+      }
+
+      // Focused planet tracking / 聚焦行星跟随：锁定天体的实时世界坐标。
+      focusTarget.getWorldPosition(focusTargetWorldPositionRef.current);
+      desiredCameraPositionRef.current
+        .copy(focusTargetWorldPositionRef.current)
+        .add(cameraOffsetRef.current);
+
+      camera.position.lerp(desiredCameraPositionRef.current, focusedPlanetFollowLerpFactor);
+      controls.target.lerp(
+        focusTargetWorldPositionRef.current,
+        focusedPlanetFollowLerpFactor,
+      );
+    };
+
+    const updateActiveCameraMoveTarget = () => {
+      const focusTarget = focusTargetRef.current;
+
+      if (!focusTarget || !focusTarget.parent) {
+        return;
+      }
+
+      focusTarget.getWorldPosition(focusTargetWorldPositionRef.current);
+      cameraMoveRef.current.target.copy(focusTargetWorldPositionRef.current);
+      cameraMoveRef.current.position
+        .copy(focusTargetWorldPositionRef.current)
+        .add(cameraOffsetRef.current);
+    };
+
+    const updateDeepSpaceEchoTelemetry = (time: number) => {
+      if (!onDeepSpaceEchoTelemetry || time - lastEchoTelemetryAt < 180) {
+        return;
+      }
+
+      const earth = records.get("earth");
+
+      if (!earth) {
+        return;
+      }
+
+      lastEchoTelemetryAt = time;
+      const earthClockAngleDegrees = getEarthClockAngleDegrees(earth.group.position);
+      echoProjectedPosition.copy(earth.group.position).project(camera);
+      const isEarthVisible =
+        echoProjectedPosition.z > -1 &&
+        echoProjectedPosition.z < 1;
+      const centerTolerance = isMobile ? 0.28 : 0.22;
+      const isEarthNearViewportCenter =
+        isEarthVisible &&
+        Math.abs(echoProjectedPosition.x) <= centerTolerance &&
+        Math.abs(echoProjectedPosition.y) <= centerTolerance;
+      const isCameraTargetNearEarth =
+        controls.target.distanceTo(earth.group.position) <=
+        Math.max(0.85, earth.body.visualRadius * 1.55);
+
+      onDeepSpaceEchoTelemetry({
+        earthClockAngleDegrees,
+        echoTargetClockAngleDegrees,
+        echoToleranceDegrees,
+        isEarthInEchoWindow: isEarthAtEchoCoordinate(earthClockAngleDegrees),
+        isEarthNearViewportCenter,
+        isCameraTargetNearEarth,
+      });
+    };
+
     renderer.domElement.addEventListener("pointermove", handlePointerMove);
     renderer.domElement.addEventListener("pointerleave", handlePointerLeave);
     renderer.domElement.addEventListener("click", handleClick);
@@ -593,14 +792,11 @@ export function SolarSystemScene({
 
       if (selectedRef.current) {
         const selected = records.get(selectedRef.current);
-        if (selected && cameraMoveRef.current.active) {
-          cameraMoveRef.current.target.copy(selected.group.position);
-        }
 
         if (selected && selected.body.id !== "sun") {
           focusFill.position
             .copy(selected.group.position)
-            .add(new THREE.Vector3(3.2, 2.35, 3.6));
+            .add(focusFillOffset);
           focusFill.intensity = THREE.MathUtils.lerp(focusFill.intensity, 0.18, 0.08);
         }
       } else {
@@ -608,15 +804,20 @@ export function SolarSystemScene({
       }
 
       if (cameraMoveRef.current.active) {
+        updateActiveCameraMoveTarget();
+
         camera.position.lerp(cameraMoveRef.current.position, 0.055);
         controls.target.lerp(cameraMoveRef.current.target, 0.055);
 
         if (
-          camera.position.distanceTo(cameraMoveRef.current.position) < 0.08 &&
-          controls.target.distanceTo(cameraMoveRef.current.target) < 0.08
+          (camera.position.distanceTo(cameraMoveRef.current.position) < 0.08 &&
+            controls.target.distanceTo(cameraMoveRef.current.target) < 0.08) ||
+          time - cameraMoveRef.current.startedAt > 1800
         ) {
           cameraMoveRef.current.active = false;
         }
+      } else {
+        updateFocusedPlanetTracking();
       }
 
       asteroidBelt?.update(delta, timeScaleRef.current);
@@ -625,6 +826,7 @@ export function SolarSystemScene({
       updateHighlight(delta, time);
       controls.update();
       updateLabels();
+      updateDeepSpaceEchoTelemetry(time);
       renderer.render(scene, camera);
       frameRef.current = window.requestAnimationFrame(animate);
     };
@@ -640,6 +842,9 @@ export function SolarSystemScene({
       renderer.domElement.removeEventListener("pointerleave", handlePointerLeave);
       renderer.domElement.removeEventListener("click", handleClick);
       window.removeEventListener("resize", handleResize);
+      controls.removeEventListener("start", handleControlsStart);
+      controls.removeEventListener("change", handleControlsChange);
+      controls.removeEventListener("end", handleControlsEnd);
       controls.dispose();
       renderer.dispose();
 
@@ -685,8 +890,10 @@ export function SolarSystemScene({
       rendererRef.current = null;
       cameraRef.current = null;
       controlsRef.current = null;
+      focusTargetRef.current = null;
+      isUserOrbitingRef.current = false;
     };
-  }, [bodies, onHover, onSelect]);
+  }, [bodies, onDeepSpaceEchoTelemetry, onHover, onSelect]);
 
   return (
     <div ref={containerRef} className="solar-system-canvas" aria-label="实时 3D 太阳系">

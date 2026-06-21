@@ -2203,6 +2203,399 @@ button {
     outline: none;
   }
 
+  .solar-deep-echo-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: clamp(1rem, 3vw, 2rem);
+    background:
+      radial-gradient(circle at 50% 48%, rgba(58, 167, 255, 0.12), transparent 24rem),
+      radial-gradient(circle at 18% 14%, rgba(141, 109, 255, 0.08), transparent 20rem),
+      rgba(2, 3, 10, 0.44);
+    backdrop-filter: blur(5px) saturate(108%);
+    animation: solarDeepEchoVeilIn 780ms ease both;
+  }
+
+  .solar-deep-echo-overlay-exiting {
+    pointer-events: none;
+    animation: solarDeepEchoVeilOut 460ms ease both;
+  }
+
+  .solar-deep-echo-dust {
+    pointer-events: none;
+    position: absolute;
+    inset: -12%;
+    opacity: 0.26;
+    background-image:
+      radial-gradient(circle at 20% 32%, rgba(246, 248, 255, 0.5) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 74% 22%, rgba(127, 199, 255, 0.42) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 58% 76%, rgba(217, 204, 255, 0.34) 0 1px, transparent 1.5px);
+    background-size: 170px 170px, 260px 260px, 360px 360px;
+    filter: blur(0.1px);
+    animation: solarDeepEchoDust 22s linear infinite;
+  }
+
+  .solar-deep-echo-panel,
+  .solar-deep-echo-letter {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    border: 1px solid rgba(148, 186, 255, 0.18);
+    border-radius: 0.5rem;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(127, 199, 255, 0.115), transparent 18rem),
+      linear-gradient(145deg, rgba(141, 109, 255, 0.07), transparent 42%),
+      rgba(2, 3, 10, 0.68);
+    padding: clamp(1.35rem, 4vw, 2.4rem);
+    text-align: center;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 0 0 1px rgba(255, 255, 255, 0.018),
+      0 24px 90px rgba(2, 3, 10, 0.58),
+      0 0 54px rgba(93, 148, 255, 0.12);
+    backdrop-filter: blur(22px) saturate(114%);
+    will-change: opacity, filter, transform;
+  }
+
+  .solar-deep-echo-stage-entering {
+    pointer-events: none;
+    animation: solarDeepEchoCardIn 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .solar-deep-echo-stage-active {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .solar-deep-echo-stage-exiting {
+    pointer-events: none;
+    animation: solarDeepEchoCardOut 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .solar-deep-echo-panel {
+    width: min(34rem, 100%);
+    padding: clamp(1.35rem, 4vw, 2.4rem);
+    text-align: center;
+  }
+
+  .solar-deep-echo-panel::before,
+  .solar-deep-echo-panel::after,
+  .solar-deep-echo-letter::before,
+  .solar-deep-echo-letter::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+
+  .solar-deep-echo-panel::before,
+  .solar-deep-echo-letter::before {
+    opacity: 0.2;
+    background:
+      linear-gradient(115deg, transparent 0 18%, rgba(255, 255, 255, 0.08) 48%, transparent 76%),
+      radial-gradient(circle at 50% 0%, rgba(127, 199, 255, 0.18), transparent 22rem);
+  }
+
+  .solar-deep-echo-panel::after,
+  .solar-deep-echo-letter::after {
+    border: 1px solid rgba(127, 199, 255, 0.12);
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 36px rgba(127, 199, 255, 0.055),
+      inset 0 -18px 46px rgba(2, 3, 10, 0.24);
+  }
+
+  .solar-deep-echo-kicker,
+  .solar-deep-echo-copy,
+  .solar-deep-echo-description,
+  .solar-deep-echo-form,
+  .solar-deep-echo-feedback-copy,
+  .solar-deep-echo-letter-header,
+  .solar-deep-echo-letter-body,
+  .solar-deep-echo-letter-close,
+  .solar-deep-echo-panel h2,
+  .solar-deep-echo-actions {
+    position: relative;
+    z-index: 1;
+  }
+
+  .solar-deep-echo-kicker {
+    color: rgba(127, 199, 255, 0.62);
+    font-size: 0.66rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+  }
+
+  .solar-deep-echo-panel h2,
+  .solar-deep-echo-letter h2 {
+    color: rgba(246, 248, 255, 0.92);
+    font-family: "Noto Sans SC", "Inter", system-ui, sans-serif;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .solar-deep-echo-panel h2 {
+    margin-top: 0.95rem;
+    font-size: clamp(1.2rem, 2.6vw, 1.65rem);
+    letter-spacing: 0.08em;
+  }
+
+  .solar-deep-echo-copy {
+    margin: 1.35rem auto 0;
+    display: grid;
+    max-width: 26rem;
+    gap: 0.72rem;
+    color: rgba(246, 248, 255, 0.75);
+    font-size: clamp(0.92rem, 2vw, 1.06rem);
+    line-height: 1.85;
+  }
+
+  .solar-deep-echo-copy p {
+    opacity: 0;
+    transform: translateY(0.45rem);
+    animation: solarDeepEchoLineIn 780ms ease forwards;
+  }
+
+  .solar-deep-echo-copy p:nth-child(1) {
+    animation-delay: 160ms;
+  }
+
+  .solar-deep-echo-copy p:nth-child(2) {
+    animation-delay: 360ms;
+  }
+
+  .solar-deep-echo-copy p:nth-child(3) {
+    animation-delay: 560ms;
+  }
+
+  .solar-deep-echo-question {
+    position: relative;
+    z-index: 1;
+    margin: 1.25rem auto 0;
+    max-width: 25rem;
+    color: rgba(216, 226, 255, 0.84);
+    font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+    letter-spacing: 0.08em;
+    line-height: 1.85;
+    opacity: 0;
+    transform: translateY(0.5rem);
+    animation: solarDeepEchoLineIn 780ms ease 700ms forwards;
+  }
+
+  .solar-deep-echo-description {
+    margin: 1.2rem auto 0;
+    max-width: 27rem;
+    color: rgba(246, 248, 255, 0.72);
+    font-size: 0.96rem;
+    line-height: 1.85;
+  }
+
+  .solar-deep-echo-form {
+    margin: 1.3rem auto 0;
+    max-width: 25rem;
+    opacity: 0;
+    transform: translateY(0.5rem);
+    animation: solarDeepEchoLineIn 780ms ease 640ms forwards;
+  }
+
+  .solar-deep-echo-form input {
+    width: 100%;
+    border: 1px solid rgba(127, 199, 255, 0.2);
+    border-radius: 0.48rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+      rgba(2, 3, 10, 0.42);
+    padding: 0.9rem 0.95rem;
+    color: rgba(246, 248, 255, 0.9);
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    outline: none;
+    box-shadow:
+      inset 0 0 22px rgba(58, 167, 255, 0.035),
+      0 0 24px rgba(58, 167, 255, 0.055);
+    transition:
+      border-color 360ms ease,
+      box-shadow 360ms ease,
+      background 360ms ease;
+  }
+
+  .solar-deep-echo-form input::placeholder {
+    color: rgba(246, 248, 255, 0.32);
+  }
+
+  .solar-deep-echo-form input:focus {
+    border-color: rgba(160, 210, 255, 0.46);
+    background: rgba(5, 8, 18, 0.62);
+    box-shadow:
+      0 0 0 1px rgba(127, 199, 255, 0.08),
+      0 0 28px rgba(58, 167, 255, 0.11);
+  }
+
+  .solar-deep-echo-feedback {
+    margin: 0.85rem auto 0;
+    white-space: pre-line;
+    color: rgba(206, 224, 255, 0.68);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .solar-deep-echo-feedback-copy {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.2rem 0 0.35rem;
+    color: rgba(246, 248, 255, 0.8);
+    font-size: clamp(1rem, 2vw, 1.16rem);
+    line-height: 1.8;
+  }
+
+  .solar-deep-echo-panel-mismatch {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 0 0 1px rgba(255, 255, 255, 0.018),
+      0 24px 90px rgba(2, 3, 10, 0.58),
+      -10px 0 30px rgba(141, 109, 255, 0.08),
+      10px 0 30px rgba(58, 167, 255, 0.08);
+  }
+
+  .solar-deep-echo-panel-mismatch::before {
+    opacity: 0.28;
+    background:
+      linear-gradient(100deg, transparent 0 24%, rgba(127, 199, 255, 0.08) 42%, transparent 64%),
+      radial-gradient(circle at 54% 0%, rgba(141, 109, 255, 0.16), transparent 20rem);
+  }
+
+  .solar-deep-echo-panel-aligned::before,
+  .solar-deep-echo-panel-opening::before {
+    opacity: 0.34;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(246, 248, 255, 0.14), transparent 10rem),
+      radial-gradient(circle at 50% 0%, rgba(127, 199, 255, 0.2), transparent 22rem);
+  }
+
+  .solar-deep-echo-panel-arrived {
+    width: min(29rem, 100%);
+  }
+
+  .solar-deep-echo-panel-arrived .solar-deep-echo-copy {
+    max-width: 19rem;
+    color: rgba(235, 241, 255, 0.82);
+  }
+
+  .solar-deep-echo-panel-arrived::before {
+    opacity: 0.38;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(246, 248, 255, 0.13), transparent 8rem),
+      radial-gradient(circle at 50% 0%, rgba(127, 199, 255, 0.16), transparent 20rem);
+  }
+
+  .solar-deep-echo-panel-opening.solar-deep-echo-stage-active {
+    animation: solarDeepEchoOpenLetter 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .solar-deep-echo-actions {
+    margin-top: 1.25rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.65rem;
+    opacity: 0;
+    transform: translateY(0.5rem);
+    animation: solarDeepEchoLineIn 780ms ease 720ms forwards;
+  }
+
+  .solar-deep-echo-actions button,
+  .solar-deep-echo-letter-close {
+    min-height: 2.55rem;
+    border: 1px solid rgba(127, 199, 255, 0.2);
+    border-radius: 0.48rem;
+    background: rgba(58, 167, 255, 0.065);
+    padding: 0.68rem 0.98rem;
+    color: rgba(246, 248, 255, 0.72);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    transition:
+      border-color 420ms ease,
+      background 420ms ease,
+      color 420ms ease,
+      opacity 420ms ease,
+      box-shadow 420ms ease;
+  }
+
+  .solar-deep-echo-actions button:disabled,
+  .solar-deep-echo-letter-close:disabled {
+    cursor: default;
+    opacity: 0.48;
+  }
+
+  .solar-deep-echo-actions button:hover,
+  .solar-deep-echo-actions button:focus-visible,
+  .solar-deep-echo-letter-close:hover,
+  .solar-deep-echo-letter-close:focus-visible {
+    border-color: rgba(160, 210, 255, 0.42);
+    background: rgba(58, 167, 255, 0.12);
+    color: rgba(246, 248, 255, 0.95);
+    box-shadow: 0 0 24px rgba(58, 167, 255, 0.12);
+    outline: none;
+  }
+
+  .solar-deep-echo-primary {
+    border-color: rgba(180, 216, 255, 0.34) !important;
+    background:
+      linear-gradient(135deg, rgba(58, 167, 255, 0.18), rgba(141, 109, 255, 0.09)),
+      rgba(58, 167, 255, 0.08) !important;
+    color: rgba(246, 248, 255, 0.92) !important;
+    box-shadow: 0 0 30px rgba(58, 167, 255, 0.11);
+  }
+
+  .solar-deep-echo-letter {
+    display: flex;
+    width: min(48rem, 100%);
+    max-height: min(82vh, 48rem);
+    flex-direction: column;
+    padding: clamp(1.2rem, 3vw, 2.4rem);
+  }
+
+  .solar-deep-echo-letter-header {
+    border-bottom: 1px solid rgba(127, 199, 255, 0.12);
+    padding-bottom: 1rem;
+    text-align: center;
+  }
+
+  .solar-deep-echo-letter h2 {
+    margin-top: 0.82rem;
+    font-size: clamp(1.55rem, 4vw, 2.45rem);
+    letter-spacing: 0.16em;
+  }
+
+  .solar-deep-echo-letter-body {
+    margin-top: 1.25rem;
+    overflow: auto;
+    padding: 0.1rem clamp(0.1rem, 1vw, 0.55rem) 0.2rem;
+    color: rgba(246, 248, 255, 0.79);
+    font-size: clamp(0.96rem, 1.85vw, 1.04rem);
+    line-height: 2;
+    scrollbar-color: rgba(127, 199, 255, 0.28) rgba(255, 255, 255, 0.04);
+  }
+
+  .solar-deep-echo-letter-body p {
+    max-width: 38rem;
+    margin: 0 auto 1.05rem;
+  }
+
+  .solar-deep-echo-letter-body p:last-child {
+    color: rgba(216, 226, 255, 0.9);
+    text-align: right;
+  }
+
+  .solar-deep-echo-letter-close {
+    align-self: center;
+    margin-top: 1rem;
+    min-width: 9rem;
+  }
+
   .solar-hover-label {
     pointer-events: none;
     position: fixed;
@@ -2338,6 +2731,117 @@ button {
     opacity: 0;
     transform: translate3d(var(--meteor-x-end), var(--meteor-y-end), 0)
       rotate(var(--meteor-rotation)) scaleX(1);
+  }
+}
+
+@keyframes solarDeepEchoVeilIn {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0) saturate(100%);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(8px) saturate(108%);
+  }
+}
+
+@keyframes solarDeepEchoVeilOut {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(8px) saturate(108%);
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0) saturate(100%);
+  }
+}
+
+@keyframes solarDeepEchoCardIn {
+  0% {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translate3d(0, 10px, 0) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes solarDeepEchoCardOut {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(5px);
+    transform: translate3d(0, -6px, 0) scale(0.98);
+  }
+}
+
+@keyframes solarDeepEchoLineIn {
+  0% {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes solarDeepEchoDust {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 16px -12px, -18px 14px, 12px 18px;
+  }
+}
+
+@keyframes solarDeepEchoSignalDrift {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 0 0 1px rgba(255, 255, 255, 0.018),
+      0 24px 90px rgba(2, 3, 10, 0.58),
+      0 0 54px rgba(93, 148, 255, 0.12);
+  }
+  45% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 0 0 1px rgba(255, 255, 255, 0.018),
+      0 24px 90px rgba(2, 3, 10, 0.58),
+      -10px 0 30px rgba(141, 109, 255, 0.08),
+      10px 0 30px rgba(58, 167, 255, 0.08);
+  }
+}
+
+@keyframes solarDeepEchoOpenLetter {
+  0% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 0 0 1px rgba(255, 255, 255, 0.018),
+      0 24px 90px rgba(2, 3, 10, 0.58),
+      0 0 54px rgba(93, 148, 255, 0.12);
+  }
+  55% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 0 0 1px rgba(246, 248, 255, 0.03),
+      0 24px 90px rgba(2, 3, 10, 0.58),
+      0 0 78px rgba(127, 199, 255, 0.18);
+  }
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 0 0 1px rgba(255, 255, 255, 0.018),
+      0 24px 90px rgba(2, 3, 10, 0.58),
+      0 0 54px rgba(93, 148, 255, 0.12);
   }
 }
 
@@ -3037,6 +3541,65 @@ button {
     font-size: 2.35rem;
   }
 
+  .solar-deep-echo-overlay {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-y: auto;
+    padding: 0.9rem;
+  }
+
+  .solar-deep-echo-panel {
+    margin: auto 0;
+    padding: 1.25rem 1rem;
+  }
+
+  .solar-deep-echo-letter {
+    margin: 0.9rem 0;
+    max-height: calc(100vh - 1.8rem);
+    padding: 1.1rem 0.95rem;
+  }
+
+  .solar-deep-echo-copy {
+    gap: 0.58rem;
+    font-size: 0.9rem;
+    line-height: 1.72;
+  }
+
+  .solar-deep-echo-question {
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+  }
+
+  .solar-deep-echo-panel h2 {
+    margin-top: 1.25rem;
+    font-size: 1.12rem;
+    letter-spacing: 0.04em;
+  }
+
+  .solar-deep-echo-description,
+  .solar-deep-echo-letter-body {
+    font-size: 0.9rem;
+    line-height: 1.78;
+  }
+
+  .solar-deep-echo-letter h2 {
+    font-size: 1.45rem;
+    letter-spacing: 0.1em;
+  }
+
+  .solar-deep-echo-letter-body {
+    margin-top: 0.9rem;
+    padding-right: 0.2rem;
+  }
+
+  .solar-deep-echo-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
   .solar-system-footer {
     display: none;
   }
@@ -3148,6 +3711,19 @@ button {
   .archive-system-detail-inner,
   .archive-system-action,
   .archive-system-action::after,
+  .solar-deep-echo-overlay,
+  .solar-deep-echo-dust,
+  .solar-deep-echo-panel,
+  .solar-deep-echo-panel::before,
+  .solar-deep-echo-stage-entering,
+  .solar-deep-echo-stage-exiting,
+  .solar-deep-echo-letter,
+  .solar-deep-echo-letter::before,
+  .solar-deep-echo-copy p,
+  .solar-deep-echo-question,
+  .solar-deep-echo-form,
+  .solar-deep-echo-panel h2,
+  .solar-deep-echo-actions,
   .solar-system-nebula,
   .solar-system-canvas,
   .solar-page-title,
@@ -3174,5 +3750,23 @@ button {
 
   .gallery-slide-resting {
     opacity: 0 !important;
+  }
+
+  .solar-deep-echo-overlay,
+  .solar-deep-echo-dust,
+  .solar-deep-echo-panel,
+  .solar-deep-echo-stage-entering,
+  .solar-deep-echo-stage-exiting,
+  .solar-deep-echo-panel-mismatch,
+  .solar-deep-echo-panel-opening,
+  .solar-deep-echo-letter,
+  .solar-deep-echo-copy p,
+  .solar-deep-echo-question,
+  .solar-deep-echo-form,
+  .solar-deep-echo-panel h2,
+  .solar-deep-echo-actions {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
   }
 }
