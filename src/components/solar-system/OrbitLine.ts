@@ -1,6 +1,10 @@
 import * as THREE from "three";
 import type { SolarBody } from "../../data/solarSystem";
-import { getInclinedOrbitPosition, sampleOrbitAngles } from "./orbitMath";
+import {
+  getInclinedOrbitPosition,
+  getRelativeSatelliteOrbitPosition,
+  sampleOrbitAngles,
+} from "./orbitMath";
 
 interface OrbitLineResult {
   line: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
@@ -11,14 +15,21 @@ export function createOrbitLine(
   body: SolarBody,
   segmentCount: number,
 ): OrbitLineResult | null {
-  if (body.semiMajorAxis <= 0) {
+  const isSatelliteOrbit = Boolean(body.parentId);
+  const hasOrbit = isSatelliteOrbit
+    ? (body.satelliteOrbitRadius ?? 0) > 0
+    : body.semiMajorAxis > 0;
+
+  if (!hasOrbit) {
     return null;
   }
 
   const positions: number[] = [];
 
   sampleOrbitAngles(segmentCount).forEach((angle) => {
-    const point = getInclinedOrbitPosition(body, angle);
+    const point = isSatelliteOrbit
+      ? getRelativeSatelliteOrbitPosition(body, angle)
+      : getInclinedOrbitPosition(body, angle);
     positions.push(point.x, point.y, point.z);
   });
 
@@ -40,7 +51,7 @@ export function createOrbitLine(
   material.userData.selectedColor = selectedColor;
 
   const line = new THREE.Line(geometry, material);
-  line.name = `${body.name}-orbit`;
+  line.name = isSatelliteOrbit ? `${body.name}-satellite-orbit` : `${body.name}-orbit`;
 
   return { line, material };
 }

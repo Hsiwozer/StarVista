@@ -40,34 +40,54 @@ export interface SolarBody {
   facts: SolarFact[];
   initialAngle: number;
   parentId?: SolarBodyId;
+  satelliteDistanceKm?: number;
   satelliteOrbitRadius?: number;
   satelliteOrbitHeight?: number;
 }
 
 const EARTH_RADIUS_KM = 6371;
-const EARTH_ORBIT_VISUAL_RADIUS = 12.2;
-const ORBIT_LOG_GROWTH = 2.25;
-const ORBIT_LOG_SCALE =
-  (EARTH_ORBIT_VISUAL_RADIUS - 2.4) / Math.log1p(ORBIT_LOG_GROWTH);
+const AU_KM = 149_597_870.7;
+const MOON_AVERAGE_DISTANCE_KM = 384_400;
+
+// Visual-first compressed solar-system scale.
+// These values preserve the real orbital order and approximate relative distance trend,
+// while keeping all major planets visible within the scene.
+// They are not a strict linear AU-to-scene-unit conversion.
+export const ORBIT_RADII = {
+  mercury: 6.2,
+  venus: 11.37,
+  earth: 15.6,
+  moon: 1.25,
+  mars: 19.2,
+  asteroidBeltInner: 21.8,
+  asteroidBeltOuter: 24.28,
+  jupiter: 28.77,
+  saturn: 36.57,
+  uranus: 43.78,
+  neptune: 50.01,
+} as const;
+
+// Visual-first compressed celestial-body scale.
+// These radii preserve the real physical size hierarchy as much as possible,
+// while keeping small bodies visible and giant planets visually manageable.
+// They are not a strict linear physical-radius conversion.
+export const BODY_RADII: Record<Exclude<SolarBodyId, "asteroid-belt">, number> = {
+  sun: 3.8,
+  mercury: 0.28,
+  venus: 0.53,
+  earth: 0.56,
+  moon: 0.13,
+  mars: 0.38,
+  jupiter: 2.32,
+  saturn: 1.28,
+  uranus: 0.85,
+  neptune: 0.83,
+} as const;
 
 const orbitSpeed = (orbitalPeriod: number) =>
   orbitalPeriod > 0 ? (Math.PI * 2) / orbitalPeriod : 0;
 
 export const getOrbitalAngularSpeed = orbitSpeed;
-
-/*
- * Solar-system distances and planet sizes use a deliberate visual compression
- * model, not strict real scale. Distances are logarithmically compressed so the
- * outer planets remain reachable in the scene, while radii are mildly enlarged
- * and then manually tuned in this central table for readability.
- */
-export function getCompressedOrbitRadius(distanceAU: number) {
-  if (distanceAU <= 0) {
-    return 0;
-  }
-
-  return 2.4 + ORBIT_LOG_SCALE * Math.log1p(distanceAU * ORBIT_LOG_GROWTH);
-}
 
 export function getCompressedPlanetRadius(radiusKm: number) {
   if (radiusKm <= 0) {
@@ -84,6 +104,11 @@ export function getDistanceLightFactor(distanceAU: number) {
 
   return Math.min(1.42, Math.max(0.34, 1 / Math.pow(distanceAU, 0.42)));
 }
+
+export const asteroidBeltVisualRange = {
+  innerRadius: ORBIT_RADII.asteroidBeltInner,
+  outerRadius: ORBIT_RADII.asteroidBeltOuter,
+};
 
 export type RotatingSolarBodyId = Exclude<SolarBodyId, "asteroid-belt">;
 
@@ -108,7 +133,7 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 696340,
     radiusKm: 696340,
     distanceAU: 0,
-    visualRadius: 3.6,
+    visualRadius: BODY_RADII.sun,
     semiMajorAxis: 0,
     eccentricity: 0,
     inclination: 0,
@@ -139,8 +164,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 2440,
     radiusKm: 2440,
     distanceAU: 0.387,
-    visualRadius: getCompressedPlanetRadius(2440) * 0.86,
-    semiMajorAxis: getCompressedOrbitRadius(0.387),
+    visualRadius: BODY_RADII.mercury,
+    semiMajorAxis: ORBIT_RADII.mercury,
     eccentricity: 0.2056,
     inclination: 7,
     orbitalPeriod: 87.97,
@@ -170,8 +195,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 6052,
     radiusKm: 6052,
     distanceAU: 0.723,
-    visualRadius: getCompressedPlanetRadius(6052) * 0.94,
-    semiMajorAxis: getCompressedOrbitRadius(0.723),
+    visualRadius: BODY_RADII.venus,
+    semiMajorAxis: ORBIT_RADII.venus,
     eccentricity: 0.0068,
     inclination: 3.4,
     orbitalPeriod: 224.7,
@@ -201,8 +226,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 6371,
     radiusKm: 6371,
     distanceAU: 1,
-    visualRadius: getCompressedPlanetRadius(6371),
-    semiMajorAxis: getCompressedOrbitRadius(1),
+    visualRadius: BODY_RADII.earth,
+    semiMajorAxis: ORBIT_RADII.earth,
     eccentricity: 0.0167,
     inclination: 0,
     orbitalPeriod: 365.25,
@@ -231,8 +256,8 @@ export const solarSystemBodies: SolarBody[] = [
     nameZh: "月球",
     radius: 1737,
     radiusKm: 1737,
-    distanceAU: 0,
-    visualRadius: getCompressedPlanetRadius(1737) * 0.7,
+    distanceAU: MOON_AVERAGE_DISTANCE_KM / AU_KM,
+    visualRadius: BODY_RADII.moon,
     semiMajorAxis: 0,
     eccentricity: 0.0549,
     inclination: 5.15,
@@ -255,8 +280,9 @@ export const solarSystemBodies: SolarBody[] = [
     ],
     initialAngle: 0.85,
     parentId: "earth",
-    satelliteOrbitRadius: 2.32,
-    satelliteOrbitHeight: 0.2,
+    satelliteDistanceKm: MOON_AVERAGE_DISTANCE_KM,
+    satelliteOrbitRadius: ORBIT_RADII.moon,
+    satelliteOrbitHeight: 0,
   },
   {
     id: "mars",
@@ -265,8 +291,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 3390,
     radiusKm: 3390,
     distanceAU: 1.524,
-    visualRadius: getCompressedPlanetRadius(3390) * 1.02,
-    semiMajorAxis: getCompressedOrbitRadius(1.524),
+    visualRadius: BODY_RADII.mars,
+    semiMajorAxis: ORBIT_RADII.mars,
     eccentricity: 0.0934,
     inclination: 1.85,
     orbitalPeriod: 686.98,
@@ -296,8 +322,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 69911,
     radiusKm: 69911,
     distanceAU: 5.203,
-    visualRadius: getCompressedPlanetRadius(69911) * 0.735,
-    semiMajorAxis: getCompressedOrbitRadius(5.203),
+    visualRadius: BODY_RADII.jupiter,
+    semiMajorAxis: ORBIT_RADII.jupiter,
     eccentricity: 0.0489,
     inclination: 1.3,
     orbitalPeriod: 4332.59,
@@ -327,8 +353,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 58232,
     radiusKm: 58232,
     distanceAU: 9.537,
-    visualRadius: getCompressedPlanetRadius(58232) * 0.654,
-    semiMajorAxis: getCompressedOrbitRadius(9.537),
+    visualRadius: BODY_RADII.saturn,
+    semiMajorAxis: ORBIT_RADII.saturn,
     eccentricity: 0.0565,
     inclination: 2.49,
     orbitalPeriod: 10759.22,
@@ -358,8 +384,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 25362,
     radiusKm: 25362,
     distanceAU: 19.191,
-    visualRadius: getCompressedPlanetRadius(25362) * 0.675,
-    semiMajorAxis: getCompressedOrbitRadius(19.191),
+    visualRadius: BODY_RADII.uranus,
+    semiMajorAxis: ORBIT_RADII.uranus,
     eccentricity: 0.0457,
     inclination: 0.77,
     orbitalPeriod: 30688.5,
@@ -389,8 +415,8 @@ export const solarSystemBodies: SolarBody[] = [
     radius: 24622,
     radiusKm: 24622,
     distanceAU: 30.07,
-    visualRadius: getCompressedPlanetRadius(24622) * 0.66,
-    semiMajorAxis: getCompressedOrbitRadius(30.07),
+    visualRadius: BODY_RADII.neptune,
+    semiMajorAxis: ORBIT_RADII.neptune,
     eccentricity: 0.0113,
     inclination: 1.77,
     orbitalPeriod: 60182,
@@ -423,7 +449,7 @@ export const asteroidBeltBody: SolarBody = {
   radiusKm: 0,
   distanceAU: 2.8,
   visualRadius: 0.62,
-  semiMajorAxis: getCompressedOrbitRadius(2.8),
+  semiMajorAxis: (ORBIT_RADII.asteroidBeltInner + ORBIT_RADII.asteroidBeltOuter) / 2,
   eccentricity: 0.12,
   inclination: 0.9,
   orbitalPeriod: 1680,

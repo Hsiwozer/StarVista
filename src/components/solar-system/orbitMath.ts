@@ -39,6 +39,15 @@ export function getInclinedOrbitPosition(body: SolarBody, theta: number) {
   );
 }
 
+export function getRelativeSatelliteOrbitPosition(body: SolarBody, theta: number) {
+  const orbitRadius = body.satelliteOrbitRadius ?? 0;
+
+  return applyOrbitInclination(
+    getEllipticalOrbitPosition(orbitRadius, body.eccentricity, theta),
+    body.inclination,
+  ).add(new THREE.Vector3(0, body.satelliteOrbitHeight ?? 0, 0));
+}
+
 export function getOrbitAngle(body: SolarBody, elapsedDays: number) {
   return body.initialAngle + elapsedDays * body.orbitSpeed;
 }

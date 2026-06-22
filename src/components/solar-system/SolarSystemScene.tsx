@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { asteroidBeltBody, type SolarBody, type SolarBodyId } from "../../data/solarSystem";
+import {
+  asteroidBeltBody,
+  asteroidBeltVisualRange,
+  type SolarBody,
+  type SolarBodyId,
+} from "../../data/solarSystem";
 import { createAsteroidBelt, type AsteroidBeltResult } from "./AsteroidBelt";
 import { createOrbitLine } from "./OrbitLine";
-import { getInclinedOrbitPosition, getOrbitAngle } from "./orbitMath";
+import {
+  getInclinedOrbitPosition,
+  getOrbitAngle,
+  getRelativeSatelliteOrbitPosition,
+} from "./orbitMath";
 import { createPlanetMesh } from "./PlanetMesh";
 import {
   updatePlanetSelectionIndicator,
@@ -27,6 +36,7 @@ interface BodyRecord {
   bodyMesh: THREE.Mesh;
   selectionIndicator: PlanetSelectionIndicator | null;
   sunGlowLayers: THREE.Sprite[];
+  orbitLine?: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
   orbitMaterial?: THREE.LineBasicMaterial;
   disposableTextures: THREE.Texture[];
 }
@@ -65,6 +75,7 @@ const echoTargetClockAngleDegrees = 9 * 30 + 19 * 0.5;
 const echoToleranceDegrees = 4;
 const VISUAL_ROTATION_FACTOR = 0.34;
 const EARTH_CLOUD_RELATIVE_DRIFT = 0.015;
+const MIN_FOCUS_DISTANCE = 3;
 
 function normalizeDegrees(angle: number) {
   return ((angle % 360) + 360) % 360;
@@ -137,16 +148,10 @@ function getSatellitePosition(
   }
 
   const angle = getOrbitAngle(body, elapsedDays);
-  const radius = body.satelliteOrbitRadius ?? parent.body.visualRadius * 2.35;
-  const height = body.satelliteOrbitHeight ?? parent.body.visualRadius * 0.22;
 
-  return parent.group.position.clone().add(
-    new THREE.Vector3(
-      Math.cos(angle) * radius,
-      height + Math.sin(angle * 1.7) * 0.08,
-      Math.sin(angle) * radius * 0.86,
-    ),
-  );
+  return parent.group.position
+    .clone()
+    .add(getRelativeSatelliteOrbitPosition(body, angle));
 }
 
 function createStarfield(isMobile: boolean) {
@@ -228,11 +233,15 @@ function getFocusDistance(body: SolarBody) {
     return Math.max(body.visualRadius * 6.2, 22);
   }
 
-  if (body.id === "moon") {
-    return Math.max(body.visualRadius * 13, 8.2);
+  if (body.id === "saturn") {
+    return Math.max(body.visualRadius * 6.4, 8.2);
   }
 
-  return Math.max(body.visualRadius * 6.4, 8.4);
+  return Math.max(body.visualRadius * 5.5, MIN_FOCUS_DISTANCE);
+}
+
+function getLabelOffsetY(body: SolarBody) {
+  return body.visualRadius + 0.35;
 }
 
 export function SolarSystemScene({
@@ -385,7 +394,7 @@ export function SolarSystemScene({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
-    controls.minDistance = 8;
+    controls.minDistance = MIN_FOCUS_DISTANCE;
     controls.maxDistance = 88;
     controls.maxPolarAngle = Math.PI * 0.82;
     controls.target.copy(overviewTarget);
@@ -482,6 +491,7 @@ export function SolarSystemScene({
         bodyMesh: planet.bodyMesh,
         selectionIndicator: planet.selectionIndicator,
         sunGlowLayers: planet.sunGlowLayers,
+        orbitLine: orbit?.line,
         orbitMaterial: orbit?.material,
         disposableTextures: planet.disposableTextures,
       });
@@ -495,10 +505,9 @@ export function SolarSystemScene({
     const focusFillOffset = new THREE.Vector3(3.2, 2.35, 3.6);
 
     if (mars && jupiter) {
-      const orbitGap = jupiter.semiMajorAxis - mars.semiMajorAxis;
       asteroidBelt = createAsteroidBelt({
-        innerRadius: mars.semiMajorAxis + orbitGap * 0.25,
-        outerRadius: jupiter.semiMajorAxis - orbitGap * 0.24,
+        innerRadius: asteroidBeltVisualRange.innerRadius,
+        outerRadius: asteroidBeltVisualRange.outerRadius,
         isMobile,
         orbitalSpeed: (mars.orbitSpeed + jupiter.orbitSpeed) * 0.24,
       });
@@ -595,7 +604,7 @@ export function SolarSystemScene({
 
         projected
           .copy(record.group.position)
-          .add(new THREE.Vector3(0, record.body.visualRadius * 1.45, 0))
+          .add(new THREE.Vector3(0, getLabelOffsetY(record.body), 0))
           .project(camera);
 
         const isVisible =
@@ -771,6 +780,23 @@ export function SolarSystemScene({
       });
     };
 
+    const updateOrbitLineAnchor = (record: BodyRecord) => {
+      if (!record.orbitLine) {
+        return;
+      }
+
+      const parent = record.body.parentId
+        ? records.get(record.body.parentId)
+        : undefined;
+
+      if (parent) {
+        record.orbitLine.position.copy(parent.group.position);
+        return;
+      }
+
+      record.orbitLine.position.set(0, 0, 0);
+    };
+
     renderer.domElement.addEventListener("pointermove", handlePointerMove);
     renderer.domElement.addEventListener("pointerleave", handlePointerLeave);
     renderer.domElement.addEventListener("click", handleClick);
@@ -789,6 +815,7 @@ export function SolarSystemScene({
             ? getSatellitePosition(record.body, records, elapsedDaysRef.current)
             : getBodyPosition(record.body, elapsedDaysRef.current),
         );
+        updateOrbitLineAnchor(record);
         const rotationDelta = getRotationDelta(
           record.body.rotationPeriodHours,
           delta,

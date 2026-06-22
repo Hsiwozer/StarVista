@@ -105,9 +105,9 @@ export function createPlanetSelectionIndicator(
   group.visible = false;
   group.renderOrder = 8;
 
-  const innerRing = createRing(body.visualRadius * 1.14, 84, 0.66, 0.36);
+  const innerRing = createRing(body.visualRadius * 1.24, 84, 0.66, 0.36);
   innerRing.name = `${body.name}-selection-inner-ring`;
-  const outerRing = createRing(body.visualRadius * 1.22, 72, 0.52, 0.26);
+  const outerRing = createRing(body.visualRadius * 1.35, 72, 0.52, 0.26);
   outerRing.name = `${body.name}-selection-outer-ring`;
   outerRing.rotation.z = Math.PI / 24;
   group.add(innerRing, outerRing);
@@ -124,7 +124,7 @@ export function createPlanetSelectionIndicator(
       depthTest: false,
     }),
   );
-  const glowDiameter = body.visualRadius * 2.84;
+  const glowDiameter = body.visualRadius * 3.3;
   rimGlow.name = `${body.name}-selection-rim-glow`;
   rimGlow.scale.set(glowDiameter, glowDiameter, 1);
   rimGlow.renderOrder = 7;

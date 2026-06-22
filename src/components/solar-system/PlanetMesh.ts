@@ -21,6 +21,11 @@ interface MeshQuality {
 }
 
 const textureLoader = new THREE.TextureLoader();
+const MIN_INTERACTION_RADIUS = 0.45;
+const SATURN_RING_RATIO = {
+  innerRadius: 1.35,
+  outerRadius: 2.35,
+} as const;
 
 type TextureMappedMaterial = THREE.Material & {
   map?: THREE.Texture | null;
@@ -493,8 +498,8 @@ function addSaturnRing(
   quality: MeshQuality,
   disposableTextures: THREE.Texture[],
 ) {
-  const innerRadius = body.visualRadius * 1.18;
-  const outerRadius = body.visualRadius * 2.48;
+  const innerRadius = body.visualRadius * SATURN_RING_RATIO.innerRadius;
+  const outerRadius = body.visualRadius * SATURN_RING_RATIO.outerRadius;
   const thetaSegments = Math.max(256, quality.ringSegments);
   const radialSegments = Math.max(18, Math.round(thetaSegments / 12));
   const geometry = new THREE.RingGeometry(
@@ -662,10 +667,20 @@ function addEarthClouds(
   group.add(clouds);
 }
 
-function addMoonClickTarget(group: THREE.Group, body: SolarBody, quality: MeshQuality) {
+function addInteractionClickTarget(
+  group: THREE.Group,
+  body: SolarBody,
+  quality: MeshQuality,
+) {
+  const interactionRadius = Math.max(body.visualRadius, MIN_INTERACTION_RADIUS);
+
+  if (interactionRadius <= body.visualRadius * 1.08) {
+    return;
+  }
+
   const clickTarget = new THREE.Mesh(
     new THREE.SphereGeometry(
-      body.visualRadius * 1.92,
+      interactionRadius,
       Math.max(24, quality.sphereSegments / 2),
       Math.max(16, quality.sphereSegments / 3),
     ),
@@ -676,7 +691,7 @@ function addMoonClickTarget(group: THREE.Group, body: SolarBody, quality: MeshQu
       depthWrite: false,
     }),
   );
-  clickTarget.name = "Moon-click-target";
+  clickTarget.name = `${body.name}-interaction-target`;
   group.add(clickTarget);
 }
 
@@ -716,9 +731,7 @@ export function createPlanetMesh(
     addSaturnRing(group, body, quality, disposableTextures);
   }
 
-  if (body.id === "moon") {
-    addMoonClickTarget(group, body, quality);
-  }
+  addInteractionClickTarget(group, body, quality);
 
   if (body.id !== "sun") {
     group.rotation.z = THREE.MathUtils.degToRad(body.axialTilt);
