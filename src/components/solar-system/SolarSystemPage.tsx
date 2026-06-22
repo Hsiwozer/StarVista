@@ -12,6 +12,7 @@ import { solarSystemBodies } from "../../data/solarSystem";
 import { BackToHomeButton } from "./BackToHomeButton";
 import { DeepSpaceEchoFlow } from "./DeepSpaceEchoFlow";
 import { PlanetInfoPanel } from "./PlanetInfoPanel";
+import { PlanetQuickNav } from "./PlanetQuickNav";
 import { SolarSystemScene, type DeepSpaceEchoTelemetry } from "./SolarSystemScene";
 import { TimeControl } from "./TimeControl";
 
@@ -604,6 +605,13 @@ export function SolarSystemPage() {
         onSelect={handleSelect}
         onHover={handleHover}
         onDeepSpaceEchoTelemetry={handleDeepSpaceEchoTelemetry}
+      />
+      <PlanetQuickNav
+        planets={solarSystemBodies}
+        selectedPlanetId={selectedBody?.id ?? null}
+        onSelectPlanet={handleSelect}
+        onPreviewPlanet={handleHover}
+        immersiveMode={immersiveMode}
       />
 
       <div className="solar-system-vignette" aria-hidden="true" />
