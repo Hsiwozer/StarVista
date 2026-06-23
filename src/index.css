@@ -2249,20 +2249,30 @@ button {
 
   .solar-info-panel {
     position: fixed;
-    right: 1.25rem;
-    top: clamp(20.5rem, 34vh, 23rem);
-    bottom: 2.25rem;
+    right: clamp(1rem, 2.4vw, 1.75rem);
+    top: clamp(9rem, 23vh, 13rem);
     z-index: 6;
-    width: min(24rem, calc(100vw - 2.5rem));
-    max-height: calc(100vh - 23rem);
+    width: min(23.75rem, calc(100vw - 2rem));
+    max-height: min(72vh, 42rem);
     overflow: hidden;
-    border-radius: 0.5rem;
+    border: 1px solid rgba(160, 190, 255, 0.16);
+    border-radius: 1.25rem;
+    background:
+      linear-gradient(145deg, rgba(5, 10, 24, 0.58), rgba(7, 12, 28, 0.42)),
+      rgba(5, 10, 24, 0.52);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.025) inset,
+      0 24px 80px rgba(0, 0, 0, 0.34),
+      0 0 32px rgba(90, 157, 255, 0.09);
+    backdrop-filter: blur(18px) saturate(130%);
     opacity: 0;
     pointer-events: none;
-    transform: translate3d(0, 0.75rem, 0);
+    transform: translate3d(0.8rem, 0.85rem, 0);
+    filter: blur(6px);
     transition:
       opacity 320ms ease,
       transform 360ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 360ms ease,
       border-color 560ms ease;
   }
 
@@ -2271,62 +2281,79 @@ button {
     pointer-events: none;
     position: absolute;
     inset: 0;
-    opacity: 0.42;
+    opacity: 0.72;
     background:
-      radial-gradient(circle at 14% 14%, rgba(127, 199, 255, 0.16), transparent 13rem),
-      radial-gradient(circle at 92% 10%, rgba(141, 109, 255, 0.13), transparent 12rem);
+      radial-gradient(circle at 16% 8%, rgba(127, 199, 255, 0.15), transparent 11rem),
+      radial-gradient(circle at 96% 12%, rgba(141, 109, 255, 0.12), transparent 12rem),
+      radial-gradient(circle at 28% 86%, rgba(255, 255, 255, 0.045), transparent 8rem),
+      repeating-linear-gradient(
+        118deg,
+        rgba(255, 255, 255, 0.018) 0 1px,
+        transparent 1px 9px
+      );
+    mix-blend-mode: screen;
+  }
+
+  .solar-info-panel::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%),
+      radial-gradient(circle at 50% 0%, rgba(160, 190, 255, 0.08), transparent 18rem);
+    opacity: 0.54;
   }
 
   .solar-info-panel-visible {
     opacity: 1;
     pointer-events: auto;
     transform: translate3d(0, 0, 0);
-  }
-
-  .solar-info-close {
-    position: absolute;
-    right: 0.9rem;
-    top: 0.9rem;
-    z-index: 2;
-    display: flex;
-    height: 1.8rem;
-    width: 1.8rem;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.03);
-    color: rgba(246, 248, 255, 0.54);
-  }
-
-  .solar-info-close:hover,
-  .solar-info-close:focus-visible {
-    border-color: rgba(127, 199, 255, 0.3);
-    color: rgba(246, 248, 255, 0.9);
-    outline: none;
+    filter: blur(0);
   }
 
   .solar-info-content {
     position: relative;
     z-index: 1;
-    height: 100%;
+    max-height: inherit;
     overflow-y: auto;
-    padding: 1.32rem;
+    padding: 1.28rem;
     scrollbar-width: thin;
     scrollbar-color: rgba(127, 199, 255, 0.22) transparent;
   }
 
+  .solar-info-content > * {
+    animation: solarInfoLayerIn 540ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .solar-info-content > *:nth-child(2) {
+    animation-delay: 45ms;
+  }
+
+  .solar-info-content > *:nth-child(3) {
+    animation-delay: 85ms;
+  }
+
+  .solar-info-content > *:nth-child(4) {
+    animation-delay: 125ms;
+  }
+
+  .solar-info-content > *:nth-child(n + 5) {
+    animation-delay: 165ms;
+  }
+
   .solar-info-kicker {
     color: rgba(127, 199, 255, 0.64);
-    font-size: 0.64rem;
-    letter-spacing: 0.26em;
+    font-size: 0.58rem;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
   }
 
   .solar-info-title {
-    margin-top: 0.9rem;
+    margin-top: 0.78rem;
     font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: clamp(2.2rem, 3.2vw, 3.65rem);
+    font-size: clamp(2.15rem, 3vw, 3.35rem);
     font-weight: 500;
     line-height: 0.96;
     color: rgba(246, 248, 255, 0.92);
@@ -2342,66 +2369,243 @@ button {
     color: rgba(255, 255, 255, 0.42);
   }
 
-  .solar-info-description {
-    margin-top: 1.35rem;
+  .solar-info-subtitle {
+    margin-top: 0.86rem;
     color: rgba(255, 255, 255, 0.66);
-    font-size: 0.9rem;
-    line-height: 1.78;
+    font-size: 0.84rem;
+    line-height: 1.65;
+  }
+
+  .solar-info-section {
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.92rem;
+  }
+
+  .solar-info-section-label {
+    color: rgba(127, 199, 255, 0.58);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
 
   .solar-fact-grid {
-    margin-top: 1.2rem;
+    margin-top: 0.68rem;
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.6rem;
   }
 
   .solar-fact-item {
-    border-left: 1px solid rgba(127, 199, 255, 0.12);
-    background: rgba(2, 3, 10, 0.3);
-    padding: 0.66rem 0.8rem;
+    min-width: 0;
+    border: 1px solid rgba(160, 190, 255, 0.09);
+    border-radius: 0.62rem;
+    background: rgba(2, 3, 10, 0.24);
+    padding: 0.62rem 0.68rem;
   }
 
   .solar-fact-item dt {
     color: rgba(127, 199, 255, 0.48);
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
 
   .solar-fact-item dd {
     margin-top: 0.3rem;
     color: rgba(246, 248, 255, 0.76);
-    font-size: 0.86rem;
-    line-height: 1.55;
-  }
-
-  .solar-return-button {
-    margin-top: 1.1rem;
-    display: inline-flex;
-    min-height: 2.75rem;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    gap: 0.55rem;
-    border: 1px solid rgba(127, 199, 255, 0.18);
-    border-radius: 0.5rem;
-    background: rgba(58, 167, 255, 0.07);
-    color: rgba(246, 248, 255, 0.78);
     font-size: 0.78rem;
-    letter-spacing: 0.16em;
-    transition:
-      border-color 420ms ease,
-      background 420ms ease,
-      color 420ms ease,
-      box-shadow 420ms ease;
+    line-height: 1.48;
+    overflow-wrap: anywhere;
   }
 
-  .solar-return-button:hover,
-  .solar-return-button:focus-visible {
-    border-color: rgba(127, 199, 255, 0.38);
-    background: rgba(58, 167, 255, 0.12);
-    color: rgba(246, 248, 255, 0.94);
-    box-shadow: 0 0 24px rgba(58, 167, 255, 0.1);
-    outline: none;
+  .solar-status-module,
+  .solar-moon-phase-module,
+  .solar-feature-module {
+    border-radius: 0.8rem;
+    border: 1px solid rgba(127, 199, 255, 0.1);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(127, 199, 255, 0.12), transparent 8rem),
+      rgba(255, 255, 255, 0.035);
+    padding: 0.9rem;
+  }
+
+  .solar-status-module-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: rgba(127, 199, 255, 0.6);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .solar-status-module p,
+  .solar-moon-phase-module p,
+  .solar-feature-module p {
+    margin-top: 0.62rem;
+    color: rgba(246, 248, 255, 0.72);
+    font-size: 0.82rem;
+    line-height: 1.68;
+  }
+
+  .solar-status-chips {
+    margin-top: 0.74rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.38rem;
+  }
+
+  .solar-status-chips span {
+    border: 1px solid rgba(160, 190, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(5, 10, 24, 0.28);
+    padding: 0.26rem 0.5rem;
+    color: rgba(246, 248, 255, 0.62);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+  }
+
+  .solar-moon-phase-module {
+    border-color: rgba(190, 213, 255, 0.16);
+    background:
+      radial-gradient(circle at 12% 10%, rgba(210, 226, 255, 0.14), transparent 7rem),
+      linear-gradient(135deg, rgba(127, 199, 255, 0.08), rgba(141, 109, 255, 0.04)),
+      rgba(255, 255, 255, 0.035);
+  }
+
+  .solar-moon-phase-module strong {
+    margin-top: 0.56rem;
+    display: block;
+    color: rgba(246, 248, 255, 0.9);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.42rem;
+    font-weight: 500;
+    line-height: 1.05;
+  }
+
+  .solar-moon-phase-layout {
+    margin-top: 0.72rem;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.86rem;
+  }
+
+  .solar-moon-phase-copy {
+    min-width: 0;
+  }
+
+  .solar-moon-phase-copy strong {
+    margin-top: 0;
+  }
+
+  .solar-moon-phase-copy span {
+    margin-top: 0.36rem;
+    display: block;
+    color: rgba(190, 213, 255, 0.62);
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .solar-moon-phase-copy p {
+    margin-top: 0.5rem;
+  }
+
+  .solar-moon-glyph {
+    position: relative;
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(180, 205, 255, 0.1);
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 40% 28%, rgba(180, 210, 255, 0.08), transparent 54%),
+      rgba(10, 16, 32, 0.35);
+    box-shadow:
+      0 0 18px rgba(180, 210, 255, 0.1),
+      inset 0 0 18px rgba(5, 10, 24, 0.56);
+    color: rgba(246, 248, 255, 0.86);
+    isolation: isolate;
+    animation: solarMoonGlyphIn 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .solar-moon-glyph::before {
+    content: "";
+    position: absolute;
+    inset: 0.28rem;
+    border-radius: inherit;
+    border: 1px solid rgba(190, 213, 255, 0.055);
+    pointer-events: none;
+  }
+
+  .solar-moon-glyph-loading {
+    height: 66px;
+    width: 66px;
+    opacity: 0.46;
+  }
+
+  .solar-moon-glyph-svg {
+    position: relative;
+    z-index: 1;
+    display: block;
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .solar-moon-glyph-halo {
+    fill: rgba(190, 213, 255, 0.26);
+    filter: blur(8px);
+    transition: opacity 420ms ease;
+  }
+
+  .solar-moon-glyph-orbit {
+    fill: none;
+    stroke: rgba(190, 213, 255, 0.1);
+    stroke-width: 0.8;
+    stroke-dasharray: 2 6;
+  }
+
+  .solar-moon-glyph-dark {
+    fill: url(#solar-moon-glyph-dark);
+  }
+
+  .solar-moon-glyph-light {
+    fill: url(#solar-moon-glyph-bright);
+  }
+
+  .solar-moon-glyph-light-soft {
+    opacity: 0.68;
+  }
+
+  .solar-moon-glyph-texture {
+    fill: rgba(255, 255, 255, 0.14);
+    mix-blend-mode: soft-light;
+  }
+
+  .solar-moon-glyph-rim {
+    fill: none;
+    stroke: rgba(210, 226, 255, 0.42);
+    stroke-width: 1.2;
+    filter: drop-shadow(0 0 3px rgba(160, 190, 255, 0.22));
+  }
+
+  .solar-observation-tip {
+    color: rgba(190, 213, 255, 0.58) !important;
+  }
+
+  .solar-poetic-note {
+    margin-top: 1rem;
+    border-left: 1px solid rgba(190, 213, 255, 0.22);
+    padding-left: 0.86rem;
+    color: rgba(246, 248, 255, 0.7);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.12rem;
+    font-style: italic;
+    line-height: 1.38;
   }
 
   .solar-deep-echo-overlay {
@@ -2948,6 +3152,32 @@ button {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes solarInfoLayerIn {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate3d(0, 0.42rem, 0);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes solarMoonGlyphIn {
+  0% {
+    opacity: 0;
+    filter: blur(4px);
+    transform: scale(0.94) translate3d(0, 0.25rem, 0);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1) translate3d(0, 0, 0);
   }
 }
 
@@ -3888,12 +4118,35 @@ button {
     transform: translate3d(0, 1rem, 0);
   }
 
+  .solar-info-panel-visible {
+    transform: translate3d(0, 0, 0);
+  }
+
   .solar-info-content {
     padding: 1.1rem;
   }
 
   .solar-info-title {
     font-size: 2.35rem;
+  }
+
+  .solar-fact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .solar-status-module,
+  .solar-moon-phase-module,
+  .solar-feature-module {
+    padding: 0.78rem;
+  }
+
+  .solar-moon-phase-layout {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .solar-poetic-note {
+    font-size: 1rem;
   }
 
   .solar-deep-echo-overlay {
@@ -4097,7 +4350,7 @@ button {
   .solar-immersive-toggle,
   .solar-immersive-exit,
   .solar-info-panel,
-  .solar-return-button,
+  .solar-moon-glyph,
   .solar-planet-quick-button,
   .solar-planet-quick-button::before,
   .solar-planet-quick-icon,

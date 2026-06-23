@@ -39,6 +39,12 @@ interface EarthDayNightMaterial extends THREE.MeshStandardMaterial {
   };
 }
 
+interface MoonPhaseMaterial extends THREE.MeshStandardMaterial {
+  userData: THREE.MeshStandardMaterial["userData"] & {
+    moonSunDirection?: THREE.Vector3;
+  };
+}
+
 function configureTexture(texture: THREE.Texture, anisotropy: number) {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = anisotropy;
@@ -265,6 +271,56 @@ totalEmissiveRadiance += darkSurface + cityLights + vec3(0.16, 0.34, 0.62) * atm
   material.customProgramCacheKey = () => "earth-day-night-v1";
 }
 
+function extendMoonPhaseShader(
+  material: MoonPhaseMaterial,
+  solarLightFactor: number,
+) {
+  const moonSunDirection = new THREE.Vector3(-1, 0, 0);
+
+  material.userData.moonSunDirection = moonSunDirection;
+
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.moonSunDirection = { value: moonSunDirection };
+    shader.uniforms.moonSolarLightFactor = { value: solarLightFactor };
+
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+varying vec3 vMoonWorldNormal;`,
+      )
+      .replace(
+        "#include <defaultnormal_vertex>",
+        `#include <defaultnormal_vertex>
+vMoonWorldNormal = normalize(inverseTransformDirection(transformedNormal, viewMatrix));`,
+      );
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+uniform vec3 moonSunDirection;
+uniform float moonSolarLightFactor;
+varying vec3 vMoonWorldNormal;`,
+      )
+      .replace(
+        "#include <emissivemap_fragment>",
+        `#include <emissivemap_fragment>
+
+vec3 moonNormal = normalize(vMoonWorldNormal);
+float moonLightDot = dot(moonNormal, normalize(moonSunDirection));
+float moonDayFactor = smoothstep(-0.08, 0.16, moonLightDot);
+float moonNightFactor = 1.0 - moonDayFactor;
+vec3 moonNightSurface = diffuseColor.rgb * vec3(0.12, 0.15, 0.22) * (0.48 + moonSolarLightFactor * 0.16);
+float moonColdRim = pow(1.0 - saturate(abs(vNormal.z)), 2.2) * (0.028 + moonNightFactor * 0.058);
+diffuseColor.rgb *= mix(vec3(0.34, 0.38, 0.48), vec3(1.0), moonDayFactor);
+totalEmissiveRadiance += moonNightSurface * moonNightFactor + vec3(0.16, 0.32, 0.56) * moonColdRim;`,
+      );
+  };
+
+  material.customProgramCacheKey = () => "moon-phase-shadow-v1";
+}
+
 function getVisibleLightTint(body: SolarBody) {
   if (body.id === "sun") {
     return new THREE.Color("#ffffff");
@@ -354,6 +410,10 @@ function createPlanetMaterial(
         quality.textureAnisotropy,
       );
     }
+  }
+
+  if (body.id === "moon") {
+    extendMoonPhaseShader(material as MoonPhaseMaterial, body.solarLightFactor);
   }
 
   loadMapIntoMaterial(

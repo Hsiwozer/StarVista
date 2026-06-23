@@ -14,6 +14,10 @@ import {
   getOrbitAngle,
   getRelativeSatelliteOrbitPosition,
 } from "./orbitMath";
+import {
+  calculateMoonPhase,
+  type MoonPhaseState,
+} from "./moonPhase";
 import { createPlanetMesh } from "./PlanetMesh";
 import {
   updatePlanetSelectionIndicator,
@@ -28,6 +32,7 @@ interface SolarSystemSceneProps {
   onSelect: (body: SolarBody | null) => void;
   onHover: (body: SolarBody | null) => void;
   onDeepSpaceEchoTelemetry?: (telemetry: DeepSpaceEchoTelemetry) => void;
+  onMoonPhaseChange?: (moonPhase: MoonPhaseState) => void;
 }
 
 interface BodyRecord {
@@ -228,9 +233,39 @@ function updateEarthSunDirection(record: BodyRecord) {
   sunDirection.normalize();
 }
 
+function updateMoonSunDirection(record: BodyRecord) {
+  const material = Array.isArray(record.bodyMesh.material)
+    ? record.bodyMesh.material[0]
+    : record.bodyMesh.material;
+  const moonSunDirection = material.userData.moonSunDirection as
+    | THREE.Vector3
+    | undefined;
+
+  if (!moonSunDirection) {
+    return;
+  }
+
+  moonSunDirection.copy(record.group.position).multiplyScalar(-1);
+
+  if (moonSunDirection.lengthSq() < 0.0001) {
+    moonSunDirection.set(-1, 0, 0);
+    return;
+  }
+
+  moonSunDirection.normalize();
+}
+
 function getFocusDistance(body: SolarBody) {
   if (body.id === "sun") {
     return Math.max(body.visualRadius * 6.2, 22);
+  }
+
+  if (body.id === "earth") {
+    return Math.max(body.visualRadius * 7.4, 4.25);
+  }
+
+  if (body.id === "moon") {
+    return Math.max(body.visualRadius * 8.5, 3.25);
   }
 
   if (body.id === "saturn") {
@@ -252,6 +287,7 @@ export function SolarSystemScene({
   onSelect,
   onHover,
   onDeepSpaceEchoTelemetry,
+  onMoonPhaseChange,
 }: SolarSystemSceneProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -501,6 +537,7 @@ export function SolarSystemScene({
     const jupiter = bodies.find((body) => body.id === "jupiter");
     let asteroidBelt: AsteroidBeltResult | null = null;
     let lastEchoTelemetryAt = 0;
+    let lastMoonPhaseAt = 0;
     const echoProjectedPosition = new THREE.Vector3();
     const focusFillOffset = new THREE.Vector3(3.2, 2.35, 3.6);
 
@@ -780,6 +817,29 @@ export function SolarSystemScene({
       });
     };
 
+    const updateMoonPhaseTelemetry = (time: number) => {
+      if (!onMoonPhaseChange || time - lastMoonPhaseAt < 180) {
+        return;
+      }
+
+      const sun = records.get("sun");
+      const earth = records.get("earth");
+      const moon = records.get("moon");
+
+      if (!sun || !earth || !moon) {
+        return;
+      }
+
+      lastMoonPhaseAt = time;
+      onMoonPhaseChange(
+        calculateMoonPhase(
+          sun.group.position,
+          earth.group.position,
+          moon.group.position,
+        ),
+      );
+    };
+
     const updateOrbitLineAnchor = (record: BodyRecord) => {
       if (!record.orbitLine) {
         return;
@@ -829,6 +889,10 @@ export function SolarSystemScene({
           if (cloudLayer) {
             cloudLayer.rotation.y += rotationDelta * (1 + EARTH_CLOUD_RELATIVE_DRIFT);
           }
+        }
+
+        if (record.body.id === "moon") {
+          updateMoonSunDirection(record);
         }
 
         if (record.body.id === "sun") {
@@ -883,6 +947,7 @@ export function SolarSystemScene({
       controls.update();
       updateLabels();
       updateDeepSpaceEchoTelemetry(time);
+      updateMoonPhaseTelemetry(time);
       renderer.render(scene, camera);
       frameRef.current = window.requestAnimationFrame(animate);
     };
@@ -949,7 +1014,7 @@ export function SolarSystemScene({
       focusTargetRef.current = null;
       isUserOrbitingRef.current = false;
     };
-  }, [bodies, onDeepSpaceEchoTelemetry, onHover, onSelect]);
+  }, [bodies, onDeepSpaceEchoTelemetry, onHover, onMoonPhaseChange, onSelect]);
 
   const shouldShowHoverLabel =
     hoverLabel.visible && (!labelsVisible || hoverLabel.bodyId === "sun");

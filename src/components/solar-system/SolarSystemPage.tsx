@@ -13,6 +13,7 @@ import { BackToHomeButton } from "./BackToHomeButton";
 import { DeepSpaceEchoFlow } from "./DeepSpaceEchoFlow";
 import { PlanetInfoPanel } from "./PlanetInfoPanel";
 import { PlanetQuickNav } from "./PlanetQuickNav";
+import type { MoonPhaseState } from "./moonPhase";
 import { SolarSystemScene, type DeepSpaceEchoTelemetry } from "./SolarSystemScene";
 import { TimeControl } from "./TimeControl";
 
@@ -124,6 +125,7 @@ export function SolarSystemPage() {
   const [meteors, setMeteors] = useState<MeteorTrace[]>([]);
   const [deepSpaceEchoTelemetry, setDeepSpaceEchoTelemetry] =
     useState<DeepSpaceEchoTelemetry | null>(null);
+  const [moonPhase, setMoonPhase] = useState<MoonPhaseState | null>(null);
   const [deepSpaceEchoActive, setDeepSpaceEchoActive] = useState(false);
   const [deepSpaceEchoHandled, setDeepSpaceEchoHandled] = useState(false);
   const [deepSpaceEchoTriggered, setDeepSpaceEchoTriggered] = useState(false);
@@ -163,6 +165,10 @@ export function SolarSystemPage() {
     setDeepSpaceEchoTelemetry(telemetry);
   }, []);
 
+  const handleMoonPhaseChange = useCallback((nextMoonPhase: MoonPhaseState) => {
+    setMoonPhase(nextMoonPhase);
+  }, []);
+
   const openDeepSpaceEchoFlow = useCallback(() => {
     if (deepSpaceEchoHandledRef.current || deepSpaceEchoActiveRef.current) {
       return false;
@@ -181,10 +187,6 @@ export function SolarSystemPage() {
   const handleDeepSpaceEchoClose = useCallback(() => {
     deepSpaceEchoActiveRef.current = false;
     setDeepSpaceEchoActive(false);
-  }, []);
-
-  const handleReturn = useCallback(() => {
-    setSelectedBody(null);
   }, []);
 
   const clearControlCloseTimer = useCallback(() => {
@@ -605,6 +607,7 @@ export function SolarSystemPage() {
         onSelect={handleSelect}
         onHover={handleHover}
         onDeepSpaceEchoTelemetry={handleDeepSpaceEchoTelemetry}
+        onMoonPhaseChange={handleMoonPhaseChange}
       />
       <PlanetQuickNav
         planets={solarSystemBodies}
@@ -707,7 +710,11 @@ export function SolarSystemPage() {
         <Minimize2 size={15} aria-hidden="true" />
         退出
       </button>
-      <PlanetInfoPanel body={immersiveMode ? null : selectedBody} onReturn={handleReturn} />
+      <PlanetInfoPanel
+        body={immersiveMode ? null : selectedBody}
+        moonPhase={moonPhase}
+        timeScale={timeScale}
+      />
 
       <div className="solar-system-footer" aria-hidden="true">
         <span>REAL-TIME ORRERY</span>
