@@ -12,11 +12,12 @@ type EchoPhase =
   | "letter"
   | "arrived";
 type EchoCardPhase =
-  | "enter-card"
-  | "enter-content"
-  | "visible"
-  | "exit-content"
-  | "exit-card";
+  | "arrive"
+  | "reveal"
+  | "settled"
+  | "veil"
+  | "recompose"
+  | "dismiss";
 
 interface DeepSpaceEchoFlowProps {
   onHandled: () => void;
@@ -35,12 +36,11 @@ interface EchoCardCopy {
 const echoInteractionTimeout = 15000;
 const passiveCardDuration = 2600;
 const openingLetterDelay = 1100;
-const cardContentEnterDelay = 180;
-const cardContentEnterDuration = 560;
-const cardContentExitDuration = 360;
-const cardShellExitDuration = 260;
-const cardExitDuration = cardContentExitDuration + cardShellExitDuration;
-const cardSwitchPause = 120;
+const cardArrivalDuration = 360;
+const cardContentRevealDuration = 560;
+const cardContentVeilDuration = 220;
+const cardRecomposeDuration = 300;
+const cardDismissDuration = 460;
 const closingLead = 420;
 
 const deepSpaceEchoCopy: Record<Exclude<EchoPhase, "letter">, EchoCardCopy> = {
@@ -133,7 +133,7 @@ function normalizeSignal(value: string) {
 export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps) {
   const [phase, setPhase] = useState<EchoPhase>("prompt");
   const [signal, setSignal] = useState("");
-  const [echoCardPhase, setEchoCardPhase] = useState<EchoCardPhase>("enter-card");
+  const [echoCardPhase, setEchoCardPhase] = useState<EchoCardPhase>("arrive");
   const [isEchoCardTransitioning, setIsEchoCardTransitioning] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
   const [isOpeningLetter, setIsOpeningLetter] = useState(false);
@@ -177,15 +177,15 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
   }, [onHandled]);
 
   const enterEchoCard = useCallback(async () => {
-    setEchoCardPhase("enter-card");
+    setEchoCardPhase("arrive");
 
-    await waitForEchoCard(cardContentEnterDelay);
+    await waitForEchoCard(cardArrivalDuration);
 
-    setEchoCardPhase("enter-content");
+    setEchoCardPhase("reveal");
 
-    await waitForEchoCard(cardContentEnterDuration);
+    await waitForEchoCard(cardContentRevealDuration);
 
-    setEchoCardPhase("visible");
+    setEchoCardPhase("settled");
     setIsEchoCardTransitioning(false);
     isEchoCardTransitioningRef.current = false;
   }, [waitForEchoCard]);
@@ -198,13 +198,9 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
 
       isEchoCardTransitioningRef.current = true;
       setIsEchoCardTransitioning(true);
-      setEchoCardPhase("exit-content");
+      setEchoCardPhase("veil");
 
-      await waitForEchoCard(cardContentExitDuration);
-
-      setEchoCardPhase("exit-card");
-
-      await waitForEchoCard(cardShellExitDuration);
+      await waitForEchoCard(cardContentVeilDuration);
 
       phaseRef.current = nextPhase;
       setPhase(nextPhase);
@@ -213,11 +209,19 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
         overlayRef.current.scrollTop = 0;
       }
 
-      await waitForEchoCard(cardSwitchPause);
+      setEchoCardPhase("recompose");
 
-      await enterEchoCard();
+      await waitForEchoCard(cardRecomposeDuration);
+
+      setEchoCardPhase("reveal");
+
+      await waitForEchoCard(cardContentRevealDuration);
+
+      setEchoCardPhase("settled");
+      setIsEchoCardTransitioning(false);
+      isEchoCardTransitioningRef.current = false;
     },
-    [enterEchoCard, waitForEchoCard],
+    [waitForEchoCard],
   );
 
   const declineEcho = useCallback(() => {
@@ -238,7 +242,7 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
 
   useEffect(() => {
     if (
-      echoCardPhase !== "visible" ||
+      echoCardPhase !== "settled" ||
       (phase !== "prompt" && phase !== "input")
     ) {
       return undefined;
@@ -251,7 +255,7 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
 
   useEffect(() => {
     if (
-      echoCardPhase !== "visible" ||
+      echoCardPhase !== "settled" ||
       (phase !== "declined" && phase !== "timeout" && phase !== "arrived")
     ) {
       return undefined;
@@ -262,17 +266,17 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
     scheduleTimer(() => {
       isEchoCardTransitioningRef.current = true;
       setIsEchoCardTransitioning(true);
-      setEchoCardPhase("exit-content");
+      setEchoCardPhase("veil");
     }, passiveCardDuration);
     scheduleTimer(() => {
-      setEchoCardPhase("exit-card");
-    }, passiveCardDuration + cardContentExitDuration);
+      setEchoCardPhase("dismiss");
+    }, passiveCardDuration + cardContentVeilDuration);
     scheduleTimer(() => {
       setIsClosing(true);
-    }, passiveCardDuration + cardExitDuration);
+    }, passiveCardDuration + cardContentVeilDuration + cardDismissDuration);
     scheduleTimer(() => {
       onClose();
-    }, passiveCardDuration + cardExitDuration + closingLead);
+    }, passiveCardDuration + cardContentVeilDuration + cardDismissDuration + closingLead);
   }, [echoCardPhase, markHandled, onClose, phase, scheduleTimer]);
 
   useEffect(() => {
@@ -280,7 +284,7 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
       overlayRef.current.scrollTop = 0;
     }
 
-    if (phase === "input" && echoCardPhase === "visible") {
+    if (phase === "input" && echoCardPhase === "settled") {
       inputRef.current?.focus();
     }
   }, [echoCardPhase, phase]);
@@ -288,7 +292,7 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
   const handleSignalSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isEchoCardTransitioningRef.current || echoCardPhase !== "visible") {
+    if (isEchoCardTransitioningRef.current || echoCardPhase !== "settled") {
       return;
     }
 
@@ -322,7 +326,7 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
   };
 
   const closeLetter = () => {
-    if (isEchoCardTransitioningRef.current || echoCardPhase !== "visible") {
+    if (isEchoCardTransitioningRef.current || echoCardPhase !== "settled") {
       return;
     }
 
@@ -331,14 +335,12 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
   };
 
   const activeCard = phase === "letter" ? null : deepSpaceEchoCopy[phase];
+  const isLetterPhase = phase === "letter";
   const isEchoCardInteractive =
-    echoCardPhase === "visible" && !isEchoCardTransitioning && !isClosing;
-  const echoShellStage =
-    echoCardPhase === "exit-card"
-      ? "exit"
-      : echoCardPhase === "visible" || echoCardPhase === "exit-content"
-        ? "visible"
-        : "enter";
+    echoCardPhase === "settled" &&
+    !isEchoCardTransitioning &&
+    !isClosing &&
+    !isOpeningLetter;
 
   return (
     <div
@@ -352,49 +354,75 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
     >
       <div className="solar-deep-echo-dust" aria-hidden="true" />
 
-      {activeCard ? (
-        <section
-          className={`solar-deep-echo-panel solar-deep-echo-panel-${phase} solar-deep-echo-shell-${echoShellStage} ${
-            isOpeningLetter ? "solar-deep-echo-panel-opening" : ""
-          }`}
-          aria-labelledby="deep-space-echo-title"
-        >
-          <div className="solar-deep-echo-card-chrome" aria-hidden="true" />
-          <div
-            className={`solar-deep-echo-card-content solar-deep-echo-content-${echoCardPhase}`}
-          >
-            <div className="solar-deep-echo-kicker">{activeCard.kicker}</div>
-            <h2 id="deep-space-echo-title">{activeCard.title}</h2>
-            <div className="solar-deep-echo-copy">
-              {activeCard.body.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </div>
+      <section
+        className={`solar-deep-echo-surface ${
+          isLetterPhase
+            ? "solar-deep-echo-letter"
+            : `solar-deep-echo-panel solar-deep-echo-panel-${phase}`
+        } solar-deep-echo-motion-${echoCardPhase} ${
+          isOpeningLetter ? "solar-deep-echo-panel-opening" : ""
+        }`}
+        aria-labelledby="deep-space-echo-title"
+      >
+        <div className="solar-deep-echo-card-chrome" aria-hidden="true" />
+        <div className="solar-deep-echo-card-content">
+          {activeCard ? (
+            <>
+              <div className="solar-deep-echo-kicker">{activeCard.kicker}</div>
+              <h2 id="deep-space-echo-title">{activeCard.title}</h2>
+              <div className="solar-deep-echo-copy">
+                {activeCard.body.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
 
-            {activeCard.prompt ? (
-              <p className="solar-deep-echo-question">{activeCard.prompt}</p>
-            ) : null}
+              {activeCard.prompt ? (
+                <p className="solar-deep-echo-question">{activeCard.prompt}</p>
+              ) : null}
 
-            {phase === "input" ? (
-              <form className="solar-deep-echo-form" onSubmit={handleSignalSubmit}>
-                <label className="sr-only" htmlFor="deep-space-echo-signal">
-                  共鸣信号
-                </label>
-                <input
-                  ref={inputRef}
-                  id="deep-space-echo-signal"
-                  value={signal}
-                  onChange={(event) => setSignal(event.target.value)}
-                  placeholder="输入共鸣信号"
-                  autoComplete="off"
-                  disabled={!isEchoCardInteractive}
-                  spellCheck={false}
-                />
+              {phase === "input" ? (
+                <form className="solar-deep-echo-form" onSubmit={handleSignalSubmit}>
+                  <label className="sr-only" htmlFor="deep-space-echo-signal">
+                    共鸣信号
+                  </label>
+                  <input
+                    ref={inputRef}
+                    id="deep-space-echo-signal"
+                    value={signal}
+                    onChange={(event) => setSignal(event.target.value)}
+                    placeholder="输入共鸣信号"
+                    autoComplete="off"
+                    disabled={!isEchoCardInteractive}
+                    spellCheck={false}
+                  />
+                  <div className="solar-deep-echo-actions">
+                    <button
+                      type="submit"
+                      className="solar-deep-echo-primary"
+                      disabled={!isEchoCardInteractive}
+                    >
+                      {activeCard.primaryAction}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!isEchoCardInteractive}
+                      onClick={declineEcho}
+                    >
+                      {activeCard.secondaryAction}
+                    </button>
+                  </div>
+                </form>
+              ) : null}
+
+              {phase === "prompt" ? (
                 <div className="solar-deep-echo-actions">
                   <button
-                    type="submit"
+                    type="button"
                     className="solar-deep-echo-primary"
                     disabled={!isEchoCardInteractive}
+                    onClick={() => {
+                      void transitionTo("input");
+                    }}
                   >
                     {activeCard.primaryAction}
                   </button>
@@ -406,107 +434,77 @@ export function DeepSpaceEchoFlow({ onHandled, onClose }: DeepSpaceEchoFlowProps
                     {activeCard.secondaryAction}
                   </button>
                 </div>
-              </form>
-            ) : null}
+              ) : null}
 
-            {phase === "prompt" ? (
-              <div className="solar-deep-echo-actions">
-                <button
-                  type="button"
-                  className="solar-deep-echo-primary"
-                  disabled={!isEchoCardInteractive}
-                  onClick={() => {
-                    void transitionTo("input");
-                  }}
-                >
-                  {activeCard.primaryAction}
-                </button>
-                <button
-                  type="button"
-                  disabled={!isEchoCardInteractive}
-                  onClick={declineEcho}
-                >
-                  {activeCard.secondaryAction}
-                </button>
+              {phase === "mismatch" ? (
+                <div className="solar-deep-echo-actions">
+                  <button
+                    type="button"
+                    className="solar-deep-echo-primary"
+                    disabled={!isEchoCardInteractive}
+                    onClick={retrySignal}
+                  >
+                    {activeCard.primaryAction}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!isEchoCardInteractive}
+                    onClick={declineEcho}
+                  >
+                    {activeCard.secondaryAction}
+                  </button>
+                </div>
+              ) : null}
+
+              {phase === "aligned" ? (
+                <div className="solar-deep-echo-actions">
+                  <button
+                    type="button"
+                    className="solar-deep-echo-primary"
+                    disabled={isOpeningLetter || !isEchoCardInteractive}
+                    onClick={openLetter}
+                  >
+                    {activeCard.primaryAction}
+                  </button>
+                </div>
+              ) : null}
+            </>
+          ) : null}
+
+          {phase === "letter" ? (
+            <>
+              <div className="solar-deep-echo-letter-header">
+                <div className="solar-deep-echo-kicker">Letter From Deep Space</div>
+                <h2 id="deep-space-echo-title">深空的回响</h2>
               </div>
-            ) : null}
+              <div className="solar-deep-echo-letter-body">
+                {letterParagraphs.map((paragraph) => {
+                  const lines = paragraph.split("\n");
 
-            {phase === "mismatch" ? (
-              <div className="solar-deep-echo-actions">
-                <button
-                  type="button"
-                  className="solar-deep-echo-primary"
-                  disabled={!isEchoCardInteractive}
-                  onClick={retrySignal}
-                >
-                  {activeCard.primaryAction}
-                </button>
-                <button
-                  type="button"
-                  disabled={!isEchoCardInteractive}
-                  onClick={declineEcho}
-                >
-                  {activeCard.secondaryAction}
-                </button>
+                  return (
+                    <p key={paragraph}>
+                      {lines.map((line, index) => (
+                        <span key={`${line}-${index}`}>
+                          {line}
+                          {index < lines.length - 1 ? <br /> : null}
+                        </span>
+                      ))}
+                    </p>
+                  );
+                })}
               </div>
-            ) : null}
-
-            {phase === "aligned" ? (
-              <div className="solar-deep-echo-actions">
-                <button
-                  type="button"
-                  className="solar-deep-echo-primary"
-                  disabled={isOpeningLetter || !isEchoCardInteractive}
-                  onClick={openLetter}
-                >
-                  {activeCard.primaryAction}
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
-
-      {phase === "letter" ? (
-        <section
-          className={`solar-deep-echo-letter solar-deep-echo-shell-${echoShellStage}`}
-          aria-labelledby="deep-space-echo-title"
-        >
-          <div className="solar-deep-echo-card-chrome" aria-hidden="true" />
-          <div
-            className={`solar-deep-echo-card-content solar-deep-echo-content-${echoCardPhase}`}
-          >
-            <div className="solar-deep-echo-letter-header">
-              <div className="solar-deep-echo-kicker">Letter From Deep Space</div>
-              <h2 id="deep-space-echo-title">深空的回响</h2>
-            </div>
-            <div className="solar-deep-echo-letter-body">
-              {letterParagraphs.map((paragraph) => {
-                const lines = paragraph.split("\n");
-
-                return (
-                  <p key={paragraph}>
-                    {lines.map((line, index) => (
-                      <span key={`${line}-${index}`}>
-                        {line}
-                        {index < lines.length - 1 ? <br /> : null}
-                      </span>
-                    ))}
-                  </p>
-                );
-              })}
-            </div>
-            <button
-              type="button"
-              className="solar-deep-echo-letter-close"
-              disabled={!isEchoCardInteractive}
-              onClick={closeLetter}
-            >
-              收起回响
-            </button>
-          </div>
-        </section>
-      ) : null}
+              <button
+                type="button"
+                className="solar-deep-echo-letter-close"
+                disabled={!isEchoCardInteractive}
+                onClick={closeLetter}
+              >
+                收起回响
+              </button>
+            </>
+          ) : null}
+        </div>
+      </section>
     </div>
   );
 }

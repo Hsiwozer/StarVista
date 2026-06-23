@@ -2643,15 +2643,20 @@ button {
     animation: solarDeepEchoDust 22s linear infinite;
   }
 
-  .solar-deep-echo-panel,
-  .solar-deep-echo-letter {
+  .solar-deep-echo-surface {
     position: relative;
     z-index: 1;
     overflow: visible;
     border-radius: 0.5rem;
     padding: clamp(1.35rem, 4vw, 2.4rem);
     text-align: center;
-    will-change: filter, transform;
+    transition:
+      width 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      max-height 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      padding 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 420ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: width, max-height, filter, transform;
   }
 
   .solar-deep-echo-card-chrome {
@@ -2672,36 +2677,53 @@ button {
     -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, rgba(0, 0, 0, 0.86) 34%, rgba(0, 0, 0, 0.34) 62%, transparent 84%);
     mask-image: radial-gradient(ellipse at center, #000 0%, rgba(0, 0, 0, 0.86) 34%, rgba(0, 0, 0, 0.34) 62%, transparent 84%);
     backdrop-filter: none;
+    transition:
+      opacity 420ms ease,
+      filter 420ms ease,
+      transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, filter, transform;
   }
 
-  .solar-deep-echo-shell-enter {
+  .solar-deep-echo-motion-arrive {
     pointer-events: none;
-    animation: solarDeepEchoShellMoveIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: solarDeepEchoShellMoveIn 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .solar-deep-echo-shell-enter .solar-deep-echo-card-chrome {
-    animation: solarDeepEchoChromeIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  .solar-deep-echo-motion-arrive .solar-deep-echo-card-chrome {
+    animation: solarDeepEchoChromeIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .solar-deep-echo-shell-visible {
+  .solar-deep-echo-motion-settled,
+  .solar-deep-echo-motion-reveal,
+  .solar-deep-echo-motion-veil {
     filter: blur(0);
     transform: translate3d(0, 0, 0) scale(1);
   }
 
-  .solar-deep-echo-shell-visible .solar-deep-echo-card-chrome {
+  .solar-deep-echo-motion-settled .solar-deep-echo-card-chrome,
+  .solar-deep-echo-motion-reveal .solar-deep-echo-card-chrome,
+  .solar-deep-echo-motion-veil .solar-deep-echo-card-chrome {
     opacity: 1;
     filter: blur(0);
     transform: translate3d(0, 0, 0) scale(1);
   }
 
-  .solar-deep-echo-shell-exit {
+  .solar-deep-echo-motion-recompose {
     pointer-events: none;
-    animation: solarDeepEchoShellMoveOut 340ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation: solarDeepEchoSurfaceRecompose 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .solar-deep-echo-shell-exit .solar-deep-echo-card-chrome {
-    animation: solarDeepEchoChromeOut 340ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  .solar-deep-echo-motion-recompose .solar-deep-echo-card-chrome {
+    animation: solarDeepEchoChromeRecompose 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .solar-deep-echo-motion-dismiss {
+    pointer-events: none;
+    animation: solarDeepEchoShellMoveOut 460ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .solar-deep-echo-motion-dismiss .solar-deep-echo-card-chrome {
+    animation: solarDeepEchoChromeOut 460ms cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 
   .solar-deep-echo-card-content {
@@ -2710,32 +2732,28 @@ button {
     will-change: opacity, filter, transform;
   }
 
-  .solar-deep-echo-content-enter-card {
+  .solar-deep-echo-motion-arrive .solar-deep-echo-card-content,
+  .solar-deep-echo-motion-recompose .solar-deep-echo-card-content,
+  .solar-deep-echo-motion-dismiss .solar-deep-echo-card-content {
     opacity: 0;
     filter: blur(3px);
     transform: translate3d(0, 6px, 0);
   }
 
-  .solar-deep-echo-content-enter-content {
+  .solar-deep-echo-motion-reveal .solar-deep-echo-card-content {
     pointer-events: none;
     animation: solarDeepEchoContentIn 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .solar-deep-echo-content-visible {
+  .solar-deep-echo-motion-settled .solar-deep-echo-card-content {
     opacity: 1;
     filter: blur(0);
     transform: translate3d(0, 0, 0);
   }
 
-  .solar-deep-echo-content-exit-content {
+  .solar-deep-echo-motion-veil .solar-deep-echo-card-content {
     pointer-events: none;
-    animation: solarDeepEchoContentOut 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  }
-
-  .solar-deep-echo-content-exit-card {
-    opacity: 0;
-    filter: blur(1.5px);
-    transform: translate3d(0, 0, 0);
+    animation: solarDeepEchoContentOut 220ms cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 
   .solar-deep-echo-panel {
@@ -2933,7 +2951,7 @@ button {
       radial-gradient(circle at 50% 0%, rgba(127, 199, 255, 0.06), transparent 20rem);
   }
 
-  .solar-deep-echo-panel-opening.solar-deep-echo-shell-visible .solar-deep-echo-card-chrome {
+  .solar-deep-echo-panel-opening.solar-deep-echo-motion-settled .solar-deep-echo-card-chrome {
     animation: solarDeepEchoOpenLetter 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
@@ -3273,6 +3291,21 @@ button {
   }
 }
 
+@keyframes solarDeepEchoSurfaceRecompose {
+  0% {
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  46% {
+    filter: blur(1.2px);
+    transform: translate3d(0, 1px, 0) scale(0.992);
+  }
+  100% {
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
 @keyframes solarDeepEchoChromeIn {
   0% {
     opacity: 0;
@@ -3292,6 +3325,24 @@ button {
   100% {
     opacity: 0;
     filter: blur(4px);
+  }
+}
+
+@keyframes solarDeepEchoChromeRecompose {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  45% {
+    opacity: 0.78;
+    filter: blur(1.8px);
+    transform: translate3d(0, 0, 0) scale(0.992);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -3317,13 +3368,14 @@ button {
     filter: blur(0);
     transform: translate3d(0, 0, 0);
   }
-  72% {
-    opacity: 0.08;
+  64% {
+    opacity: 0.14;
+    filter: blur(1.4px);
   }
   100% {
     opacity: 0;
     filter: blur(3px);
-    transform: translate3d(0, -4px, 0);
+    transform: translate3d(0, -2px, 0);
   }
 }
 
@@ -4321,17 +4373,17 @@ button {
   .archive-system-action::after,
   .solar-deep-echo-overlay,
   .solar-deep-echo-dust,
+  .solar-deep-echo-surface,
   .solar-deep-echo-panel,
   .solar-deep-echo-card-chrome,
   .solar-deep-echo-card-chrome::before,
   .solar-deep-echo-card-chrome::after,
-  .solar-deep-echo-shell-enter,
-  .solar-deep-echo-shell-exit,
+  .solar-deep-echo-motion-arrive,
+  .solar-deep-echo-motion-reveal,
+  .solar-deep-echo-motion-veil,
+  .solar-deep-echo-motion-recompose,
+  .solar-deep-echo-motion-dismiss,
   .solar-deep-echo-card-content,
-  .solar-deep-echo-content-enter-card,
-  .solar-deep-echo-content-enter-content,
-  .solar-deep-echo-content-exit-content,
-  .solar-deep-echo-content-exit-card,
   .solar-deep-echo-letter,
   .solar-deep-echo-copy p,
   .solar-deep-echo-question,
@@ -4377,15 +4429,15 @@ button {
 
   .solar-deep-echo-overlay,
   .solar-deep-echo-dust,
+  .solar-deep-echo-surface,
   .solar-deep-echo-panel,
   .solar-deep-echo-card-chrome,
-  .solar-deep-echo-shell-enter,
-  .solar-deep-echo-shell-exit,
+  .solar-deep-echo-motion-arrive,
+  .solar-deep-echo-motion-reveal,
+  .solar-deep-echo-motion-veil,
+  .solar-deep-echo-motion-recompose,
+  .solar-deep-echo-motion-dismiss,
   .solar-deep-echo-card-content,
-  .solar-deep-echo-content-enter-card,
-  .solar-deep-echo-content-enter-content,
-  .solar-deep-echo-content-exit-content,
-  .solar-deep-echo-content-exit-card,
   .solar-deep-echo-panel-mismatch,
   .solar-deep-echo-panel-opening,
   .solar-deep-echo-letter,
