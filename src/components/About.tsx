@@ -1,4 +1,11 @@
-import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Orbit,
+  Sparkles,
+  Stars,
+} from "lucide-react";
+import { BlackHoleEntryButton } from "./black-hole/BlackHoleEntryButton";
 import { Reveal } from "./Reveal";
 
 export function About() {
@@ -36,23 +43,40 @@ export function About() {
                     .getElementById("home")
                     ?.scrollIntoView({ behavior: "smooth" })
                 }
-                className="cosmic-button cosmic-button-secondary min-h-12 px-5 py-3"
+                className="about-destination-button about-destination-button-sky"
               >
-                回到星空
-                <ArrowUpRight size={16} />
+                <span className="about-destination-icon" aria-hidden="true">
+                  <Stars size={18} />
+                </span>
+                <span className="about-destination-copy">
+                  <span>回到星空</span>
+                  <small>STAR FIELD</small>
+                </span>
+                <ArrowUpRight
+                  size={15}
+                  className="about-destination-arrow"
+                  aria-hidden="true"
+                />
               </button>
               <a
                 href="/solar-system"
-                className="cosmic-button about-solar-button group min-h-12 px-5 py-3"
-                aria-label="下一站：太阳系"
+                className="about-destination-button about-destination-button-solar"
+                aria-label="进入太阳系漫游页面"
               >
-                下一站：太阳系
+                <span className="about-destination-icon" aria-hidden="true">
+                  <Orbit size={18} />
+                </span>
+                <span className="about-destination-copy">
+                  <span>太阳系</span>
+                  <small>SOLAR SYSTEM</small>
+                </span>
                 <ArrowRight
-                  size={16}
-                  className="about-solar-arrow"
+                  size={15}
+                  className="about-destination-arrow"
                   aria-hidden="true"
                 />
               </a>
+              <BlackHoleEntryButton />
             </div>
           </div>
         </div>

@@ -14,6 +14,12 @@ const SolarSystemPage = lazy(() =>
   })),
 );
 
+const BlackHolePage = lazy(() =>
+  import("./components/black-hole/BlackHolePage").then((module) => ({
+    default: module.BlackHolePage,
+  })),
+);
+
 function App() {
   if (window.location.pathname === "/solar-system") {
     return (
@@ -23,6 +29,18 @@ function App() {
         }
       >
         <SolarSystemPage />
+      </Suspense>
+    );
+  }
+
+  if (window.location.pathname === "/black-hole") {
+    return (
+      <Suspense
+        fallback={
+          <main className="min-h-screen bg-space-950 text-starlight" />
+        }
+      >
+        <BlackHolePage />
       </Suspense>
     );
   }

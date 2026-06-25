@@ -659,91 +659,218 @@ button {
     gap: 0.875rem;
   }
 
-  .about-solar-button {
+  .about-destination-button {
+    --destination-accent: 127, 199, 255;
+    --destination-secondary: 181, 156, 255;
+    --destination-light: 226, 241, 255;
     position: relative;
     isolation: isolate;
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.72rem;
     overflow: hidden;
-    border: 1px solid rgba(127, 199, 255, 0.24);
+    border: 1px solid rgba(var(--destination-accent), 0.18);
+    border-radius: 0.5rem;
     background:
-      radial-gradient(circle at 86% 18%, rgba(141, 109, 255, 0.12), transparent 7rem),
-      rgba(2, 3, 10, 0.36);
-    color: rgba(246, 248, 255, 0.82);
+      radial-gradient(circle at 14% 50%, rgba(var(--destination-accent), 0.08), transparent 5.5rem),
+      rgba(2, 3, 10, 0.28);
+    padding: 0.68rem 0.92rem;
+    color: rgba(246, 248, 255, 0.74);
+    text-decoration: none;
+    font: inherit;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.04),
-      0 14px 36px rgba(2, 3, 10, 0.24),
-      0 0 24px rgba(58, 167, 255, 0.075);
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 14px 34px rgba(2, 3, 10, 0.2),
+      0 0 18px rgba(var(--destination-accent), 0.045);
     transition:
-      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 320ms ease,
-      background 320ms ease,
-      box-shadow 320ms ease;
+      border-color 420ms ease,
+      background 420ms ease,
+      box-shadow 420ms ease,
+      color 420ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .about-solar-button::before,
-  .about-solar-button::after {
+  .about-destination-button-sky {
+    --destination-accent: 246, 248, 255;
+    --destination-secondary: 127, 199, 255;
+    --destination-light: 246, 248, 255;
+  }
+
+  .about-destination-button-solar {
+    --destination-accent: 58, 167, 255;
+    --destination-secondary: 181, 156, 255;
+    --destination-light: 226, 241, 255;
+  }
+
+  .about-destination-button-black-hole {
+    --destination-accent: 197, 138, 58;
+    --destination-secondary: 255, 180, 92;
+    --destination-light: 255, 241, 199;
+  }
+
+  .about-destination-button::before,
+  .about-destination-button::after {
     content: "";
     pointer-events: none;
     position: absolute;
-    opacity: 0;
-    transition:
-      opacity 320ms ease,
-      transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .about-solar-button::before {
-    right: 0.82rem;
-    top: 50%;
-    height: 1.55rem;
-    width: 4.15rem;
-    border-top: 1px solid rgba(181, 156, 255, 0.24);
-    border-radius: 999px 999px 0 0;
-    transform: translate3d(0.45rem, -50%, 0) rotate(-13deg);
-  }
-
-  .about-solar-button::after {
     inset: 0;
     z-index: -1;
-    background:
-      linear-gradient(90deg, transparent, rgba(127, 199, 255, 0.13), transparent),
-      radial-gradient(circle at 74% 42%, rgba(141, 109, 255, 0.13), transparent 8rem);
-    transform: translateX(-42%);
-  }
-
-  .about-solar-arrow {
+    opacity: 0;
     transition:
-      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 320ms ease;
+      opacity 420ms ease,
+      transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .about-solar-button:hover,
-  .about-solar-button:focus-visible {
-    border-color: rgba(127, 199, 255, 0.46);
+  .about-destination-button::before {
     background:
-      radial-gradient(circle at 86% 18%, rgba(141, 109, 255, 0.17), transparent 7rem),
+      radial-gradient(circle at 22% 50%, rgba(var(--destination-accent), 0.18), transparent 4.8rem),
+      radial-gradient(circle at 28% 50%, rgba(var(--destination-secondary), 0.08), transparent 2.8rem);
+    transform: scaleX(1.18);
+  }
+
+  .about-destination-button::after {
+    background-image:
+      radial-gradient(circle at 22% 50%, rgba(var(--destination-light), 0.26) 0 1px, transparent 1.3px),
+      radial-gradient(circle at 16% 44%, rgba(var(--destination-accent), 0.18) 0 1px, transparent 1.25px),
+      radial-gradient(circle at 31% 58%, rgba(var(--destination-secondary), 0.16) 0 1px, transparent 1.2px);
+    transform: translateX(-0.48rem) scale(1.04);
+  }
+
+  .about-destination-icon {
+    position: relative;
+    display: inline-flex;
+    height: 1.72rem;
+    width: 1.72rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(var(--destination-accent), 0.22);
+    border-left-color: rgba(var(--destination-secondary), 0.48);
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(var(--destination-accent), 0.08), transparent 62%);
+    transform: scaleX(1.12) rotate(-12deg);
+    transition:
+      border-color 420ms ease,
+      box-shadow 420ms ease,
+      transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .about-destination-icon::before,
+  .about-destination-icon::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+  }
+
+  .about-destination-icon::before {
+    inset: 0.22rem;
+    border: 1px solid rgba(var(--destination-secondary), 0.12);
+    transform: scaleX(1.28) rotate(18deg);
+  }
+
+  .about-destination-icon::after {
+    inset: -0.36rem;
+    border: 1px solid rgba(var(--destination-accent), 0.05);
+    opacity: 0;
+    transform: scale(1.2);
+    transition:
+      opacity 420ms ease,
+      transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .about-destination-icon svg {
+    position: relative;
+    z-index: 1;
+    color: rgba(var(--destination-light), 0.72);
+    stroke-width: 1.75;
+    filter: drop-shadow(0 0 8px rgba(var(--destination-accent), 0.12));
+    transition:
+      color 420ms ease,
+      filter 420ms ease,
+      transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .about-destination-copy {
+    display: inline-flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.08rem;
+    text-align: left;
+  }
+
+  .about-destination-copy span {
+    font-size: 0.84rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  .about-destination-copy small {
+    color: rgba(var(--destination-secondary), 0.48);
+    font-size: 0.56rem;
+    letter-spacing: 0.2em;
+  }
+
+  .about-destination-arrow {
+    opacity: 0.54;
+    transition:
+      opacity 420ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 420ms ease;
+  }
+
+  .about-destination-button:hover,
+  .about-destination-button:focus-visible {
+    border-color: rgba(var(--destination-accent), 0.34);
+    background:
+      radial-gradient(circle at 14% 50%, rgba(var(--destination-accent), 0.12), transparent 5.5rem),
       rgba(4, 9, 27, 0.5);
+    color: rgba(var(--destination-light), 0.88);
+    outline: none;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 0 20px rgba(58, 167, 255, 0.13),
-      0 0 34px rgba(141, 109, 255, 0.08),
-      0 18px 42px rgba(2, 3, 10, 0.34);
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 16px 42px rgba(2, 3, 10, 0.32),
+      0 0 24px rgba(var(--destination-accent), 0.1);
+    transform: translateY(-1px);
   }
 
-  .about-solar-button:hover::before,
-  .about-solar-button:focus-visible::before {
+  .about-destination-button:hover::before,
+  .about-destination-button:hover::after,
+  .about-destination-button:focus-visible::before,
+  .about-destination-button:focus-visible::after {
     opacity: 1;
-    transform: translate3d(0, -50%, 0) rotate(-13deg);
+    transform: scale(1);
   }
 
-  .about-solar-button:hover::after,
-  .about-solar-button:focus-visible::after {
+  .about-destination-button:hover .about-destination-icon,
+  .about-destination-button:focus-visible .about-destination-icon {
+    border-color: rgba(var(--destination-accent), 0.36);
+    border-left-color: rgba(var(--destination-light), 0.62);
+    box-shadow:
+      0 0 12px rgba(var(--destination-accent), 0.12),
+      inset 0 0 10px rgba(var(--destination-secondary), 0.03);
+    transform: scaleX(1.03) rotate(-12deg);
+  }
+
+  .about-destination-button:hover .about-destination-icon::after,
+  .about-destination-button:focus-visible .about-destination-icon::after {
     opacity: 1;
-    transform: translateX(42%);
+    transform: scale(0.92);
   }
 
-  .about-solar-button:hover .about-solar-arrow,
-  .about-solar-button:focus-visible .about-solar-arrow {
-    filter: drop-shadow(0 0 7px rgba(127, 199, 255, 0.22));
-    transform: translateX(3px);
+  .about-destination-button:hover .about-destination-icon svg,
+  .about-destination-button:focus-visible .about-destination-icon svg {
+    color: rgba(var(--destination-light), 0.92);
+    filter: drop-shadow(0 0 8px rgba(var(--destination-accent), 0.2));
+    transform: scale(1.04);
+  }
+
+  .about-destination-button:hover .about-destination-arrow,
+  .about-destination-button:focus-visible .about-destination-arrow {
+    opacity: 0.88;
+    filter: drop-shadow(0 0 7px rgba(var(--destination-accent), 0.22));
+    transform: translateX(2px);
   }
 
   .daily-signal-card {
@@ -3935,6 +4062,331 @@ button {
   }
 }
 
+.black-hole-page {
+  position: fixed;
+  inset: 0;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #010101;
+  color: #f6f8ff;
+}
+
+.black-hole-page::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: -8%;
+  z-index: 0;
+  opacity: 0.035;
+  background: linear-gradient(116deg, transparent 0%, rgba(255, 204, 143, 0.035) 50%, transparent 100%);
+  filter: blur(0.4px);
+  animation: blackHoleNebulaDrift 42s ease-in-out infinite alternate;
+}
+
+.black-hole-image-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  overflow: hidden;
+  background: #010101;
+  opacity: 0;
+  animation: blackHoleSceneIn 1800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.black-hole-image-scene img {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.black-hole-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  cursor: crosshair;
+  opacity: 0;
+  animation: blackHoleSceneIn 2200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.black-hole-scene canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.black-hole-veil {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background:
+    radial-gradient(ellipse at 62% 49%, transparent 0 35rem, rgba(1, 1, 1, 0.04) 54rem, rgba(1, 1, 1, 0.16) 78rem),
+    linear-gradient(180deg, rgba(1, 1, 1, 0.10), transparent 18%, transparent 80%, rgba(1, 1, 1, 0.20)),
+    linear-gradient(90deg, rgba(1, 1, 1, 0.14), transparent 16%, transparent 84%, rgba(1, 1, 1, 0.14));
+}
+
+.black-hole-back-button,
+.black-hole-hud,
+.black-hole-title {
+  position: fixed;
+  z-index: 4;
+}
+
+.black-hole-back-button {
+  left: clamp(1rem, 2.4vw, 2rem);
+  top: clamp(1rem, 2.5vh, 1.8rem);
+  display: inline-flex;
+  min-height: 2.7rem;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  background: rgba(1, 1, 1, 0.10);
+  padding: 0.64rem 0.88rem;
+  color: rgba(246, 248, 255, 0.52);
+  text-decoration: none;
+  opacity: 0.18;
+  backdrop-filter: blur(10px) saturate(104%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 12px 34px rgba(0, 0, 0, 0.12);
+  transition:
+    border-color 360ms ease,
+    color 360ms ease,
+    background 360ms ease,
+    opacity 360ms ease,
+    box-shadow 360ms ease,
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.black-hole-back-button span {
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+}
+
+.black-hole-back-button small {
+  color: rgba(255, 180, 92, 0.4);
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+}
+
+.black-hole-back-button:hover,
+.black-hole-back-button:focus-visible {
+  border-color: rgba(255, 217, 176, 0.24);
+  background: rgba(5, 4, 3, 0.26);
+  color: rgba(255, 241, 218, 0.84);
+  opacity: 0.94;
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 18px rgba(255, 194, 126, 0.08),
+    0 16px 40px rgba(0, 0, 0, 0.32);
+  transform: translateY(-1px);
+}
+
+.black-hole-title {
+  --black-hole-title-x: 0;
+  left: clamp(1rem, 2.6vw, 2rem);
+  bottom: clamp(1.05rem, 3.4vh, 2.1rem);
+  width: min(24rem, calc(100vw - 2rem));
+  text-align: left;
+  opacity: 0;
+  transform: translate3d(var(--black-hole-title-x), 0.65rem, 0);
+  animation: blackHoleTitleIn 2800ms cubic-bezier(0.16, 1, 0.3, 1) 520ms both;
+}
+
+.black-hole-title p {
+  color: rgba(255, 219, 179, 0.28);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+}
+
+.black-hole-title h1 {
+  margin-top: 0.38rem;
+  font-family: "Cormorant Garamond", "Noto Sans SC", serif;
+  font-size: clamp(1.8rem, 3vw, 2.9rem);
+  font-weight: 500;
+  line-height: 1;
+  text-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.72),
+    0 0 16px rgba(255, 204, 143, 0.035);
+}
+
+.black-hole-title span {
+  display: block;
+  margin-top: 0.62rem;
+  color: rgba(246, 248, 255, 0.22);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+.black-hole-hud {
+  right: clamp(1rem, 2.6vw, 2rem);
+  bottom: clamp(1rem, 3.2vh, 2rem);
+  width: min(21rem, calc(100vw - 2rem));
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 0.5rem;
+  background:
+    radial-gradient(circle at 88% 16%, rgba(197, 138, 58, 0.045), transparent 9rem),
+    rgba(2, 3, 10, 0.18);
+  padding: 0.82rem 0.9rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.024),
+    0 14px 42px rgba(2, 3, 10, 0.18);
+  backdrop-filter: blur(14px) saturate(106%);
+  opacity: 0;
+  transform: translate3d(0.7rem, 0.7rem, 0);
+  animation: blackHoleHudIn 1300ms cubic-bezier(0.16, 1, 0.3, 1) 980ms both;
+  transition:
+    border-color 360ms ease,
+    background 360ms ease,
+    opacity 360ms ease,
+    box-shadow 360ms ease;
+}
+
+.black-hole-hud:hover,
+.black-hole-hud:focus-visible,
+.black-hole-hud:focus-within {
+  border-color: rgba(255, 180, 92, 0.13);
+  background:
+    radial-gradient(circle at 88% 16%, rgba(197, 138, 58, 0.065), transparent 9rem),
+    rgba(2, 3, 10, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 16px 48px rgba(2, 3, 10, 0.24);
+  outline: none;
+}
+
+.black-hole-hud-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.042);
+  padding-bottom: 0.62rem;
+}
+
+.black-hole-hud-heading p {
+  color: rgba(255, 180, 92, 0.38);
+  font-size: 0.52rem;
+  letter-spacing: 0.22em;
+}
+
+.black-hole-hud-heading h2 {
+  color: rgba(246, 248, 255, 0.44);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.black-hole-hud-grid {
+  display: grid;
+  gap: 0.58rem;
+  margin: 0.72rem 0 0;
+}
+
+.black-hole-hud-grid div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.black-hole-hud-grid dt {
+  color: rgba(246, 248, 255, 0.34);
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+}
+
+.black-hole-hud-grid dd {
+  margin: 0;
+  color: rgba(255, 241, 199, 0.66);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-align: right;
+}
+
+.black-hole-hud-detail,
+.black-hole-hud-optional {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-0.25rem);
+  transition:
+    max-height 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 300ms ease,
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.black-hole-hud:hover .black-hole-hud-detail,
+.black-hole-hud:hover .black-hole-hud-optional,
+.black-hole-hud:focus-visible .black-hole-hud-detail,
+.black-hole-hud:focus-visible .black-hole-hud-optional,
+.black-hole-hud:focus-within .black-hole-hud-detail,
+.black-hole-hud:focus-within .black-hole-hud-optional {
+  max-height: 2rem;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes blackHoleNebulaDrift {
+  0% {
+    transform: translate3d(-0.8%, -0.4%, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(0.8%, 0.5%, 0) scale(1.025);
+  }
+}
+
+@keyframes blackHoleSceneIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: brightness(0.6) saturate(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+@keyframes blackHoleTitleIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--black-hole-title-x), 0.65rem, 0);
+    filter: blur(8px);
+  }
+  46% {
+    opacity: 0.64;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0.045;
+    transform: translate3d(var(--black-hole-title-x), 0, 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes blackHoleHudIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0.7rem, 0.7rem, 0);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 0.92;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
 @media (max-width: 640px) {
   .archive-system-panel {
     min-height: 36rem;
@@ -3990,8 +4442,96 @@ button {
     align-items: stretch;
   }
 
-  .about-actions .cosmic-button {
+  .about-actions .about-destination-button {
     width: 100%;
+    justify-content: flex-start;
+  }
+
+  .black-hole-page::before {
+    opacity: 0.18;
+    animation: none;
+  }
+
+  .black-hole-scene {
+    cursor: default;
+  }
+
+  .black-hole-veil {
+    background:
+      radial-gradient(ellipse at 61% 50%, transparent 0 14rem, rgba(1, 1, 1, 0.05) 22rem, rgba(1, 1, 1, 0.22) 40rem),
+      linear-gradient(180deg, rgba(1, 1, 1, 0.18), transparent 30%, transparent 66%, rgba(1, 1, 1, 0.36)),
+      linear-gradient(90deg, rgba(1, 1, 1, 0.18), transparent 17%, transparent 84%, rgba(1, 1, 1, 0.16));
+  }
+
+  .black-hole-back-button {
+    left: 0.85rem;
+    top: calc(0.8rem + env(safe-area-inset-top));
+    min-height: 2.42rem;
+    padding: 0.56rem 0.68rem;
+  }
+
+  .black-hole-back-button span {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+
+  .black-hole-back-button small {
+    display: none;
+  }
+
+  .black-hole-title {
+    --black-hole-title-x: -50%;
+    left: 50%;
+    bottom: auto;
+    top: calc(4.7rem + env(safe-area-inset-top));
+    width: min(88vw, 24rem);
+    text-align: center;
+  }
+
+  .black-hole-title p {
+    font-size: 0.48rem;
+    letter-spacing: 0.22em;
+  }
+
+  .black-hole-title h1 {
+    margin-top: 0.28rem;
+    font-size: clamp(1.85rem, 10vw, 2.55rem);
+  }
+
+  .black-hole-title span {
+    display: none;
+  }
+
+  .black-hole-hud {
+    left: 0.85rem;
+    right: 0.85rem;
+    bottom: calc(0.85rem + env(safe-area-inset-bottom));
+    width: auto;
+    padding: 0.82rem;
+  }
+
+  .black-hole-hud-heading {
+    padding-bottom: 0.62rem;
+  }
+
+  .black-hole-hud-heading p {
+    font-size: 0.52rem;
+    letter-spacing: 0.16em;
+  }
+
+  .black-hole-hud-heading h2 {
+    display: none;
+  }
+
+  .black-hole-hud-grid {
+    gap: 0.54rem;
+    margin-top: 0.7rem;
+  }
+
+  .black-hole-hud-grid div:nth-child(n + 2),
+  .black-hole-hud-detail,
+  .black-hole-hud-optional {
+    display: none !important;
   }
 
   .cosmic-background {
@@ -4327,12 +4867,46 @@ button {
   .solar-easter-icon::before,
   .solar-easter-ring,
   .solar-easter-hint,
-  .about-solar-button,
-  .about-solar-button::before,
-  .about-solar-button::after,
-  .about-solar-arrow {
+  .about-destination-button,
+  .about-destination-button::before,
+  .about-destination-button::after,
+  .about-destination-icon,
+  .about-destination-icon::after,
+  .about-destination-icon svg,
+  .about-destination-arrow,
+  .black-hole-page::before,
+  .black-hole-image-scene,
+  .black-hole-scene,
+  .black-hole-title,
+  .black-hole-hud {
     animation: none !important;
     transition: none !important;
+  }
+
+  .solar-easter-egg,
+  .solar-easter-icon,
+  .solar-easter-icon::before,
+  .solar-easter-ring,
+  .solar-easter-hint,
+  .about-destination-button,
+  .about-destination-button::before,
+  .about-destination-button::after,
+  .about-destination-icon,
+  .about-destination-icon::after,
+  .about-destination-icon svg,
+  .about-destination-arrow {
+    transform: none !important;
+  }
+
+  .black-hole-title {
+    opacity: 0.045 !important;
+    transform: translate3d(var(--black-hole-title-x), 0, 0) !important;
+  }
+
+  .black-hole-image-scene,
+  .black-hole-scene,
+  .black-hole-hud {
+    opacity: 1 !important;
     transform: none !important;
   }
 
