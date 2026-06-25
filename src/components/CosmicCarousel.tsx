@@ -207,7 +207,6 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
         isPaused={isPaused}
         onPrevious={showPrevious}
         onNext={showNext}
-        onSelect={selectSlide}
       />
     </div>
   );

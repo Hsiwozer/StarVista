@@ -1,5 +1,8 @@
 import { ArrowLeft } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const EVENT_HORIZON_VIDEO_URL = "/videos/event-horizon.mp4";
+const EVENT_HORIZON_PLAYBACK_RATE = 0.75;
 
 export interface BlackHoleTelemetry {
   approach: number;
@@ -7,6 +10,9 @@ export interface BlackHoleTelemetry {
 }
 
 export function BlackHolePage() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoSrc, setVideoSrc] = useState<string>();
+
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -16,25 +22,113 @@ export function BlackHolePage() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl: string | undefined;
+
+    const playVideo = () => {
+      requestAnimationFrame(() => {
+        const video = videoRef.current;
+
+        if (!video) {
+          return;
+        }
+
+        video.muted = true;
+        video.defaultMuted = true;
+        video.playbackRate = EVENT_HORIZON_PLAYBACK_RATE;
+        video.setAttribute("x-webkit-airplay", "deny");
+
+        void video.play().catch(() => {
+          // Browsers can still block autoplay in some user settings.
+        });
+      });
+    };
+
+    async function loadVideo() {
+      try {
+        const response = await fetch(EVENT_HORIZON_VIDEO_URL, { cache: "force-cache" });
+
+        if (!response.ok) {
+          throw new Error("Unable to load event horizon video");
+        }
+
+        const videoBlob = await response.blob();
+
+        if (cancelled) {
+          return;
+        }
+
+        objectUrl = URL.createObjectURL(videoBlob);
+        setVideoSrc(objectUrl);
+        playVideo();
+      } catch {
+        if (!cancelled) {
+          setVideoSrc(EVENT_HORIZON_VIDEO_URL);
+          playVideo();
+        }
+      }
+    }
+
+    void loadVideo();
+
+    return () => {
+      cancelled = true;
+
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const preventDefault = (event: Event) => event.preventDefault();
+    const preventInspectionShortcuts = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      const blocksDeveloperToolShortcut =
+        event.key === "F12" ||
+        (event.ctrlKey && event.shiftKey && ["i", "j", "c"].includes(key)) ||
+        (event.metaKey && event.altKey && ["i", "j", "c"].includes(key)) ||
+        ((event.ctrlKey || event.metaKey) && ["s", "u"].includes(key));
+
+      if (blocksDeveloperToolShortcut) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener("contextmenu", preventDefault);
+    document.addEventListener("dragstart", preventDefault);
+    document.addEventListener("selectstart", preventDefault);
+    document.addEventListener("keydown", preventInspectionShortcuts);
+
+    return () => {
+      document.removeEventListener("contextmenu", preventDefault);
+      document.removeEventListener("dragstart", preventDefault);
+      document.removeEventListener("selectstart", preventDefault);
+      document.removeEventListener("keydown", preventInspectionShortcuts);
+    };
+  }, []);
+
   return (
     <main className="black-hole-page" aria-label="事件视界沉浸探索">
-      <figure className="black-hole-image-scene" aria-label="黑洞事件视界与发光吸积盘">
-        <img
-          src="/images/black-hole-event-horizon.png"
-          alt="黑洞事件视界被明亮吸积盘环绕，星空背景中可见上下弯曲的引力透镜光弧"
-        />
-      </figure>
-      <div className="black-hole-veil" aria-hidden="true" />
-      <a href="/" className="black-hole-back-button" aria-label="返回 StarVista 首页">
-        <ArrowLeft size={15} aria-hidden="true" />
-        <span>返回星空</span>
-        <small>BACK TO STARVISTA</small>
+      <a href="/" className="black-hole-return-button" aria-label="返回星空档案馆">
+        <ArrowLeft size={16} aria-hidden="true" />
+        <span>返回星空档案馆</span>
       </a>
-      <section className="black-hole-title" aria-label="事件视界">
-        <p>EVENT HORIZON</p>
-        <h1>事件视界</h1>
-        <span>在这里，星光弯曲，时间沉默。</span>
-      </section>
+      <video
+        ref={videoRef}
+        className="black-hole-video"
+        src={videoSrc}
+        aria-label="事件视界视频"
+        autoPlay
+        controlsList="nodownload noplaybackrate noremoteplayback"
+        disablePictureInPicture
+        disableRemotePlayback
+        loop
+        muted
+        playsInline
+        preload="auto"
+      />
     </main>
   );
 }

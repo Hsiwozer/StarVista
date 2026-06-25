@@ -8,7 +8,6 @@ interface CarouselControlsProps {
   isPaused: boolean;
   onPrevious: () => void;
   onNext: () => void;
-  onSelect: (index: number) => void;
 }
 
 export function CarouselControls({
@@ -18,7 +17,6 @@ export function CarouselControls({
   isPaused,
   onPrevious,
   onNext,
-  onSelect,
 }: CarouselControlsProps) {
   return (
     <>
@@ -51,28 +49,11 @@ export function CarouselControls({
         </div>
       </div>
 
-      <div className="absolute bottom-5 right-5 z-30 flex items-center gap-4 text-xs text-white/34 sm:bottom-8 sm:right-8 md:bottom-12 md:right-14">
-        <div className="hidden items-center gap-1.5 sm:flex">
+      <div className="absolute bottom-5 right-5 z-30 flex items-center rounded-full border border-white/[0.08] bg-space-950/24 px-3 py-1.5 text-xs tracking-[0.16em] text-white/58 shadow-[0_0_22px_rgba(2,3,10,0.28)] backdrop-blur-md sm:bottom-8 sm:right-8 sm:px-3.5 md:bottom-11 md:right-12">
+        <div className="flex items-center gap-1.5">
           <span>{String(activeIndex + 1).padStart(2, "0")}</span>
           <span className="text-white/24">/</span>
           <span>{String(items.length).padStart(2, "0")}</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {items.map((item, index) => (
-            <button
-              type="button"
-              key={item.id}
-              aria-label={`切换到 ${item.subtitle}`}
-              aria-current={activeIndex === index}
-              onClick={() => onSelect(index)}
-              className={`h-1.5 rounded-full transition focus:outline-none focus:ring-2 focus:ring-galaxy-400/60 focus:ring-offset-2 focus:ring-offset-space-950 ${
-                activeIndex === index
-                  ? "w-5 bg-white/70 shadow-[0_0_10px_rgba(127,199,255,0.28)]"
-                  : "w-1.5 bg-white/20 hover:bg-white/48"
-              }`}
-            />
-          ))}
         </div>
       </div>
     </>

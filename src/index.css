@@ -1346,10 +1346,11 @@ button {
     position: relative;
     isolation: isolate;
     display: flex;
-    min-height: 16.5rem;
-    width: min(78vw, 21rem);
+    min-height: 9.25rem;
+    width: min(72vw, 18rem);
     flex: 0 0 auto;
     flex-direction: column;
+    justify-content: space-between;
     overflow: hidden;
     scroll-snap-align: start;
     border: 1px solid rgba(127, 199, 255, 0.075);
@@ -1357,7 +1358,7 @@ button {
     background:
       linear-gradient(145deg, rgba(127, 199, 255, 0.032), transparent 36%),
       rgba(3, 6, 18, 0.32);
-    padding: 1.25rem;
+    padding: 1.05rem;
     text-align: left;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.03),
@@ -1474,7 +1475,8 @@ button {
   }
 
   .archive-system-id,
-  .archive-system-open {
+  .archive-system-card-title,
+  .archive-system-card-mark {
     transition:
       color 680ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -1489,6 +1491,19 @@ button {
     text-transform: uppercase;
   }
 
+  .archive-system-card-title {
+    display: block;
+    max-width: calc(100% - 1.9rem);
+    padding-top: 1.05rem;
+  }
+
+  .archive-system-card-mark {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    opacity: 0.52;
+  }
+
   .archive-system-card:hover .archive-system-id,
   .archive-system-card:focus-visible .archive-system-id,
   .archive-system-card-active .archive-system-id {
@@ -1496,17 +1511,24 @@ button {
     text-shadow: 0 0 14px rgba(127, 199, 255, 0.16);
   }
 
-  .archive-system-card:hover .archive-system-open,
-  .archive-system-card:focus-visible .archive-system-open,
-  .archive-system-card-active .archive-system-open {
+  .archive-system-card:hover .archive-system-card-title,
+  .archive-system-card:focus-visible .archive-system-card-title,
+  .archive-system-card-active .archive-system-card-title {
     color: rgba(246, 248, 255, 0.58);
-    transform: translateX(2px);
+    transform: translate3d(2px, 0, 0);
+  }
+
+  .archive-system-card:hover .archive-system-card-mark,
+  .archive-system-card:focus-visible .archive-system-card-mark,
+  .archive-system-card-active .archive-system-card-mark {
+    opacity: 0.78;
+    transform: translate3d(-2px, -1px, 0);
   }
 
   .archive-system-panel {
-    min-height: 34rem;
+    min-height: 35rem;
     overflow: hidden;
-    padding: 1.5rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
     background:
       radial-gradient(circle at 18% 12%, rgba(127, 199, 255, 0.07), transparent 18rem),
       linear-gradient(145deg, rgba(127, 199, 255, 0.045), transparent 42%),
@@ -1696,15 +1718,17 @@ button {
 
   @media (min-width: 1024px) {
     .archive-system-grid {
-      grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.22fr);
+      grid-template-columns: minmax(15rem, 0.54fr) minmax(0, 1.46fr);
       align-items: start;
+      gap: 1.25rem;
     }
 
     .archive-system-track {
       display: grid;
       grid-template-columns: 1fr;
       margin-inline: 0;
-      max-height: 40rem;
+      gap: 0.625rem;
+      max-height: 45rem;
       overflow-x: hidden;
       overflow-y: auto;
       padding: 0.125rem 0.2rem 0.125rem 0;
@@ -1713,15 +1737,20 @@ button {
 
     .archive-system-card {
       width: 100%;
-      min-height: 11.75rem;
-      padding: 1.15rem;
+      min-height: 5.5rem;
+      padding: 0.9rem 1rem;
+    }
+
+    .archive-system-card-title {
+      max-width: calc(100% - 1.5rem);
+      padding-top: 0.75rem;
     }
 
     .archive-system-panel {
       position: sticky;
       top: 6rem;
-      min-height: 40rem;
-      padding: 2rem;
+      min-height: 45rem;
+      padding: 2.25rem;
     }
   }
 
@@ -4093,7 +4122,43 @@ button {
   overflow: hidden;
   background: #010101;
   opacity: 0;
+  transform-origin: 61% 49%;
   animation: blackHoleSceneIn 1800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.black-hole-image-scene::before,
+.black-hole-image-scene::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -3%;
+  background-image: url("/images/black-hole-event-horizon.png");
+  background-position: center center;
+  background-size: cover;
+  transform-origin: 61% 49%;
+  will-change: opacity, transform, filter;
+}
+
+.black-hole-image-scene::before {
+  z-index: 2;
+  filter: blur(1.4px) brightness(1.10) saturate(1.04);
+  mix-blend-mode: soft-light;
+  opacity: 0.12;
+  mask-image: linear-gradient(102deg, transparent 0%, transparent 20%, rgba(0, 0, 0, 0.26) 33%, rgba(0, 0, 0, 0.70) 48%, rgba(0, 0, 0, 0.38) 64%, transparent 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(102deg, transparent 0%, transparent 20%, rgba(0, 0, 0, 0.26) 33%, rgba(0, 0, 0, 0.70) 48%, rgba(0, 0, 0, 0.38) 64%, transparent 82%, transparent 100%);
+  animation: blackHoleAccretionFlow 15s linear infinite;
+}
+
+.black-hole-image-scene::after {
+  z-index: 3;
+  background:
+    radial-gradient(ellipse at 61% 49%, transparent 0 15.6rem, rgba(255, 235, 196, 0.18) 16.2rem, transparent 17rem),
+    radial-gradient(ellipse at 61% 49%, transparent 0 23rem, rgba(255, 199, 137, 0.09) 24.2rem, transparent 29rem),
+    linear-gradient(103deg, transparent 24%, rgba(255, 246, 222, 0.08) 42%, rgba(255, 204, 142, 0.12) 54%, transparent 76%);
+  filter: blur(1px);
+  mix-blend-mode: screen;
+  opacity: 0.22;
+  animation: blackHolePhotonPulse 7.6s ease-in-out infinite;
 }
 
 .black-hole-image-scene img {
@@ -4102,6 +4167,9 @@ button {
   width: 100%;
   object-fit: cover;
   object-position: center center;
+  transform-origin: 61% 49%;
+  will-change: transform, filter;
+  animation: blackHoleImageDrift 34s ease-in-out infinite alternate;
 }
 
 .black-hole-scene {
@@ -4357,6 +4425,58 @@ button {
   }
 }
 
+@keyframes blackHoleImageDrift {
+  0% {
+    transform: translate3d(-0.24%, -0.12%, 0) scale(1.006);
+    filter: brightness(0.985) saturate(1);
+  }
+  45% {
+    transform: translate3d(0.18%, 0.10%, 0) scale(1.011);
+    filter: brightness(1.025) saturate(1.035);
+  }
+  100% {
+    transform: translate3d(0.36%, -0.08%, 0) scale(1.008);
+    filter: brightness(1.005) saturate(1.015);
+  }
+}
+
+@keyframes blackHoleAccretionFlow {
+  0% {
+    opacity: 0.07;
+    transform: translate3d(-1.35%, 0.28%, 0) scale(1.012) rotate(-0.12deg);
+    filter: blur(2.1px) brightness(1.04) saturate(1.02);
+  }
+  34% {
+    opacity: 0.13;
+    transform: translate3d(0.45%, -0.16%, 0) scale(1.018) rotate(0.05deg);
+    filter: blur(1.6px) brightness(1.20) saturate(1.10);
+  }
+  68% {
+    opacity: 0.09;
+    transform: translate3d(1.42%, 0.14%, 0) scale(1.014) rotate(0.10deg);
+    filter: blur(2px) brightness(1.10) saturate(1.05);
+  }
+  100% {
+    opacity: 0.07;
+    transform: translate3d(2.18%, 0.30%, 0) scale(1.012) rotate(-0.12deg);
+    filter: blur(2.1px) brightness(1.04) saturate(1.02);
+  }
+}
+
+@keyframes blackHolePhotonPulse {
+  0%,
+  100% {
+    opacity: 0.14;
+    transform: scale(0.996) rotate(-0.08deg);
+    filter: blur(1.2px) brightness(0.96);
+  }
+  46% {
+    opacity: 0.28;
+    transform: scale(1.006) rotate(0.08deg);
+    filter: blur(0.7px) brightness(1.16);
+  }
+}
+
 @keyframes blackHoleTitleIn {
   0% {
     opacity: 0;
@@ -4454,6 +4574,20 @@ button {
 
   .black-hole-scene {
     cursor: default;
+  }
+
+  .black-hole-image-scene::before {
+    opacity: 0.07;
+    animation-duration: 20s;
+  }
+
+  .black-hole-image-scene::after {
+    opacity: 0.16;
+    animation-duration: 9.5s;
+  }
+
+  .black-hole-image-scene img {
+    animation-duration: 44s;
   }
 
   .black-hole-veil {
@@ -4876,6 +5010,9 @@ button {
   .about-destination-arrow,
   .black-hole-page::before,
   .black-hole-image-scene,
+  .black-hole-image-scene::before,
+  .black-hole-image-scene::after,
+  .black-hole-image-scene img,
   .black-hole-scene,
   .black-hole-title,
   .black-hole-hud {
@@ -4904,9 +5041,16 @@ button {
   }
 
   .black-hole-image-scene,
+  .black-hole-image-scene img,
   .black-hole-scene,
   .black-hole-hud {
     opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .black-hole-image-scene::before,
+  .black-hole-image-scene::after {
+    opacity: 0 !important;
     transform: none !important;
   }
 
@@ -4937,7 +5081,8 @@ button {
   .archive-system-card-scan,
   .archive-system-card-axis,
   .archive-system-id,
-  .archive-system-open,
+  .archive-system-card-title,
+  .archive-system-card-mark,
   .archive-system-panel-content,
   .archive-system-panel-media,
   .archive-system-panel-dust,
@@ -5023,5 +5168,97 @@ button {
     opacity: 1 !important;
     filter: none !important;
     transform: none !important;
+  }
+}
+
+.black-hole-page {
+  display: grid;
+  place-items: center;
+  background: #000;
+  color: #fff;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.black-hole-page::before {
+  content: none;
+}
+
+.black-hole-video {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  background: #000;
+  object-fit: contain;
+  object-position: center center;
+  outline: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.black-hole-video::-webkit-media-controls,
+.black-hole-video::-webkit-media-controls-enclosure,
+.black-hole-video::-webkit-media-controls-download-button,
+.black-hole-video::-internal-media-controls-download-button {
+  display: none;
+}
+
+.black-hole-return-button {
+  position: fixed;
+  top: calc(1rem + env(safe-area-inset-top));
+  left: calc(1rem + env(safe-area-inset-left));
+  z-index: 10;
+  display: inline-flex;
+  min-height: 2.6rem;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.085);
+  padding: 0.62rem 0.9rem;
+  color: rgba(255, 255, 255, 0.36);
+  text-decoration: none;
+  opacity: 0.38;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 26px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px) saturate(104%);
+  transition:
+    border-color 220ms ease,
+    background 220ms ease,
+    color 220ms ease,
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.black-hole-return-button span {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.black-hole-return-button:hover,
+.black-hole-return-button:focus-visible {
+  border-color: rgba(255, 223, 188, 0.22);
+  background: rgba(5, 4, 3, 0.34);
+  color: rgba(255, 243, 223, 0.86);
+  opacity: 0.84;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .black-hole-return-button {
+    min-height: 2.38rem;
+    padding: 0.54rem 0.72rem;
+  }
+
+  .black-hole-return-button span {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
   }
 }

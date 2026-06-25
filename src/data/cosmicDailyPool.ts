@@ -3,7 +3,9 @@ export type CosmicDailyCategory =
   | "Galaxy"
   | "Star Cluster"
   | "Supernova Remnant"
-  | "Deep Field";
+  | "Deep Field"
+  | "Planet"
+  | "Black Hole";
 
 export interface CosmicDailyItem {
   id: string;
@@ -280,6 +282,72 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
     source: "ESA / Hubble / NASA",
     link: "https://esahubble.org/images/heic1509a/",
     category: "Star Cluster",
+  },
+  {
+    id: "rho-ophiuchi-cloud",
+    title: "蛇夫座 Rho 云",
+    subtitle: "近邻恒星摇篮的彩色暗河",
+    image: "/images/daily/rho-ophiuchi-cloud.jpg",
+    description:
+      "尘埃云在红外光中显露出青绿与火红的层次，新生恒星从暗云深处把整片星际雾海照亮。",
+    source: "NASA / JPL-Caltech / UCLA",
+    link: "https://images.nasa.gov/details/PIA13974",
+    category: "Nebula",
+  },
+  {
+    id: "saturn-grand-portrait",
+    title: "土星宏像",
+    subtitle: "环影切过金色行星的寂静弧线",
+    image: "/images/daily/saturn-grand-portrait.jpg",
+    description:
+      "卡西尼凝视下的土星被环系投下长影，柔亮球面与冰尘圆环共同组成深空里最优雅的几何。",
+    source: "NASA / JPL / Space Science Institute",
+    link: "https://images.nasa.gov/details/PIA06193",
+    category: "Planet",
+  },
+  {
+    id: "jupiter-marble",
+    title: "木星大理石",
+    subtitle: "风暴纹理卷成行星海洋",
+    image: "/images/daily/jupiter-marble.jpg",
+    description:
+      "朱诺号视角里的木星云带像流动的矿物纹理，大红斑与层层风暴在巨大气态世界上缓慢旋转。",
+    source: "NASA / JPL-Caltech / SwRI / MSSS",
+    link: "https://images.nasa.gov/details/PIA22946",
+    category: "Planet",
+  },
+  {
+    id: "hercules-a-jets",
+    title: "武仙座 A 喷流",
+    subtitle: "超大质量黑洞吹出的紫色双翼",
+    image: "/images/daily/hercules-a-jets.jpg",
+    description:
+      "星系核心的黑洞把高能喷流推出数百万光年，紫红色射电羽流像两片从星海中张开的巨大光翼。",
+    source: "NASA / ESA / NRAO",
+    link: "https://images.nasa.gov/details/GSFC_20171208_Archive_e001618",
+    category: "Black Hole",
+  },
+  {
+    id: "m87-black-hole-galaxy",
+    title: "M87 星系核心",
+    subtitle: "黑洞喷流穿过椭圆星光",
+    image: "/images/daily/m87-black-hole-galaxy.jpg",
+    description:
+      "M87 中央的超大质量黑洞驱动明亮喷流穿透星系核心，远处星海把这场极端能量释放衬得格外安静。",
+    source: "NASA / JPL-Caltech / IPAC",
+    link: "https://images.nasa.gov/details/PIA23122",
+    category: "Black Hole",
+  },
+  {
+    id: "webb-deep-field",
+    title: "韦布深场",
+    subtitle: "引力透镜后的早期星系群像",
+    image: "/images/daily/webb-deep-field.jpg",
+    description:
+      "成千上万的星系在一小片天空中浮现，弯曲的橙色光弧记录着引力透镜把远古宇宙放大的瞬间。",
+    source: "NASA / ESA / CSA / STScI",
+    link: "https://images.nasa.gov/details/webb_first_deep_field",
+    category: "Deep Field",
   },
 ];
 

@@ -4,7 +4,8 @@ export type GalleryCategory =
   | "Moon"
   | "Planet"
   | "Black Hole"
-  | "Deep Sky Object";
+  | "Deep Sky Object"
+  | "Supernova Remnant";
 
 export interface GalleryItem {
   id: number;

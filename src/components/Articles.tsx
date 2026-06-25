@@ -1,16 +1,76 @@
-import { useState, type ReactNode } from "react";
-import { ArrowRight, Database, FileSearch, MapPinned, Ruler, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Database, FileSearch, MapPinned, Ruler, Sparkles } from "lucide-react";
 import { archiveRecords } from "../data/mockData";
 import { ArchiveCard } from "./ArchiveCard";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 
 const fallbackImage = "/images/hero-nebula.png";
+const dailyArchiveCount = 8;
+
+function getArchiveDayKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function getSeedFromDayKey(dayKey: string) {
+  return [...dayKey].reduce((seed, character) => {
+    return Math.imul(seed ^ character.charCodeAt(0), 16777619);
+  }, 2166136261);
+}
+
+function createSeededRandom(seed: number) {
+  let state = seed >>> 0;
+
+  return () => {
+    state += 0x6d2b79f5;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function getDailyArchiveRecords(dayKey: string) {
+  const random = createSeededRandom(getSeedFromDayKey(dayKey));
+  const shuffledRecords = [...archiveRecords];
+
+  for (let index = shuffledRecords.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [shuffledRecords[index], shuffledRecords[swapIndex]] = [
+      shuffledRecords[swapIndex],
+      shuffledRecords[index],
+    ];
+  }
+
+  return shuffledRecords.slice(0, dailyArchiveCount);
+}
 
 export function Articles() {
+  const [archiveDayKey, setArchiveDayKey] = useState(getArchiveDayKey);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isArchiveExpanded, setIsArchiveExpanded] = useState(false);
-  const activeArchive = archiveRecords[activeIndex];
+  const dailyArchiveRecords = useMemo(
+    () => getDailyArchiveRecords(archiveDayKey),
+    [archiveDayKey],
+  );
+  const activeArchive = dailyArchiveRecords[activeIndex] ?? dailyArchiveRecords[0];
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setArchiveDayKey(getArchiveDayKey());
+    }, 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    setActiveIndex(0);
+    setIsArchiveExpanded(false);
+  }, [archiveDayKey]);
 
   return (
     <section id="articles" className="section-shell">
@@ -28,7 +88,7 @@ export function Articles() {
             className="archive-system-track"
             aria-label="深空档案列表"
           >
-            {archiveRecords.map((archive, index) => {
+            {dailyArchiveRecords.map((archive, index) => {
               const isActive = activeIndex === index;
 
               return (
@@ -49,38 +109,24 @@ export function Articles() {
                   <span className="archive-system-card-scan" aria-hidden="true" />
                   <span className="archive-system-card-axis" aria-hidden="true" />
 
-                  <span className="flex items-start justify-between gap-4">
-                    <span>
-                      <span className="archive-system-id block">
-                        {archive.archiveId}
-                      </span>
-                      <span className="mt-2 block text-xs text-white/38">
-                        {archive.type}
-                      </span>
-                    </span>
-                    <Database
-                      size={17}
-                      className="mt-0.5 text-white/22 transition duration-700"
-                      aria-hidden="true"
-                    />
+                  <span className="archive-system-id block">
+                    {archive.archiveId}
                   </span>
 
-                  <span className="mt-8 block">
-                    <span className="block text-lg font-medium leading-snug text-starlight/84">
+                  <span className="archive-system-card-title">
+                    <span className="block text-base font-medium leading-snug text-starlight/84 sm:text-lg">
                       {archive.name}
                     </span>
-                    <span className="mt-2 block text-xs uppercase tracking-[0.18em] text-galaxy-400/42">
+                    <span className="mt-2 block text-[0.68rem] uppercase tracking-[0.18em] text-galaxy-400/42">
                       {archive.englishName}
                     </span>
                   </span>
 
-                  <span className="mt-7 block text-sm leading-6 text-white/46">
-                    {archive.region} / {archive.distance}
-                  </span>
-
-                  <span className="archive-system-open mt-7 inline-flex items-center gap-2 text-xs tracking-[0.18em] text-white/34">
-                    查阅档案
-                    <ArrowRight size={14} aria-hidden="true" />
+                  <span className="archive-system-card-mark" aria-hidden="true">
+                    <Database
+                      size={16}
+                      className="text-white/24 transition duration-700"
+                    />
                   </span>
                 </button>
               );
