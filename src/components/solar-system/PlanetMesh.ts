@@ -26,6 +26,10 @@ const SATURN_RING_RATIO = {
   innerRadius: 1.35,
   outerRadius: 2.35,
 } as const;
+const SOLAR_LIGHT_FACTOR_RANGE = {
+  min: 0.34,
+  max: 1.42,
+} as const;
 
 type TextureMappedMaterial = THREE.Material & {
   map?: THREE.Texture | null;
@@ -43,6 +47,23 @@ interface MoonPhaseMaterial extends THREE.MeshStandardMaterial {
   userData: THREE.MeshStandardMaterial["userData"] & {
     moonSunDirection?: THREE.Vector3;
   };
+}
+
+function getDistanceLightWeight(solarLightFactor: number) {
+  return THREE.MathUtils.clamp(
+    (solarLightFactor - SOLAR_LIGHT_FACTOR_RANGE.min) /
+      (SOLAR_LIGHT_FACTOR_RANGE.max - SOLAR_LIGHT_FACTOR_RANGE.min),
+    0,
+    1,
+  );
+}
+
+function getOverallBrightnessLift(solarLightFactor: number) {
+  return THREE.MathUtils.lerp(0.032, 0.078, getDistanceLightWeight(solarLightFactor));
+}
+
+function getSunlitBrightnessLift(solarLightFactor: number) {
+  return THREE.MathUtils.lerp(0.035, 0.112, getDistanceLightWeight(solarLightFactor));
 }
 
 function configureTexture(texture: THREE.Texture, anisotropy: number) {
@@ -220,6 +241,7 @@ function extendEarthDayNightShader(
 ) {
   const sunDirection = new THREE.Vector3(-1, 0, 0);
   const nightMapUniform = { value: nightTexture };
+  const sunlitBrightnessLift = getSunlitBrightnessLift(solarLightFactor);
 
   material.userData.nightMapUniform = nightMapUniform;
   material.userData.sunDirection = sunDirection;
@@ -228,6 +250,7 @@ function extendEarthDayNightShader(
     shader.uniforms.earthNightMap = nightMapUniform;
     shader.uniforms.earthSunDirection = { value: sunDirection };
     shader.uniforms.earthSolarLightFactor = { value: solarLightFactor };
+    shader.uniforms.earthSunlitBrightnessLift = { value: sunlitBrightnessLift };
 
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -248,6 +271,7 @@ vEarthWorldNormal = normalize(inverseTransformDirection(transformedNormal, viewM
 uniform sampler2D earthNightMap;
 uniform vec3 earthSunDirection;
 uniform float earthSolarLightFactor;
+uniform float earthSunlitBrightnessLift;
 varying vec3 vEarthWorldNormal;`,
       )
       .replace(
@@ -260,15 +284,15 @@ float dayFactor = smoothstep(-0.08, 0.18, lightDot);
 float nightFactor = 1.0 - dayFactor;
 vec3 nightColor = texture2D(earthNightMap, vMapUv).rgb;
 float cityMask = smoothstep(0.045, 0.36, max(max(nightColor.r, nightColor.g), nightColor.b));
+diffuseColor.rgb *= 1.0 + dayFactor * earthSunlitBrightnessLift;
 vec3 darkSurface = diffuseColor.rgb * vec3(0.035, 0.052, 0.09) * nightFactor * mix(0.82, 1.0, earthSolarLightFactor);
 vec3 cityLights = nightColor * vec3(1.28, 1.12, 0.86) * cityMask * nightFactor * 1.24;
 float atmosphereRim = pow(1.0 - saturate(abs(vNormal.z)), 2.35) * (0.028 + nightFactor * 0.052);
 totalEmissiveRadiance += darkSurface + cityLights + vec3(0.16, 0.34, 0.62) * atmosphereRim;`,
       );
-
   };
 
-  material.customProgramCacheKey = () => "earth-day-night-v1";
+  material.customProgramCacheKey = () => "earth-day-night-v2";
 }
 
 function extendMoonPhaseShader(
@@ -276,12 +300,14 @@ function extendMoonPhaseShader(
   solarLightFactor: number,
 ) {
   const moonSunDirection = new THREE.Vector3(-1, 0, 0);
+  const sunlitBrightnessLift = getSunlitBrightnessLift(solarLightFactor);
 
   material.userData.moonSunDirection = moonSunDirection;
 
   material.onBeforeCompile = (shader) => {
     shader.uniforms.moonSunDirection = { value: moonSunDirection };
     shader.uniforms.moonSolarLightFactor = { value: solarLightFactor };
+    shader.uniforms.moonSunlitBrightnessLift = { value: sunlitBrightnessLift };
 
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -301,6 +327,7 @@ vMoonWorldNormal = normalize(inverseTransformDirection(transformedNormal, viewMa
         `#include <common>
 uniform vec3 moonSunDirection;
 uniform float moonSolarLightFactor;
+uniform float moonSunlitBrightnessLift;
 varying vec3 vMoonWorldNormal;`,
       )
       .replace(
@@ -314,11 +341,62 @@ float moonNightFactor = 1.0 - moonDayFactor;
 vec3 moonNightSurface = diffuseColor.rgb * vec3(0.12, 0.15, 0.22) * (0.48 + moonSolarLightFactor * 0.16);
 float moonColdRim = pow(1.0 - saturate(abs(vNormal.z)), 2.2) * (0.028 + moonNightFactor * 0.058);
 diffuseColor.rgb *= mix(vec3(0.34, 0.38, 0.48), vec3(1.0), moonDayFactor);
+diffuseColor.rgb *= 1.0 + moonDayFactor * moonSunlitBrightnessLift;
 totalEmissiveRadiance += moonNightSurface * moonNightFactor + vec3(0.16, 0.32, 0.56) * moonColdRim;`,
       );
   };
 
-  material.customProgramCacheKey = () => "moon-phase-shadow-v1";
+  material.customProgramCacheKey = () => "moon-phase-shadow-v2";
+}
+
+function extendPlanetSunlitShader(
+  material: THREE.MeshStandardMaterial,
+  solarLightFactor: number,
+) {
+  const sunlitBrightnessLift = getSunlitBrightnessLift(solarLightFactor);
+
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.planetSunlitBrightnessLift = { value: sunlitBrightnessLift };
+
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+varying vec3 vPlanetWorldNormal;
+varying vec3 vPlanetWorldPosition;`,
+      )
+      .replace(
+        "#include <defaultnormal_vertex>",
+        `#include <defaultnormal_vertex>
+vPlanetWorldNormal = normalize(inverseTransformDirection(transformedNormal, viewMatrix));`,
+      )
+      .replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>
+vec4 planetWorldPosition = modelMatrix * vec4(transformed, 1.0);
+vPlanetWorldPosition = planetWorldPosition.xyz;`,
+      );
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+uniform float planetSunlitBrightnessLift;
+varying vec3 vPlanetWorldNormal;
+varying vec3 vPlanetWorldPosition;`,
+      )
+      .replace(
+        "#include <emissivemap_fragment>",
+        `#include <emissivemap_fragment>
+
+vec3 planetNormal = normalize(vPlanetWorldNormal);
+vec3 planetSunDirection = normalize(-vPlanetWorldPosition);
+float planetDayFactor = smoothstep(-0.1, 0.22, dot(planetNormal, planetSunDirection));
+totalEmissiveRadiance += diffuseColor.rgb * planetSunlitBrightnessLift * planetDayFactor;`,
+      );
+  };
+
+  material.customProgramCacheKey = () => `planet-sunlit-lift-${solarLightFactor.toFixed(3)}`;
 }
 
 function getVisibleLightTint(body: SolarBody) {
@@ -331,7 +409,9 @@ function getVisibleLightTint(body: SolarBody) {
       ? body.solarLightFactor
       : 0.45 + body.solarLightFactor * 0.55;
 
-  return new THREE.Color(tint, tint, tint);
+  const liftedTint = tint * (1 + getOverallBrightnessLift(body.solarLightFactor));
+
+  return new THREE.Color(liftedTint, liftedTint, liftedTint);
 }
 
 function getTintedFallbackColor(body: SolarBody, color: string) {
@@ -414,6 +494,8 @@ function createPlanetMaterial(
 
   if (body.id === "moon") {
     extendMoonPhaseShader(material as MoonPhaseMaterial, body.solarLightFactor);
+  } else if (body.id !== "earth") {
+    extendPlanetSunlitShader(material, body.solarLightFactor);
   }
 
   loadMapIntoMaterial(
