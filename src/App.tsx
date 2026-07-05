@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { About } from "./components/About";
 import { Articles } from "./components/Articles";
 import { DailyCosmos } from "./components/DailyCosmos";
@@ -21,7 +21,24 @@ const BlackHolePage = lazy(() =>
 );
 
 function App() {
-  if (window.location.pathname === "/solar-system") {
+  const pathname = window.location.pathname;
+  const [homeReady, setHomeReady] = useState(false);
+
+  useEffect(() => {
+    if (pathname === "/solar-system" || pathname === "/black-hole") {
+      return;
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setHomeReady(true);
+      return;
+    }
+
+    const readyTimer = window.setTimeout(() => setHomeReady(true), 80);
+    return () => window.clearTimeout(readyTimer);
+  }, [pathname]);
+
+  if (pathname === "/solar-system") {
     return (
       <Suspense
         fallback={
@@ -33,7 +50,7 @@ function App() {
     );
   }
 
-  if (window.location.pathname === "/black-hole") {
+  if (pathname === "/black-hole") {
     return (
       <Suspense
         fallback={
@@ -46,11 +63,13 @@ function App() {
   }
 
   return (
-    <main className="app-shell relative isolate min-h-screen overflow-hidden bg-space-950 text-starlight">
+    <main
+      className={`app-shell ${homeReady ? "app-ready" : "app-enter"} relative isolate min-h-screen overflow-hidden bg-space-950 text-starlight`}
+    >
       <CosmicBackground fixed quiet />
       <NavBar />
       <div className="relative z-10">
-        <Hero />
+        <Hero ready={homeReady} />
         <DailyCosmos />
         <Gallery />
         <Articles />

@@ -39,11 +39,9 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      className={`${className} transition-all duration-[1400ms] ease-out ${
-        visible
-          ? "translate-y-0 opacity-100"
-          : `${distance === "short" ? "translate-y-4" : "translate-y-8"} opacity-0`
-      }`}
+      className={`${className} archive-reveal ${
+        distance === "short" ? "archive-reveal-short" : ""
+      } ${visible ? "archive-reveal-visible" : ""}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}

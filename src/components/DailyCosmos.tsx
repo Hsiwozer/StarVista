@@ -19,7 +19,16 @@ export function DailyCosmos() {
   const dailyCosmos = useMemo(() => getDailyCosmicItem(today), [today]);
 
   return (
-    <section id="daily" className="section-shell pt-20 md:pt-28">
+    <section
+      id="daily"
+      data-section="daily-star-news"
+      className="section-shell pt-20 md:pt-28"
+    >
+      <span
+        id="daily-star-news"
+        className="pointer-events-none block h-px w-full"
+        aria-hidden="true"
+      />
       <Reveal>
         <SectionHeading
           eyebrow="Daily Signal"

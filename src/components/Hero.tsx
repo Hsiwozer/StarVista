@@ -1,5 +1,5 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowDown, Orbit } from "lucide-react";
 import { Reveal } from "./Reveal";
 
@@ -103,9 +103,99 @@ function scrollToSection(id: string, targetId?: string) {
   signalGalleryTarget(targetId);
 }
 
-export function Hero() {
+function scrollToSectionSlowly(id: string) {
+  const target = document.getElementById(id);
+
+  if (!target) {
+    return;
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    target.scrollIntoView({ behavior: "auto" });
+    return;
+  }
+
+  const startY = window.scrollY;
+  const scrollMarginTop = Number.parseFloat(
+    window.getComputedStyle(target).scrollMarginTop,
+  );
+  const maxScrollY = Math.max(
+    0,
+    document.documentElement.scrollHeight - window.innerHeight,
+  );
+  const targetY = Math.min(
+    maxScrollY,
+    Math.max(
+      0,
+      target.getBoundingClientRect().top +
+        startY -
+        (Number.isFinite(scrollMarginTop) ? scrollMarginTop : 0),
+    ),
+  );
+  const distance = targetY - startY;
+
+  if (Math.abs(distance) < 1) {
+    return;
+  }
+
+  const duration = 600;
+  const startTime = window.performance.now();
+  const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+  let frameId = 0;
+  let cancelled = false;
+
+  const cleanup = () => {
+    document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    window.removeEventListener("wheel", cancelScroll);
+    window.removeEventListener("touchstart", cancelScroll);
+    window.removeEventListener("keydown", cancelScroll);
+  };
+
+  const cancelScroll = () => {
+    cancelled = true;
+    window.cancelAnimationFrame(frameId);
+    cleanup();
+  };
+
+  const animateScroll = (currentTime: number) => {
+    if (cancelled) {
+      return;
+    }
+
+    const progress = Math.min((currentTime - startTime) / duration, 1);
+    const easedProgress =
+      progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+    window.scrollTo(0, startY + distance * easedProgress);
+
+    if (progress < 1) {
+      frameId = window.requestAnimationFrame(animateScroll);
+      return;
+    }
+
+    cleanup();
+  };
+
+  document.documentElement.style.scrollBehavior = "auto";
+  window.addEventListener("wheel", cancelScroll, { passive: true, once: true });
+  window.addEventListener("touchstart", cancelScroll, {
+    passive: true,
+    once: true,
+  });
+  window.addEventListener("keydown", cancelScroll, { once: true });
+  frameId = window.requestAnimationFrame(animateScroll);
+}
+
+interface HeroProps {
+  ready: boolean;
+}
+
+export function Hero({ ready }: HeroProps) {
   const heroRef = useRef<HTMLElement | null>(null);
   const parallaxFrameRef = useRef<number | null>(null);
+  const [settled, setSettled] = useState(false);
 
   const setHeroParallax = useCallback(
     (nebulaX: string, nebulaY: string, dustX: string, dustY: string) => {
@@ -170,21 +260,31 @@ export function Hero() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!ready) {
+      setSettled(false);
+      return;
+    }
+
+    const settleTimer = window.setTimeout(() => setSettled(true), 2900);
+    return () => window.clearTimeout(settleTimer);
+  }, [ready]);
+
   return (
     <section
       id="home"
       ref={heroRef}
-      className="hero-shell relative overflow-hidden bg-space-950"
+      className={`hero-shell ${ready ? "hero-awake" : "hero-enter"} ${settled ? "hero-settled" : ""} relative overflow-hidden bg-space-950`}
       aria-label="星空档案馆首页"
       style={heroParallaxStyle}
       onMouseMove={handleHeroMouseMove}
       onMouseLeave={handleHeroMouseLeave}
     >
-      <div className="absolute inset-0 min-h-screen overflow-hidden">
+      <div className="hero-background-layer absolute inset-0 min-h-screen overflow-hidden">
         <img
           src="/images/hero-nebula.png"
           alt="紫蓝色星云与深夜星空"
-          className="hero-nebula-image h-full w-full object-cover opacity-72"
+          className="hero-nebula-image h-full w-full object-cover"
         />
         <div className="hero-stardust hero-stardust-a" aria-hidden="true" />
         <div className="hero-stardust hero-stardust-b" aria-hidden="true" />
@@ -194,11 +294,11 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl items-center px-5 pb-24 pt-28 sm:pb-28 md:px-8 md:pt-32">
-        <div className="w-full max-w-3xl animate-float-in">
-          <p className="mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-galaxy-400/80 sm:text-xs sm:tracking-[0.48em]">
+        <div className="w-full max-w-3xl">
+          <p className="hero-enter-kicker mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-galaxy-400/80 sm:text-xs sm:tracking-[0.48em]">
             Cosmic Signal Archive
           </p>
-          <h1 className="hero-title font-display text-6xl font-medium leading-[0.94] text-starlight sm:text-7xl md:text-8xl lg:text-9xl">
+          <h1 className="hero-title hero-enter-title font-display text-6xl font-medium leading-[0.94] text-starlight sm:text-7xl md:text-8xl lg:text-9xl">
             <span className="hero-title-line">
               星空档案馆
             </span>
@@ -228,13 +328,13 @@ export function Hero() {
               })}
             </span>
           </h1>
-          <p className="mt-7 max-w-2xl text-base leading-8 tracking-[0.14em] text-white/66 sm:mt-8 md:text-xl">
+          <p className="hero-enter-subtitle mt-7 max-w-2xl text-base leading-8 tracking-[0.14em] text-white/66 sm:mt-8 md:text-xl">
             在黑暗中，宇宙并非沉默。
           </p>
           <button
             type="button"
-            onClick={() => scrollToSection("archive-path")}
-            className="cosmic-button cosmic-button-primary hero-entry-button group mt-11"
+            onClick={() => scrollToSectionSlowly("archive-path")}
+            className="cosmic-button cosmic-button-primary hero-entry-button hero-enter-action group mt-11"
           >
             进入星空档案馆
             <ArrowDown
@@ -246,7 +346,7 @@ export function Hero() {
 
         <a
           href="/solar-system"
-          className="solar-easter-egg group"
+          className="solar-easter-egg hero-enter-aux group"
           aria-label="太阳系漫游，开启轨道旅程"
         >
           <span className="solar-easter-hint" aria-hidden="true">
@@ -266,7 +366,7 @@ export function Hero() {
 
       <div
         id="archive-path"
-        className="relative z-10 mx-auto max-w-7xl px-5 pb-24 md:px-8 md:pb-32"
+        className="relative z-10 mx-auto max-w-7xl scroll-mt-24 px-5 pb-24 md:scroll-mt-28 md:px-8 md:pb-32"
       >
         <div className="mx-auto max-w-[1240px] text-center">
           <Reveal distance="short">

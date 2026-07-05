@@ -74,6 +74,8 @@ export interface DeepSpaceEchoTelemetry {
 const overviewCameraPosition = new THREE.Vector3(0, 29, 53);
 const overviewTarget = new THREE.Vector3(0, 0, 0);
 const focusedPlanetFollowLerpFactor = 0.1;
+const cameraMoveLerpFactor = 0.032;
+const cameraMoveMaxDuration = 3600;
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const echoTargetClockAngleDegrees = 9 * 30 + 19 * 0.5;
@@ -926,13 +928,13 @@ export function SolarSystemScene({
       if (cameraMoveRef.current.active) {
         updateActiveCameraMoveTarget();
 
-        camera.position.lerp(cameraMoveRef.current.position, 0.055);
-        controls.target.lerp(cameraMoveRef.current.target, 0.055);
+        camera.position.lerp(cameraMoveRef.current.position, cameraMoveLerpFactor);
+        controls.target.lerp(cameraMoveRef.current.target, cameraMoveLerpFactor);
 
         if (
           (camera.position.distanceTo(cameraMoveRef.current.position) < 0.08 &&
             controls.target.distanceTo(cameraMoveRef.current.target) < 0.08) ||
-          time - cameraMoveRef.current.startedAt > 1800
+          time - cameraMoveRef.current.startedAt > cameraMoveMaxDuration
         ) {
           cameraMoveRef.current.active = false;
         }

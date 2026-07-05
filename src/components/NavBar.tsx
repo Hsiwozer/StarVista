@@ -1,5 +1,5 @@
 import { Menu, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const navItems = [
   { id: "daily", label: "每日星讯", subLabel: "Daily Signal" },
@@ -69,6 +69,12 @@ export function NavBar() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [supportsHover, setSupportsHover] = useState(false);
+  const [hasPassedDailyNews, setHasPassedDailyNews] = useState(false);
+  const [hasActivatedImmersiveNav, setHasActivatedImmersiveNav] =
+    useState(false);
+  const [isNavHovered, setIsNavHovered] = useState(false);
+  const hideTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -76,6 +82,64 @@ export function NavBar() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const hoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const syncHoverSupport = () => {
+      setSupportsHover(hoverQuery.matches);
+      if (!hoverQuery.matches) {
+        setIsNavHovered(false);
+      }
+    };
+
+    syncHoverSupport();
+    hoverQuery.addEventListener("change", syncHoverSupport);
+    return () => hoverQuery.removeEventListener("change", syncHoverSupport);
+  }, []);
+
+  useEffect(() => {
+    const dailyNewsTrigger = document.getElementById("daily-star-news");
+    if (!dailyNewsTrigger) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const hasPassed =
+          !entry.isIntersecting && entry.boundingClientRect.top <= 72;
+        setHasPassedDailyNews(hasPassed);
+        if (hasPassed) {
+          setHasActivatedImmersiveNav(true);
+        }
+      },
+      { rootMargin: "-72px 0px 0px 0px", threshold: 0 },
+    );
+
+    observer.observe(dailyNewsTrigger);
+    return () => observer.disconnect();
+  }, []);
+
+  const clearHideTimer = useCallback(() => {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  }, []);
+
+  const revealNav = useCallback(() => {
+    clearHideTimer();
+    setIsNavHovered(true);
+  }, [clearHideTimer]);
+
+  const concealNav = useCallback(() => {
+    clearHideTimer();
+    hideTimerRef.current = window.setTimeout(() => {
+      setIsNavHovered(false);
+      hideTimerRef.current = null;
+    }, 40);
+  }, [clearHideTimer]);
+
+  useEffect(() => clearHideTimer, [clearHideTimer]);
 
   useEffect(() => {
     if (!searchOpen) {
@@ -103,14 +167,42 @@ export function NavBar() {
     setSearchOpen(false);
   };
 
+  const shouldShowNav =
+    !supportsHover ||
+    !hasPassedDailyNews ||
+    isNavHovered ||
+    open ||
+    searchOpen;
+  const immersiveNavClass = supportsHover
+    ? hasPassedDailyNews
+      ? shouldShowNav
+        ? "nav-visible"
+        : "nav-hidden"
+      : hasActivatedImmersiveNav
+        ? "nav-visible"
+        : ""
+    : "";
+
   return (
     <>
+      {supportsHover && hasPassedDailyNews && (
+        <div
+          className="nav-hover-zone"
+          aria-hidden="true"
+          onPointerEnter={revealNav}
+          onPointerLeave={concealNav}
+        />
+      )}
       <header
-        className={`fixed inset-x-0 top-0 z-50 border-b border-white/10 transition-all duration-300 ${
+        className={`site-navbar fixed inset-x-0 top-0 z-[100] border-b border-white/10 ${immersiveNavClass} ${
           scrolled
             ? "bg-space-950/66 backdrop-blur-xl"
             : "bg-space-950/10 backdrop-blur-[2px]"
         }`}
+        onPointerEnter={revealNav}
+        onPointerLeave={concealNav}
+        onFocusCapture={revealNav}
+        onBlurCapture={concealNav}
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:h-[4.5rem] md:px-8">
           <button
@@ -188,7 +280,7 @@ export function NavBar() {
 
       {searchOpen && (
         <div
-          className="fixed inset-0 z-[70] overflow-y-auto bg-space-950/95 px-5 py-6 backdrop-blur-2xl md:px-8 md:py-9"
+          className="fixed inset-0 z-[110] overflow-y-auto bg-space-950/95 px-5 py-6 backdrop-blur-2xl md:px-8 md:py-9"
           role="dialog"
           aria-modal="true"
           aria-labelledby="archive-search-title"

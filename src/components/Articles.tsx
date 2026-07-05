@@ -140,7 +140,11 @@ export function Articles() {
           >
             <div
               key={`image-${activeArchive.archiveId}`}
-              className="archive-system-panel-media"
+              className={`archive-system-panel-media ${
+                activeArchive.archiveId === "ARCHIVE-019"
+                  ? "archive-system-panel-media-stephans"
+                  : ""
+              }`}
               aria-hidden="true"
             >
               <img

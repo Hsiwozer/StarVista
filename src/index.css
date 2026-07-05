@@ -61,7 +61,78 @@ button {
 
 @layer components {
   .app-shell {
-    animation: appFadeIn 1100ms ease-out both;
+    animation: none;
+  }
+
+  .app-shell > .cosmic-background {
+    transition: opacity 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .app-shell.app-enter > .cosmic-background {
+    opacity: 0.035;
+  }
+
+  .app-shell.app-ready > .cosmic-background {
+    opacity: 0.84;
+    transition-delay: 320ms;
+  }
+
+  .app-shell > header {
+    transition:
+      opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 800ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 800ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 300ms ease,
+      backdrop-filter 300ms ease;
+  }
+
+  .app-shell.app-enter > header {
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-8px);
+  }
+
+  .app-shell.app-ready > header {
+    pointer-events: auto;
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+    transition-delay: 520ms, 520ms, 520ms, 0ms, 0ms;
+  }
+
+  .nav-hover-zone {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 90;
+    height: 72px;
+    background: transparent;
+  }
+
+  .app-shell.app-ready > .site-navbar.nav-visible {
+    pointer-events: auto;
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+    transition:
+      opacity 220ms ease-out,
+      transform 220ms ease-out,
+      background-color 300ms ease,
+      backdrop-filter 300ms ease;
+    transition-delay: 0ms;
+  }
+
+  .app-shell.app-ready > .site-navbar.nav-hidden {
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(0);
+    transform: translateY(-10px);
+    transition:
+      opacity 420ms ease-in-out,
+      transform 420ms ease-in-out,
+      background-color 300ms ease,
+      backdrop-filter 300ms ease;
+    transition-delay: 0ms;
   }
 
   .section-shell {
@@ -196,6 +267,25 @@ button {
       --hero-dust-y 900ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  .hero-background-layer {
+    opacity: 0.055;
+    filter: brightness(0.42) saturate(0.68);
+    transform: scale(1.03);
+    transform-origin: 52% 42%;
+    transition:
+      opacity 1200ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 1200ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 2200ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, filter, transform;
+  }
+
+  .hero-awake .hero-background-layer {
+    opacity: 1;
+    filter: brightness(1) saturate(1);
+    transform: scale(1);
+    transition-delay: 320ms, 320ms, 280ms;
+  }
+
   .hero-nebula-image {
     position: absolute;
     inset: -3%;
@@ -206,6 +296,7 @@ button {
       scale(1.035);
     transform-origin: 52% 42%;
     animation: heroNebulaBreath 48s ease-in-out infinite alternate;
+    opacity: 0.72;
     will-change: transform;
   }
 
@@ -278,6 +369,117 @@ button {
     transform: translateY(-50%);
   }
 
+  .hero-enter .hero-meteor {
+    animation-play-state: paused;
+  }
+
+  .hero-enter-kicker,
+  .hero-enter-title,
+  .hero-enter-subtitle,
+  .hero-enter-action,
+  .hero-enter-aux {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate3d(0, 18px, 0);
+    transition:
+      opacity 1150ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 1150ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1150ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, filter, transform;
+  }
+
+  .hero-shell .hero-enter-title {
+    transition:
+      opacity 1150ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 1150ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1150ms cubic-bezier(0.22, 1, 0.36, 1),
+      text-shadow 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-enter-action,
+  .hero-enter-aux {
+    pointer-events: none;
+    filter: blur(6px);
+    transform: translate3d(0, 14px, 0);
+    transition-duration: 900ms;
+  }
+
+  .hero-shell .hero-enter-action {
+    transition:
+      opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      background 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-shell .hero-enter-aux {
+    transition:
+      opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-awake .hero-enter-kicker,
+  .hero-awake .hero-enter-title,
+  .hero-awake .hero-enter-subtitle,
+  .hero-awake .hero-enter-action,
+  .hero-awake .hero-enter-aux {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  .hero-awake:not(.hero-settled) .hero-enter-kicker {
+    transition-delay: 700ms;
+  }
+
+  .hero-awake:not(.hero-settled) .hero-enter-title {
+    transition-delay: 820ms, 820ms, 820ms, 0ms;
+  }
+
+  .hero-awake:not(.hero-settled) .hero-enter-subtitle {
+    transition-delay: 1340ms;
+  }
+
+  .hero-awake:not(.hero-settled) .hero-enter-action {
+    pointer-events: auto;
+    transition-delay: 1720ms, 1720ms, 1720ms, 0ms, 0ms, 0ms;
+  }
+
+  .hero-awake:not(.hero-settled) .hero-enter-aux {
+    pointer-events: auto;
+    transition-delay: 1840ms, 1840ms, 1840ms;
+  }
+
+  .hero-settled .hero-enter-kicker,
+  .hero-settled .hero-enter-title,
+  .hero-settled .hero-enter-subtitle,
+  .hero-settled .hero-enter-action,
+  .hero-settled .hero-enter-aux {
+    transition-delay: 0ms;
+  }
+
+  .hero-settled .hero-enter-action,
+  .hero-settled .hero-enter-aux {
+    pointer-events: auto;
+  }
+
+  .hero-settled .hero-background-layer,
+  .hero-settled .hero-enter-kicker,
+  .hero-settled .hero-enter-title,
+  .hero-settled .hero-enter-subtitle,
+  .hero-settled .hero-enter-action,
+  .hero-settled .hero-enter-aux {
+    will-change: auto;
+  }
+
+  .hero-awake .hero-enter-action:hover,
+  .hero-awake .hero-enter-action:focus-visible {
+    transform: translateY(-1px);
+  }
+
   .hero-title {
     position: relative;
     isolation: isolate;
@@ -286,6 +488,26 @@ button {
       0 2px 24px rgba(2, 3, 10, 0.72),
       0 0 34px rgba(127, 199, 255, 0.06);
     transition: text-shadow 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .archive-reveal {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate3d(0, 24px, 0);
+    transition:
+      opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 1000ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1000ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .archive-reveal-short {
+    transform: translate3d(0, 24px, 0);
+  }
+
+  .archive-reveal-visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
   }
 
   .hero-title-line {
@@ -928,6 +1150,12 @@ button {
     animation: dailyMediaArrival 980ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  @supports (background: -webkit-named-image(i)) {
+    .daily-media-ready {
+      animation: none;
+    }
+  }
+
   .daily-signal-info {
     position: relative;
     overflow: hidden;
@@ -1549,6 +1777,12 @@ button {
     filter: saturate(0.82) contrast(1.04) brightness(0.76);
   }
 
+  .archive-system-panel-media-stephans img {
+    object-position: 50% 38%;
+    transform: translate3d(2%, 0, 0) scale(1.8);
+    transform-origin: center;
+  }
+
   .archive-system-panel-veil,
   .archive-system-panel-dust {
     position: absolute;
@@ -2149,12 +2383,16 @@ button {
 
   .solar-page-title h1 {
     margin-top: 0.26rem;
-    font-family: "Noto Sans SC", "Inter", system-ui, sans-serif;
-    font-size: clamp(1.2rem, 1.45vw, 1.55rem);
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    line-height: 1.12;
-    color: rgba(246, 248, 255, 0.78);
+    font-family: "ZCOOL XiaoWei", "STKaiti", "Kaiti SC", "Noto Sans SC", serif;
+    font-size: clamp(1.32rem, 1.6vw, 1.72rem);
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    line-height: 1.16;
+    color: rgba(236, 244, 255, 0.9);
+    text-shadow:
+      0 0 12px rgba(127, 199, 255, 0.2),
+      0 0 28px rgba(116, 126, 255, 0.1),
+      0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   .solar-page-title span {
@@ -4992,6 +5230,28 @@ button {
 
   .hero-title:hover .hero-title-star {
     animation: none !important;
+  }
+
+  .app-shell > .cosmic-background,
+  .app-shell > header,
+  .hero-background-layer,
+  .hero-enter-kicker,
+  .hero-enter-title,
+  .hero-enter-subtitle,
+  .hero-enter-action,
+  .hero-enter-aux,
+  .archive-reveal {
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .app-shell.app-ready > .site-navbar.nav-hidden {
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
   }
 
   .solar-easter-egg,
