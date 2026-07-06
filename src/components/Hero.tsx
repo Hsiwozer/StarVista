@@ -1,6 +1,5 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowDown, Orbit } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 const explorationPath = [
@@ -65,6 +64,19 @@ const heroParallaxStyle: HeroParallaxStyle = {
   "--hero-nebula-y": "0px",
   "--hero-dust-x": "0px",
   "--hero-dust-y": "0px",
+  "--hero-far-y": "0px",
+  "--hero-mid-y": "0px",
+  "--hero-near-x": "0px",
+  "--hero-near-y": "0px",
+  "--hero-title-depth-y": "0px",
+  "--hero-title-depth-scale": "1",
+  "--hero-title-depth-opacity": "1",
+  "--hero-title-depth-blur": "0px",
+  "--hero-curtain-opacity": "0",
+  "--hero-depth-status-opacity": "0",
+  "--archive-depth-opacity": "0.18",
+  "--archive-depth-brightness": "0.76",
+  "--archive-depth-y": "2rem",
 };
 
 const heroTitleParticles: HeroTitleParticle[] = [
@@ -195,7 +207,10 @@ interface HeroProps {
 export function Hero({ ready }: HeroProps) {
   const heroRef = useRef<HTMLElement | null>(null);
   const parallaxFrameRef = useRef<number | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
+  const accessTimerRef = useRef<number | null>(null);
   const [settled, setSettled] = useState(false);
+  const [isAccessing, setIsAccessing] = useState(false);
 
   const setHeroParallax = useCallback(
     (nebulaX: string, nebulaY: string, dustX: string, dustY: string) => {
@@ -253,11 +268,163 @@ export function Hero({ ready }: HeroProps) {
   }, [setHeroParallax]);
 
   useEffect(() => {
+    const hero = heroRef.current;
+
+    if (!hero) {
+      return;
+    }
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const updateHeroDepth = () => {
+      const viewportHeight = Math.max(window.innerHeight, 1);
+      const progress = Math.min(Math.max(window.scrollY / viewportHeight, 0), 1);
+      const compactMotion = window.matchMedia("(max-width: 767px)").matches;
+
+      if (reducedMotion) {
+        hero.style.setProperty("--hero-title-depth-y", "0px");
+        hero.style.setProperty("--hero-title-depth-scale", "1");
+        hero.style.setProperty("--hero-title-depth-opacity", "1");
+        hero.style.setProperty("--hero-title-depth-blur", "0px");
+        hero.style.setProperty("--hero-far-y", "0px");
+        hero.style.setProperty("--hero-mid-y", "0px");
+        hero.style.setProperty("--hero-near-x", "0px");
+        hero.style.setProperty("--hero-near-y", "0px");
+        hero.style.setProperty("--hero-curtain-opacity", "0");
+        hero.style.setProperty("--hero-depth-status-opacity", "0");
+        hero.style.setProperty("--archive-depth-opacity", "1");
+        hero.style.setProperty("--archive-depth-brightness", "1");
+        hero.style.setProperty("--archive-depth-y", "0px");
+        return;
+      }
+
+      const titleTravel = compactMotion ? 44 : 72;
+      const titleScaleLoss = compactMotion ? 0.04 : 0.075;
+      const titleOpacityLoss = compactMotion ? 0.54 : 0.7;
+      const titleBlur = compactMotion ? 2.4 : 5.2;
+      const curtainOpacity =
+        progress < 0.25
+          ? 0
+          : progress < 0.55
+            ? ((progress - 0.25) / 0.3) * 0.46
+            : progress < 0.82
+              ? ((0.82 - progress) / 0.27) * 0.46
+              : 0;
+      const statusOpacity =
+        progress < 0.18
+          ? 0
+          : progress < 0.48
+            ? ((progress - 0.18) / 0.3) * 0.62
+            : progress < 0.78
+              ? ((0.78 - progress) / 0.3) * 0.62
+              : 0;
+      const archiveProgress = Math.min(
+        Math.max((progress - 0.42) / 0.48, 0),
+        1,
+      );
+
+      hero.style.setProperty(
+        "--hero-title-depth-y",
+        `${-progress * titleTravel}px`,
+      );
+      hero.style.setProperty(
+        "--hero-title-depth-scale",
+        `${1 - progress * titleScaleLoss}`,
+      );
+      hero.style.setProperty(
+        "--hero-title-depth-opacity",
+        `${1 - progress * titleOpacityLoss}`,
+      );
+      hero.style.setProperty(
+        "--hero-title-depth-blur",
+        `${progress * titleBlur}px`,
+      );
+      hero.style.setProperty(
+        "--hero-far-y",
+        `${-progress * (compactMotion ? 2 : 8)}px`,
+      );
+      hero.style.setProperty(
+        "--hero-mid-y",
+        `${-progress * (compactMotion ? 7 : 18)}px`,
+      );
+      hero.style.setProperty(
+        "--hero-near-x",
+        `${progress * (compactMotion ? 2 : 8)}px`,
+      );
+      hero.style.setProperty(
+        "--hero-near-y",
+        `${-progress * (compactMotion ? 12 : 34)}px`,
+      );
+      hero.style.setProperty(
+        "--hero-curtain-opacity",
+        `${Math.max(curtainOpacity, 0)}`,
+      );
+      hero.style.setProperty(
+        "--hero-depth-status-opacity",
+        `${Math.max(statusOpacity, 0)}`,
+      );
+      hero.style.setProperty(
+        "--archive-depth-opacity",
+        `${0.18 + archiveProgress * 0.82}`,
+      );
+      hero.style.setProperty(
+        "--archive-depth-brightness",
+        `${0.76 + archiveProgress * 0.24}`,
+      );
+      hero.style.setProperty(
+        "--archive-depth-y",
+        `${(1 - archiveProgress) * (compactMotion ? 18 : 32)}px`,
+      );
+    };
+
+    const scheduleHeroDepth = () => {
+      if (scrollFrameRef.current !== null) {
+        return;
+      }
+
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        updateHeroDepth();
+        scrollFrameRef.current = null;
+      });
+    };
+
+    updateHeroDepth();
+    window.addEventListener("scroll", scheduleHeroDepth, { passive: true });
+    window.addEventListener("resize", scheduleHeroDepth);
+
     return () => {
+      window.removeEventListener("scroll", scheduleHeroDepth);
+      window.removeEventListener("resize", scheduleHeroDepth);
+
       if (parallaxFrameRef.current !== null) {
         window.cancelAnimationFrame(parallaxFrameRef.current);
       }
+
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+      }
+
+      if (accessTimerRef.current !== null) {
+        window.clearTimeout(accessTimerRef.current);
+      }
     };
+  }, []);
+
+  const handleArchiveAwaken = useCallback(() => {
+    setIsAccessing(true);
+
+    if (accessTimerRef.current !== null) {
+      window.clearTimeout(accessTimerRef.current);
+    }
+
+    accessTimerRef.current = window.setTimeout(() => {
+      setIsAccessing(false);
+      accessTimerRef.current = null;
+    }, 1400);
+
+    scrollToSectionSlowly("archive-path");
   }, []);
 
   useEffect(() => {
@@ -298,75 +465,73 @@ export function Hero({ ready }: HeroProps) {
           <p className="hero-enter-kicker mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-galaxy-400/80 sm:text-xs sm:tracking-[0.48em]">
             Cosmic Signal Archive
           </p>
-          <h1 className="hero-title hero-enter-title font-display text-6xl font-medium leading-[0.94] text-starlight sm:text-7xl md:text-8xl lg:text-9xl">
-            <span className="hero-title-line">
-              星空档案馆
-            </span>
-            <span className="hero-title-line hero-title-line-secondary mt-3 block text-5xl text-white/84 sm:text-6xl md:text-7xl lg:text-8xl">
-              Star Archive
-            </span>
-            <span className="hero-title-stars" aria-hidden="true">
-              {heroTitleParticles.map((particle) => {
-                const style: TitleParticleStyle = {
-                  "--star-x": `${particle.x}%`,
-                  "--star-y": `${particle.y}%`,
-                  "--star-dx": `${particle.dx}px`,
-                  "--star-dy": `${particle.dy}px`,
-                  "--star-mid-x": `${particle.dx * 0.72}px`,
-                  "--star-mid-y": `${particle.dy * 0.72}px`,
-                  "--star-size": `${particle.size}px`,
-                  "--star-delay": `${particle.delay}ms`,
-                };
+          <div className="hero-depth-title">
+            <h1 className="hero-title hero-enter-title font-display text-6xl font-medium leading-[0.94] text-starlight sm:text-7xl md:text-8xl lg:text-9xl">
+              <span className="hero-title-line">星空档案馆</span>
+              <span className="hero-title-line hero-title-line-secondary mt-3 block text-5xl text-white/84 sm:text-6xl md:text-7xl lg:text-8xl">
+                Star Archive
+              </span>
+              <span className="hero-title-stars" aria-hidden="true">
+                {heroTitleParticles.map((particle) => {
+                  const style: TitleParticleStyle = {
+                    "--star-x": `${particle.x}%`,
+                    "--star-y": `${particle.y}%`,
+                    "--star-dx": `${particle.dx}px`,
+                    "--star-dy": `${particle.dy}px`,
+                    "--star-mid-x": `${particle.dx * 0.72}px`,
+                    "--star-mid-y": `${particle.dy * 0.72}px`,
+                    "--star-size": `${particle.size}px`,
+                    "--star-delay": `${particle.delay}ms`,
+                  };
 
-                return (
-                  <span
-                    className={`hero-title-star hero-title-star-${particle.color}`}
-                    key={particle.id}
-                    style={style}
-                  />
-                );
-              })}
-            </span>
-          </h1>
-          <p className="hero-enter-subtitle mt-7 max-w-2xl text-base leading-8 tracking-[0.14em] text-white/66 sm:mt-8 md:text-xl">
-            在黑暗中，宇宙并非沉默。
-          </p>
-          <button
-            type="button"
-            onClick={() => scrollToSectionSlowly("archive-path")}
-            className="cosmic-button cosmic-button-primary hero-entry-button hero-enter-action group mt-11"
-          >
-            进入星空档案馆
-            <ArrowDown
-              size={17}
-              className="hero-entry-arrow transition duration-500 group-hover:translate-y-1"
-            />
-          </button>
+                  return (
+                    <span
+                      className={`hero-title-star hero-title-star-${particle.color}`}
+                      key={particle.id}
+                      style={style}
+                    />
+                  );
+                })}
+              </span>
+            </h1>
+          </div>
+          <div className="hero-depth-support">
+            <p className="hero-enter-subtitle mt-7 max-w-2xl text-base leading-8 tracking-[0.14em] text-white/66 sm:mt-8 md:text-xl">
+              在黑暗中，宇宙并非沉默。
+            </p>
+            <button
+              type="button"
+              onClick={handleArchiveAwaken}
+              className={`hero-entry-button hero-enter-action mt-11 ${
+                isAccessing ? "is-accessing" : ""
+              }`}
+              aria-label="唤醒星空档案并前往档案路径"
+            >
+              <span className="archive-button-label">唤醒星空档案</span>
+              <span className="archive-button-status" aria-live="polite">
+                {isAccessing ? "ACCESSING..." : "ARCHIVE NODE READY"}
+              </span>
+              <span className="archive-button-dot" aria-hidden="true" />
+              <span className="archive-button-dust" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <span />
+              </span>
+            </button>
+          </div>
         </div>
 
-        <a
-          href="/solar-system"
-          className="solar-easter-egg hero-enter-aux group"
-          aria-label="太阳系漫游，开启轨道旅程"
-        >
-          <span className="solar-easter-hint" aria-hidden="true">
-            <span className="block text-sm font-medium text-starlight/86">
-              太阳系漫游
-            </span>
-            <span className="mt-1 block text-[0.68rem] tracking-[0.16em] text-galaxy-300/68">
-              开启轨道旅程 →
-            </span>
-          </span>
-          <span className="solar-easter-icon" aria-hidden="true">
-            <span className="solar-easter-ring" />
-            <Orbit size={25} strokeWidth={1.45} />
-          </span>
-        </a>
       </div>
+
+      <div className="hero-depth-curtain" aria-hidden="true" />
+      <p className="hero-depth-status" aria-hidden="true">
+        ENTERING CELESTIAL RECORDS
+      </p>
 
       <div
         id="archive-path"
-        className="relative z-10 mx-auto max-w-7xl scroll-mt-24 px-5 pb-24 md:scroll-mt-28 md:px-8 md:pb-32"
+        className="archive-depth-section relative z-10 mx-auto max-w-7xl scroll-mt-24 px-5 pb-24 md:scroll-mt-28 md:px-8 md:pb-32"
       >
         <div className="mx-auto max-w-[1240px] text-center">
           <Reveal distance="short">

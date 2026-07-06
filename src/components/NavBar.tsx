@@ -1,4 +1,4 @@
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Waypoints, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const navItems = [
@@ -9,46 +9,22 @@ const navItems = [
   { id: "about", label: "序章", subLabel: "Prologue" },
 ];
 
-const searchEntries = [
+const hiddenCosmicEntrances = [
   {
-    id: "daily",
-    targetLabel: "SIGNAL-DAILY",
-    title: "每日星讯",
-    description: "一束今日抵达的深空回声。",
+    number: "01",
+    href: "/solar-system",
+    title: "太阳系漫游",
+    subLabel: "ORBITAL ARCHIVE",
   },
   {
-    id: "gallery",
-    targetId: "gallery-nebula",
-    targetLabel: "GALLERY-NEBULA",
-    title: "深空展厅 / 星云",
-    description: "尘埃发光，年轻恒星正在暗处成形。",
-  },
-  {
-    id: "gallery",
-    targetId: "gallery-black-hole",
-    targetLabel: "GALLERY-BLACK-HOLE",
-    title: "深空展厅 / 黑洞",
-    description: "光抵达边界，然后保持沉默。",
-  },
-  {
-    id: "articles",
-    targetLabel: "ARCHIVE-LIBRARY",
-    title: "宇宙档案",
-    description: "被归档的星系、恒星与未知。",
-  },
-  {
-    id: "guide",
-    targetLabel: "MANUAL-OBSERVE",
-    title: "观测手册",
-    description: "仰望之前，先学会等待黑暗。",
-  },
-  {
-    id: "about",
-    targetLabel: "PROLOGUE",
-    title: "序章",
-    description: "这座宇宙档案馆的第一段记录。",
+    number: "02",
+    href: "/black-hole",
+    title: "黑洞卡冈图雅",
+    subLabel: "EVENT HORIZON FILE",
   },
 ];
+
+const HIDDEN_ENTRY_CLOSE_DELAY_MS = 1000;
 
 function signalGalleryTarget(targetId?: string) {
   if (!targetId) {
@@ -67,7 +43,7 @@ function scrollToSection(id: string, targetId?: string) {
 
 export function NavBar() {
   const [open, setOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [isHiddenEntryOpen, setIsHiddenEntryOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [supportsHover, setSupportsHover] = useState(false);
   const [hasPassedDailyNews, setHasPassedDailyNews] = useState(false);
@@ -75,12 +51,44 @@ export function NavBar() {
     useState(false);
   const [isNavHovered, setIsNavHovered] = useState(false);
   const hideTimerRef = useRef<number | null>(null);
+  const hiddenEntryRef = useRef<HTMLDivElement | null>(null);
+  const hiddenEntryCloseTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    let animationFrame: number | null = null;
+
+    const syncScrollState = () => {
+      animationFrame = null;
+      setScrolled(window.scrollY > 24);
+
+      const dailyNewsTrigger = document.getElementById("daily-star-news");
+      if (!dailyNewsTrigger) {
+        return;
+      }
+
+      const hasPassed = dailyNewsTrigger.getBoundingClientRect().top <= 72;
+      setHasPassedDailyNews(hasPassed);
+      if (hasPassed) {
+        setHasActivatedImmersiveNav(true);
+      }
+    };
+
+    const onScroll = () => {
+      if (animationFrame === null) {
+        animationFrame = window.requestAnimationFrame(syncScrollState);
+      }
+    };
+
+    syncScrollState();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (animationFrame !== null) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -97,34 +105,31 @@ export function NavBar() {
     return () => hoverQuery.removeEventListener("change", syncHoverSupport);
   }, []);
 
-  useEffect(() => {
-    const dailyNewsTrigger = document.getElementById("daily-star-news");
-    if (!dailyNewsTrigger) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const hasPassed =
-          !entry.isIntersecting && entry.boundingClientRect.top <= 72;
-        setHasPassedDailyNews(hasPassed);
-        if (hasPassed) {
-          setHasActivatedImmersiveNav(true);
-        }
-      },
-      { rootMargin: "-72px 0px 0px 0px", threshold: 0 },
-    );
-
-    observer.observe(dailyNewsTrigger);
-    return () => observer.disconnect();
-  }, []);
-
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current !== null) {
       window.clearTimeout(hideTimerRef.current);
       hideTimerRef.current = null;
     }
   }, []);
+
+  const clearHiddenEntryCloseTimer = useCallback(() => {
+    if (hiddenEntryCloseTimerRef.current !== null) {
+      window.clearTimeout(hiddenEntryCloseTimerRef.current);
+      hiddenEntryCloseTimerRef.current = null;
+    }
+  }, []);
+
+  const scheduleHiddenEntryClose = useCallback(() => {
+    if (!supportsHover || !isHiddenEntryOpen) {
+      return;
+    }
+
+    clearHiddenEntryCloseTimer();
+    hiddenEntryCloseTimerRef.current = window.setTimeout(() => {
+      setIsHiddenEntryOpen(false);
+      hiddenEntryCloseTimerRef.current = null;
+    }, HIDDEN_ENTRY_CLOSE_DELAY_MS);
+  }, [clearHiddenEntryCloseTimer, isHiddenEntryOpen, supportsHover]);
 
   const revealNav = useCallback(() => {
     clearHideTimer();
@@ -140,31 +145,45 @@ export function NavBar() {
   }, [clearHideTimer]);
 
   useEffect(() => clearHideTimer, [clearHideTimer]);
+  useEffect(
+    () => clearHiddenEntryCloseTimer,
+    [clearHiddenEntryCloseTimer],
+  );
 
   useEffect(() => {
-    if (!searchOpen) {
+    if (!isHiddenEntryOpen) {
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
+    const onPointerDown = (event: PointerEvent) => {
+      if (
+        hiddenEntryRef.current &&
+        !hiddenEntryRef.current.contains(event.target as Node)
+      ) {
+        clearHiddenEntryCloseTimer();
+        setIsHiddenEntryOpen(false);
+      }
+    };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setSearchOpen(false);
+        clearHiddenEntryCloseTimer();
+        setIsHiddenEntryOpen(false);
       }
     };
 
-    document.body.style.overflow = "hidden";
+    document.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [searchOpen]);
+  }, [clearHiddenEntryCloseTimer, isHiddenEntryOpen]);
 
   const navigate = (id: string, targetId?: string) => {
     scrollToSection(id, targetId);
     setOpen(false);
-    setSearchOpen(false);
+    clearHiddenEntryCloseTimer();
+    setIsHiddenEntryOpen(false);
   };
 
   const shouldShowNav =
@@ -172,7 +191,7 @@ export function NavBar() {
     !hasPassedDailyNews ||
     isNavHovered ||
     open ||
-    searchOpen;
+    isHiddenEntryOpen;
   const immersiveNavClass = supportsHover
     ? hasPassedDailyNews
       ? shouldShowNav
@@ -236,14 +255,71 @@ export function NavBar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="扫描宇宙档案"
-              onClick={() => setSearchOpen(true)}
-              className="cosmic-icon-button archive-search-button flex h-10 w-10 items-center justify-center text-white/60 hover:text-starlight"
+            <div
+              className="hidden-entry-shell"
+              ref={hiddenEntryRef}
+              onMouseEnter={clearHiddenEntryCloseTimer}
+              onMouseLeave={scheduleHiddenEntryClose}
             >
-              <Search size={17} className="relative z-10" />
-            </button>
+              <button
+                type="button"
+                aria-label="打开隐藏宇宙入口"
+                aria-haspopup="menu"
+                aria-expanded={isHiddenEntryOpen}
+                aria-controls="hidden-cosmic-entrances"
+                onClick={() => {
+                  clearHiddenEntryCloseTimer();
+                  setIsHiddenEntryOpen((value) => !value);
+                }}
+                className={`cosmic-icon-button hidden-entry-trigger flex h-10 w-10 items-center justify-center ${
+                  isHiddenEntryOpen ? "is-open" : ""
+                }`}
+              >
+                <Waypoints
+                  size={18}
+                  strokeWidth={1.35}
+                  className="cosmic-node-icon"
+                  aria-hidden="true"
+                />
+              </button>
+
+              <div
+                id="hidden-cosmic-entrances"
+                className={`hidden-entry-menu ${
+                  isHiddenEntryOpen ? "is-open" : ""
+                }`}
+                role="menu"
+                aria-hidden={!isHiddenEntryOpen}
+              >
+                <div className="hidden-entry-heading">
+                  <span>隐秘坐标</span>
+                  <small>HIDDEN COORDINATES</small>
+                </div>
+
+                <div className="hidden-entry-list">
+                  {hiddenCosmicEntrances.map((entry) => (
+                    <a
+                      key={entry.number}
+                      href={entry.href}
+                      role="menuitem"
+                      className="hidden-entry-item"
+                      onClick={() => {
+                        clearHiddenEntryCloseTimer();
+                        setIsHiddenEntryOpen(false);
+                      }}
+                    >
+                      <span className="hidden-entry-number">
+                        {entry.number}
+                      </span>
+                      <span className="hidden-entry-copy">
+                        <strong>{entry.title}</strong>
+                        <small>{entry.subLabel}</small>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
             <button
               type="button"
               aria-label={open ? "关闭菜单" : "打开菜单"}
@@ -277,72 +353,6 @@ export function NavBar() {
           </div>
         )}
       </header>
-
-      {searchOpen && (
-        <div
-          className="fixed inset-0 z-[110] overflow-y-auto bg-space-950/95 px-5 py-6 backdrop-blur-2xl md:px-8 md:py-9"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="archive-search-title"
-        >
-          <div className="archive-search-grid pointer-events-none absolute inset-0 opacity-55" />
-          <div className="relative mx-auto flex min-h-full max-w-5xl flex-col">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-[0.68rem] uppercase tracking-[0.34em] text-galaxy-400/70">
-                Archive Scan Interface
-              </p>
-              <button
-                type="button"
-                aria-label="关闭档案检索"
-                onClick={() => setSearchOpen(false)}
-                className="cosmic-icon-button flex h-10 w-10 items-center justify-center text-white/72"
-              >
-                <X size={19} />
-              </button>
-            </div>
-
-            <div className="my-auto py-14 md:py-20">
-              <div className="max-w-3xl">
-                <h2
-                  id="archive-search-title"
-                  className="font-display text-5xl font-medium leading-tight text-starlight sm:text-6xl md:text-7xl"
-                >
-                  扫描宇宙档案
-                </h2>
-                <p className="mt-5 max-w-2xl text-sm leading-7 text-white/56 md:text-base md:leading-8">
-                  在黑暗中，宇宙并非沉默。选择一条信号，进入对应档案。
-                </p>
-              </div>
-
-              <div className="mt-10 grid gap-3 md:grid-cols-2">
-                {searchEntries.map((entry) => (
-                  <button
-                    type="button"
-                    key={`${entry.targetLabel}-${entry.targetId ?? entry.id}`}
-                    onClick={() => navigate(entry.id, entry.targetId)}
-                    className="archive-search-entry group relative overflow-hidden border border-white/[0.065] bg-white/[0.018] p-5 text-left transition duration-700 hover:border-galaxy-400/30 hover:bg-galaxy-500/[0.045] focus:outline-none focus:ring-2 focus:ring-galaxy-400/40"
-                  >
-                    <span className="archive-search-entry-scan" aria-hidden="true" />
-                    <span className="relative z-10 text-[0.64rem] uppercase tracking-[0.24em] text-galaxy-400/58 transition group-hover:text-galaxy-400/88">
-                      {entry.targetLabel}
-                    </span>
-                    <span className="relative z-10 mt-4 block font-display text-2xl text-starlight/82 transition group-hover:text-starlight">
-                      {entry.title}
-                    </span>
-                    <span className="relative z-10 mt-3 block text-sm leading-7 text-white/46 transition group-hover:text-white/64">
-                      {entry.description}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <p className="pb-5 text-xs uppercase tracking-[0.26em] text-white/26">
-              Visual scan only / Local archive index
-            </p>
-          </div>
-        </div>
-      )}
     </>
   );
 }

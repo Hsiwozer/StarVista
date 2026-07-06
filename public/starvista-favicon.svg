@@ -1,0 +1,55 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="72%">
+      <stop offset="0%" stop-color="#18233f"/>
+      <stop offset="52%" stop-color="#07101f"/>
+      <stop offset="100%" stop-color="#020713"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#DCEAFF" stop-opacity="0.88"/>
+      <stop offset="42%" stop-color="#8EB7FF" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#8EB7FF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.58 0 0 0 0 0.74 0 0 0 0 1 0 0 0 0.75 0" result="colored"/>
+      <feMerge>
+        <feMergeNode in="colored"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="lineGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="44" y="44" width="424" height="424" rx="104" fill="url(#bg)"/>
+  <rect x="44" y="44" width="424" height="424" rx="104" stroke="#BFD4FF" stroke-opacity="0.18" stroke-width="6"/>
+  <circle cx="256" cy="256" r="142" fill="url(#glow)" opacity="0.42"/>
+
+  <!-- Outer archive ring -->
+  <circle cx="256" cy="256" r="150" stroke="#EAF2FF" stroke-opacity="0.82" stroke-width="10" filter="url(#lineGlow)"/>
+  <circle cx="256" cy="256" r="108" stroke="#C9DBFF" stroke-opacity="0.38" stroke-width="4"/>
+
+  <!-- Orbital arc -->
+  <path d="M125 292C177 181 328 148 391 218" stroke="#F8FBFF" stroke-opacity="0.9" stroke-width="7" stroke-linecap="round"/>
+  <path d="M132 300C204 366 328 341 390 257" stroke="#9DBDFF" stroke-opacity="0.48" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Main four-point star -->
+  <path d="M256 143L281 231L369 256L281 281L256 369L231 281L143 256L231 231L256 143Z" fill="#F8FBFF" filter="url(#softGlow)"/>
+
+  <!-- Small nodes -->
+  <circle cx="256" cy="106" r="12" fill="#F8FBFF"/>
+  <circle cx="375" cy="209" r="9" fill="#DDEAFF"/>
+  <circle cx="135" cy="292" r="7" fill="#DDEAFF"/>
+  <circle cx="214" cy="373" r="6" fill="#BFD4FF"/>
+
+  <!-- Tiny stars -->
+  <circle cx="166" cy="162" r="3.5" fill="#F8FBFF" opacity="0.9"/>
+  <circle cx="339" cy="153" r="3" fill="#BFD4FF" opacity="0.85"/>
+  <circle cx="356" cy="344" r="3.2" fill="#F8FBFF" opacity="0.7"/>
+</svg>
