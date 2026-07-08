@@ -61,7 +61,7 @@ export function DailyCosmos() {
               />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(141,109,255,0.12),transparent_24rem),linear-gradient(0deg,rgba(2,3,10,0.82),rgba(2,3,10,0.18)_46%,rgba(2,3,10,0.02))]" />
               <figcaption className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8">
-                <p className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.28em] text-galaxy-400/80">
+                <p className="type-label inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.28em] text-galaxy-400/80">
                   <Radio size={14} />
                   Signal Received
                 </p>
@@ -77,32 +77,32 @@ export function DailyCosmos() {
               <div className="space-y-7">
                 <div className="grid gap-4 border-b border-white/[0.07] pb-7 sm:grid-cols-2 lg:grid-cols-1">
                   <div>
-                    <p className="mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
+                    <p className="type-label mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
                       <CalendarDays size={13} />
                       Received Date
                     </p>
-                    <p className="text-sm text-starlight/76">
+                    <p className="type-body-en text-sm text-starlight/76">
                       {formatDailyDate(today)}
                     </p>
                   </div>
                   <div>
-                    <p className="mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
+                    <p className="type-label mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
                       <Satellite size={13} />
                       Archive Source
                     </p>
-                    <p className="text-sm text-starlight/76">{dailyCosmos.source}</p>
+                    <p className="type-body-en text-sm text-starlight/76">{dailyCosmos.source}</p>
                   </div>
                   <div>
-                    <p className="mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
+                    <p className="type-label mb-2 flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-white/34">
                       <Tags size={13} />
                       Category
                     </p>
-                    <p className="text-sm text-starlight/76">{dailyCosmos.category}</p>
+                    <p className="type-body-en text-sm text-starlight/76">{dailyCosmos.category}</p>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-[0.68rem] uppercase tracking-[0.24em] text-white/34">
+                  <p className="type-label text-[0.68rem] uppercase tracking-[0.24em] text-white/34">
                     Signal Notes
                   </p>
                   <p className="mt-4 text-sm leading-7 text-white/58 md:text-base md:leading-8">

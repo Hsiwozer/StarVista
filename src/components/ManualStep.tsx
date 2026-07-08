@@ -14,7 +14,7 @@ export function ManualStep({ step, index }: ManualStepProps) {
         <div className="absolute left-1 top-2 h-4 w-4 rounded-full border border-galaxy-400/18 bg-space-950 shadow-[0_0_0_6px_rgba(2,3,10,0.84)] transition duration-700 group-hover/manual:border-galaxy-400/72 group-hover/manual:bg-galaxy-400/34 group-hover/manual:shadow-[0_0_0_6px_rgba(2,3,10,0.84),0_0_24px_rgba(127,199,255,0.32)] sm:left-1.5" />
 
         <div className="max-w-2xl translate-y-1 opacity-70 transition duration-700 group-hover/manual:translate-y-0 group-hover/manual:opacity-100">
-          <p className="text-[0.68rem] uppercase tracking-[0.28em] text-nebula-300/42 transition duration-700 group-hover/manual:text-nebula-300/86">
+          <p className="type-label text-[0.68rem] uppercase tracking-[0.28em] text-nebula-300/42 transition duration-700 group-hover/manual:text-nebula-300/86">
             {step.manualId}
           </p>
           <h3 className="mt-3 font-display text-3xl font-medium leading-tight text-starlight/78 transition duration-700 group-hover/manual:text-starlight sm:text-4xl">

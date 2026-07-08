@@ -109,7 +109,7 @@ export function Articles() {
                   <span className="archive-system-card-scan" aria-hidden="true" />
                   <span className="archive-system-card-axis" aria-hidden="true" />
 
-                  <span className="archive-system-id block">
+                  <span className="archive-system-id type-label block">
                     {archive.archiveId}
                   </span>
 
@@ -117,7 +117,7 @@ export function Articles() {
                     <span className="block text-base font-medium leading-snug text-starlight/84 sm:text-lg">
                       {archive.name}
                     </span>
-                    <span className="mt-2 block text-[0.68rem] uppercase tracking-[0.18em] text-galaxy-400/42">
+                    <span className="type-body-en mt-2 block text-[0.68rem] uppercase tracking-[0.18em] text-galaxy-400/42">
                       {archive.englishName}
                     </span>
                   </span>
@@ -164,14 +164,14 @@ export function Articles() {
             >
               <div className="flex flex-col gap-5 border-b border-white/[0.075] pb-7 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.28em] text-galaxy-400/78">
+                  <p className="type-label inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.28em] text-galaxy-400/78">
                     <FileSearch size={14} aria-hidden="true" />
                     {activeArchive.archiveId}
                   </p>
                   <h3 className="mt-5 font-display text-4xl font-medium leading-[1.02] text-starlight sm:text-5xl lg:text-6xl">
                     {activeArchive.name}
                   </h3>
-                  <p className="mt-3 text-sm uppercase tracking-[0.2em] text-white/42">
+                  <p className="type-body-en mt-3 text-sm uppercase tracking-[0.2em] text-white/42">
                     {activeArchive.englishName}
                   </p>
                 </div>
@@ -216,7 +216,7 @@ export function Articles() {
                 aria-hidden={!isArchiveExpanded}
               >
                 <div className="archive-system-detail-inner">
-                  <p className="text-[0.68rem] uppercase tracking-[0.22em] text-galaxy-400/62">
+                  <p className="type-label text-[0.68rem] uppercase tracking-[0.22em] text-galaxy-400/62">
                     Expanded Notes
                   </p>
                   <p className="mt-4 text-sm leading-7 text-white/58 md:text-base md:leading-8">
@@ -249,7 +249,7 @@ interface ArchiveMetaProps {
 function ArchiveMeta({ icon, label, value }: ArchiveMetaProps) {
   return (
     <div className="archive-system-meta">
-      <p className="mb-2 flex items-center gap-2 text-[0.64rem] uppercase tracking-[0.2em] text-white/34">
+      <p className="type-label mb-2 flex items-center gap-2 text-[0.64rem] uppercase tracking-[0.2em] text-white/34">
         {icon}
         {label}
       </p>

@@ -1,4 +1,5 @@
 import { ArrowLeft } from "lucide-react";
+import { usePageTransition } from "../../hooks/usePageTransition";
 import { useEffect, useRef, useState } from "react";
 
 const EVENT_HORIZON_VIDEO_URL = "/videos/event-horizon.mp4";
@@ -10,6 +11,7 @@ export interface BlackHoleTelemetry {
 }
 
 export function BlackHolePage() {
+  const { transitionLink } = usePageTransition();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoSrc, setVideoSrc] = useState<string>();
 
@@ -111,7 +113,12 @@ export function BlackHolePage() {
 
   return (
     <main className="black-hole-page" aria-label="事件视界沉浸探索">
-      <a href="/" className="black-hole-return-button" aria-label="返回星空档案馆">
+      <a
+        href="/"
+        className="black-hole-return-button"
+        aria-label="返回星空档案馆"
+        onClick={(event) => transitionLink(event, "/", "archive")}
+      >
         <ArrowLeft size={16} aria-hidden="true" />
         <span>返回星空档案馆</span>
       </a>

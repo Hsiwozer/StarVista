@@ -10,7 +10,7 @@ export function Guide() {
 
       <Reveal>
         <div className="relative mx-auto mb-12 max-w-3xl text-center md:mb-16">
-          <p className="mb-3 text-[0.68rem] uppercase tracking-[0.32em] text-galaxy-400/70 sm:text-xs">
+          <p className="type-label mb-3 text-[0.68rem] uppercase tracking-[0.32em] text-galaxy-400/70 sm:text-xs">
             Observer&apos;s Manual
           </p>
           <h2 className="font-display text-4xl font-medium text-starlight sm:text-5xl md:text-6xl">

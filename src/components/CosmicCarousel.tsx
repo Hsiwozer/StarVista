@@ -177,7 +177,7 @@ export function CosmicCarousel({ items }: CosmicCarouselProps) {
           </p>
 
           <div className="gallery-detail-reveal mt-4 max-w-xl sm:mt-5">
-            <div className="mb-3 hidden flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-white/42 sm:flex">
+            <div className="type-label mb-3 hidden flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-white/42 sm:flex">
               <span>{activeItem.category}</span>
               <span className="h-1 w-1 rounded-full bg-white/24" />
               <span>{activeItem.distance}</span>

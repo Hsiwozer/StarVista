@@ -2,6 +2,7 @@ import type { GalleryItem } from "../types/content";
 
 const DAILY_GALLERY_SIZE = 6;
 const ONE_DAY = 24 * 60 * 60 * 1000;
+const HERO_BACKGROUND_SEED_OFFSET = 0x9e3779b9;
 
 function getLocalDaySeed(date: Date) {
   return Math.floor(
@@ -14,12 +15,13 @@ function nextSeed(seed: number) {
   return (seed * 1664525 + 1013904223) >>> 0;
 }
 
-export function getDailyGalleryItems(
-  items: GalleryItem[] = galleryPool,
-  date = new Date(),
+function shuffleForDate(
+  items: GalleryItem[],
+  date: Date,
+  seedOffset = 0,
 ) {
   const selection = [...items];
-  let seed = getLocalDaySeed(date);
+  let seed = (getLocalDaySeed(date) + seedOffset) >>> 0;
 
   for (let index = selection.length - 1; index > 0; index -= 1) {
     seed = nextSeed(seed);
@@ -30,7 +32,40 @@ export function getDailyGalleryItems(
     ];
   }
 
-  return selection.slice(0, DAILY_GALLERY_SIZE);
+  return selection;
+}
+
+export function getDailyGalleryItems(
+  items: GalleryItem[] = galleryPool,
+  date = new Date(),
+) {
+  return shuffleForDate(items, date).slice(0, DAILY_GALLERY_SIZE);
+}
+
+export function getDailyHeroBackground(
+  items: GalleryItem[] = galleryPool,
+  date = new Date(),
+) {
+  const dailyGalleryIds = new Set(
+    getDailyGalleryItems(items, date).map((item) => item.id),
+  );
+  const availableBackgrounds = items.filter(
+    (item) => !dailyGalleryIds.has(item.id),
+  );
+  const dayParity = Math.abs(getLocalDaySeed(date)) % 2;
+  const alternatingBackgrounds = items.filter(
+    (item, poolIndex) =>
+      !dailyGalleryIds.has(item.id) && poolIndex % 2 === dayParity,
+  );
+  const backgroundPool =
+    alternatingBackgrounds.length > 0
+      ? alternatingBackgrounds
+      : availableBackgrounds;
+
+  return (
+    shuffleForDate(backgroundPool, date, HERO_BACKGROUND_SEED_OFFSET)[0] ??
+    null
+  );
 }
 
 export const galleryPool: GalleryItem[] = [
@@ -227,6 +262,127 @@ export const galleryPool: GalleryItem[] = [
     image: "/images/gallery/rose-nebula-star-cluster.png",
     tags: ["星团", "发射星云", "尘埃柱"],
   },
+  {
+    id: 17,
+    targetId: "gallery-quasar-jet",
+    title: "Quasar Beacon",
+    subtitle: "类星体灯塔",
+    category: "Deep Sky Object",
+    distance: "遥远宇宙想象档案",
+    description:
+      "炽亮吸积盘环绕着超大质量黑洞，成对相对论喷流穿透星系际空间，像从宇宙早期射来的灯塔。",
+    image: "/images/gallery/quasar-relativistic-jet.png",
+    tags: ["类星体", "相对论喷流", "活动星系核"],
+  },
+  {
+    id: 18,
+    targetId: "gallery-einstein-ring",
+    title: "Einstein Ring",
+    subtitle: "爱因斯坦环",
+    category: "Galaxy",
+    distance: "遥远宇宙观测意象",
+    description:
+      "前景星系的引力把更遥远天体的光弯成近乎完整的蓝白圆环，让不可见的时空曲率显出轮廓。",
+    image: "/images/gallery/einstein-ring-lens.png",
+    tags: ["引力透镜", "爱因斯坦环", "时空弯曲"],
+  },
+  {
+    id: 19,
+    targetId: "gallery-great-comet",
+    title: "Silver Wanderer",
+    subtitle: "银蓝长尾彗星",
+    category: "Deep Sky Object",
+    distance: "太阳系想象档案",
+    description:
+      "冰质彗核被恒星加热后释放尘埃与气体，银白尘尾和蓝色离子尾在行星近旁铺开漫长光迹。",
+    image: "/images/gallery/great-comet-blue-planet.png",
+    tags: ["彗星", "离子尾", "太阳风"],
+  },
+  {
+    id: 20,
+    targetId: "gallery-protoplanetary-disk",
+    title: "Worlds in the Making",
+    subtitle: "行星诞生之盘",
+    category: "Deep Sky Object",
+    distance: "恒星形成想象档案",
+    description:
+      "年轻恒星点亮层层尘埃环，盘面缝隙记录着物质聚合的路径，一批尚未成形的世界正在其中生长。",
+    image: "/images/gallery/protoplanetary-disk.png",
+    tags: ["原行星盘", "恒星形成", "行星诞生"],
+  },
+  {
+    id: 21,
+    targetId: "gallery-magnetar",
+    title: "Magnetar Pulse",
+    subtitle: "磁星脉动",
+    category: "Supernova Remnant",
+    distance: "银河系想象档案",
+    description:
+      "高度磁化的中子星藏在爆发遗迹中央，炽热等离子体沿磁场卷成巨大光弧，照亮周围的冲击波细丝。",
+    image: "/images/gallery/magnetar-plasma-arcs.png",
+    tags: ["磁星", "中子星", "强磁场"],
+  },
+  {
+    id: 22,
+    targetId: "gallery-globular-cluster",
+    title: "Ancient Star Swarm",
+    subtitle: "远古球状星团",
+    category: "Deep Sky Object",
+    distance: "约 2.5 万光年",
+    description:
+      "数十万颗古老恒星在引力中聚成致密光球，金色核心悬在银河尘埃带上方，保存着早期银河的记忆。",
+    image: "/images/gallery/ancient-globular-cluster.png",
+    tags: ["球状星团", "古老恒星", "银河晕"],
+  },
+  {
+    id: 23,
+    targetId: "gallery-cosmic-cliffs",
+    title: "Cosmic Cliffs",
+    subtitle: "宇宙峭壁",
+    category: "Nebula",
+    distance: "约 7,600 光年",
+    description:
+      "年轻恒星的紫外辐射雕刻分子云边缘，青蓝电离气体在尘埃山脊上升腾，露出恒星摇篮的明亮边界。",
+    image: "/images/gallery/cosmic-cliffs-nursery.png",
+    tags: ["恒星摇篮", "分子云", "电离前沿"],
+  },
+  {
+    id: 24,
+    targetId: "gallery-red-giant-system",
+    title: "Red Giant Dominion",
+    subtitle: "红巨星疆域",
+    category: "Planet",
+    distance: "恒星演化想象档案",
+    description:
+      "膨胀的红巨星以炽热光芒笼罩行星系统，大小不同的世界沿轨道退入暗处，见证恒星生命的暮年。",
+    image: "/images/gallery/red-giant-planetary-system.png",
+    tags: ["红巨星", "行星系统", "恒星演化"],
+  },
+  {
+    id: 25,
+    targetId: "gallery-edge-on-galaxy",
+    title: "Galactic Horizon",
+    subtitle: "侧视星河",
+    category: "Galaxy",
+    distance: "约 4,000 万光年",
+    description:
+      "旋涡星系以侧面对准视线，锐利尘埃带横贯温暖核球，微蓝恒星盘向黑暗两端延伸成一道漫长天际线。",
+    image: "/images/gallery/edge-on-spiral-galaxy.png",
+    tags: ["侧视星系", "尘埃带", "星系晕"],
+  },
+  {
+    id: 26,
+    targetId: "gallery-ocean-aurora",
+    title: "Aurora Ocean",
+    subtitle: "海洋行星极光",
+    category: "Planet",
+    distance: "系外行星想象档案",
+    description:
+      "恒星风抵达蓝色海洋世界，翡翠与紫罗兰色极光沿极区起伏，在稀薄大气边缘织出安静的发光帷幕。",
+    image: "/images/gallery/ocean-planet-aurora.png",
+    tags: ["系外行星", "极光", "磁层"],
+  },
 ];
 
 export const galleryItems = getDailyGalleryItems();
+export const dailyHeroBackground = getDailyHeroBackground();

@@ -1,5 +1,6 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { dailyHeroBackground } from "../data/galleryData";
 import { Reveal } from "./Reveal";
 
 const explorationPath = [
@@ -447,22 +448,26 @@ export function Hero({ ready }: HeroProps) {
       onMouseMove={handleHeroMouseMove}
       onMouseLeave={handleHeroMouseLeave}
     >
-      <div className="hero-background-layer absolute inset-0 min-h-screen overflow-hidden">
+      <div className="hero-background-layer absolute inset-x-0 top-0 h-screen min-h-screen overflow-hidden">
         <img
-          src="/images/hero-nebula.png"
-          alt="紫蓝色星云与深夜星空"
+          src={dailyHeroBackground?.image ?? "/images/hero-nebula.png"}
+          alt=""
+          aria-hidden="true"
+          onError={(event) => {
+            event.currentTarget.src = "/images/hero-nebula.png";
+          }}
           className="hero-nebula-image h-full w-full object-cover"
         />
         <div className="hero-stardust hero-stardust-a" aria-hidden="true" />
         <div className="hero-stardust hero-stardust-b" aria-hidden="true" />
         <div className="hero-meteor" aria-hidden="true" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_66%_20%,rgba(141,109,255,0.10),transparent_26rem),linear-gradient(90deg,rgba(2,3,10,0.92)_0%,rgba(2,3,10,0.64)_48%,rgba(2,3,10,0.3)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,3,10,0.18)_0%,rgba(2,3,10,0.24)_58%,rgba(2,3,10,0.76)_84%,#02030a_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_66%_20%,rgba(141,109,255,0.06),transparent_26rem),linear-gradient(90deg,rgba(2,3,10,0.94)_0%,rgba(2,3,10,0.70)_48%,rgba(2,3,10,0.46)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,3,10,0.24)_0%,rgba(2,3,10,0.30)_58%,rgba(2,3,10,0.80)_84%,#02030a_100%)]" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl items-center px-5 pb-24 pt-28 sm:pb-28 md:px-8 md:pt-32">
         <div className="w-full max-w-3xl">
-          <p className="hero-enter-kicker mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-galaxy-400/80 sm:text-xs sm:tracking-[0.48em]">
+          <p className="hero-enter-kicker type-label mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-galaxy-400/80 sm:text-xs sm:tracking-[0.48em]">
             Cosmic Signal Archive
           </p>
           <div className="hero-depth-title">
@@ -508,7 +513,7 @@ export function Hero({ ready }: HeroProps) {
               aria-label="唤醒星空档案并前往档案路径"
             >
               <span className="archive-button-label">唤醒星空档案</span>
-              <span className="archive-button-status" aria-live="polite">
+              <span className="archive-button-status type-label" aria-live="polite">
                 {isAccessing ? "ACCESSING..." : "ARCHIVE NODE READY"}
               </span>
               <span className="archive-button-dot" aria-hidden="true" />
@@ -525,7 +530,7 @@ export function Hero({ ready }: HeroProps) {
       </div>
 
       <div className="hero-depth-curtain" aria-hidden="true" />
-      <p className="hero-depth-status" aria-hidden="true">
+      <p className="hero-depth-status type-label" aria-hidden="true">
         ENTERING CELESTIAL RECORDS
       </p>
 
@@ -535,7 +540,7 @@ export function Hero({ ready }: HeroProps) {
       >
         <div className="mx-auto max-w-[1240px] text-center">
           <Reveal distance="short">
-            <p className="text-[0.68rem] uppercase tracking-[0.34em] text-galaxy-400/70">
+            <p className="type-label text-[0.68rem] uppercase tracking-[0.34em] text-galaxy-400/70">
               Archive Route
             </p>
             <h2 className="archive-route-heading mt-4 text-balance font-display text-[clamp(2.5rem,8vw,4.1rem)] font-medium leading-[1.04] text-starlight md:whitespace-nowrap md:text-[clamp(3.5rem,5vw,6rem)] md:leading-[0.98]">
@@ -558,7 +563,7 @@ export function Hero({ ready }: HeroProps) {
                 <span className="archive-route-index relative z-10 block font-display text-4xl">
                   {item.id}
                 </span>
-                <span className="archive-route-label relative z-10 mt-8 block text-[0.62rem] uppercase tracking-[0.2em]">
+                <span className="archive-route-label type-label relative z-10 mt-8 block text-[0.62rem] uppercase tracking-[0.2em]">
                   {item.destination}
                 </span>
                 <h3 className="archive-route-title relative z-10 mt-3 text-lg font-medium">

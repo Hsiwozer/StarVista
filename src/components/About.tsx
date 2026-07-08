@@ -7,14 +7,17 @@ import {
 } from "lucide-react";
 import { BlackHoleEntryButton } from "./black-hole/BlackHoleEntryButton";
 import { Reveal } from "./Reveal";
+import { usePageTransition } from "../hooks/usePageTransition";
 
 export function About() {
+  const { transitionLink } = usePageTransition();
+
   return (
     <section id="about" className="section-shell pb-28">
       <Reveal>
         <div className="grid gap-12 border-t border-white/[0.07] pt-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:pt-16">
           <div>
-            <p className="mb-5 text-xs uppercase tracking-[0.34em] text-galaxy-400/72">
+            <p className="type-label mb-5 text-xs uppercase tracking-[0.34em] text-galaxy-400/72">
               Prologue / Star Archive
             </p>
             <h2 className="font-display text-4xl font-medium leading-tight text-starlight sm:text-5xl md:text-6xl">
@@ -50,7 +53,7 @@ export function About() {
                 </span>
                 <span className="about-destination-copy">
                   <span>回到星空</span>
-                  <small>STAR FIELD</small>
+                  <small className="type-label">STAR FIELD</small>
                 </span>
                 <ArrowUpRight
                   size={15}
@@ -62,13 +65,16 @@ export function About() {
                 href="/solar-system"
                 className="about-destination-button about-destination-button-solar"
                 aria-label="进入太阳系漫游页面"
+                onClick={(event) =>
+                  transitionLink(event, "/solar-system", "solar")
+                }
               >
                 <span className="about-destination-icon" aria-hidden="true">
                   <Orbit size={18} />
                 </span>
                 <span className="about-destination-copy">
                   <span>太阳系</span>
-                  <small>SOLAR SYSTEM</small>
+                  <small className="type-label">SOLAR SYSTEM</small>
                 </span>
                 <ArrowRight
                   size={15}

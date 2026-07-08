@@ -7,6 +7,7 @@ import { Guide } from "./components/Guide";
 import { Hero } from "./components/Hero";
 import { NavBar } from "./components/NavBar";
 import { CosmicBackground } from "./components/CosmicBackground";
+import { ScrollDepthIndicator } from "./components/ScrollDepthIndicator";
 
 const SolarSystemPage = lazy(() =>
   import("./components/solar-system/SolarSystemPage").then((module) => ({
@@ -68,6 +69,7 @@ function App() {
     >
       <CosmicBackground fixed quiet />
       <NavBar />
+      <ScrollDepthIndicator />
       <div className="relative z-10">
         <Hero ready={homeReady} />
         <DailyCosmos />

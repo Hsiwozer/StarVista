@@ -1,5 +1,6 @@
 import { Menu, Waypoints, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePageTransition } from "../hooks/usePageTransition";
 
 const navItems = [
   { id: "daily", label: "每日星讯", subLabel: "Daily Signal" },
@@ -42,6 +43,7 @@ function scrollToSection(id: string, targetId?: string) {
 }
 
 export function NavBar() {
+  const { transitionLink } = usePageTransition();
   const [open, setOpen] = useState(false);
   const [isHiddenEntryOpen, setIsHiddenEntryOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -246,7 +248,7 @@ export function NavBar() {
                 <span className="block text-sm text-white/70 transition group-hover:text-starlight">
                   {item.label}
                 </span>
-                <span className="mt-1 block text-[0.64rem] uppercase tracking-[0.2em] text-white/30 transition group-hover:text-galaxy-400/80">
+                <span className="type-label mt-1 block text-[0.64rem] uppercase tracking-[0.2em] text-white/30 transition group-hover:text-galaxy-400/80">
                   {item.subLabel}
                 </span>
                 <span className="absolute inset-x-4 bottom-1 h-px origin-center scale-x-0 bg-gradient-to-r from-transparent via-galaxy-400/70 to-transparent transition duration-500 group-hover:scale-x-100" />
@@ -293,7 +295,7 @@ export function NavBar() {
               >
                 <div className="hidden-entry-heading">
                   <span>隐秘坐标</span>
-                  <small>HIDDEN COORDINATES</small>
+                  <small className="type-label">HIDDEN COORDINATES</small>
                 </div>
 
                 <div className="hidden-entry-list">
@@ -303,9 +305,16 @@ export function NavBar() {
                       href={entry.href}
                       role="menuitem"
                       className="hidden-entry-item"
-                      onClick={() => {
+                      onClick={(event) => {
                         clearHiddenEntryCloseTimer();
                         setIsHiddenEntryOpen(false);
+                        transitionLink(
+                          event,
+                          entry.href,
+                          entry.href === "/solar-system"
+                            ? "solar"
+                            : "blackhole",
+                        );
                       }}
                     >
                       <span className="hidden-entry-number">
@@ -313,7 +322,7 @@ export function NavBar() {
                       </span>
                       <span className="hidden-entry-copy">
                         <strong>{entry.title}</strong>
-                        <small>{entry.subLabel}</small>
+                        <small className="type-label">{entry.subLabel}</small>
                       </span>
                     </a>
                   ))}
@@ -344,7 +353,7 @@ export function NavBar() {
                   <span className="block text-sm text-starlight/86">
                     {item.label}
                   </span>
-                  <span className="mt-1 block text-xs uppercase tracking-[0.18em] text-white/36">
+                  <span className="type-label mt-1 block text-xs uppercase tracking-[0.18em] text-white/36">
                     {item.subLabel}
                   </span>
                 </button>
