@@ -6,7 +6,7 @@ import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 
 const fallbackImage = "/images/hero-nebula.png";
-const dailyArchiveCount = 8;
+const dailyArchiveCount = 6;
 
 function getArchiveDayKey(date = new Date()) {
   const year = date.getFullYear();

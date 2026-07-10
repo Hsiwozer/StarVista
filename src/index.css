@@ -58,6 +58,24 @@ body {
     #02030a;
 }
 
+#root,
+#root * {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+#root :is(a, button, [role="button"], select, summary),
+#root :is(a, button, [role="button"], select, summary) * {
+  cursor: pointer;
+}
+
+#root :is(input, textarea, [contenteditable=""], [contenteditable="true"]) {
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
 button {
   font: inherit;
 }
@@ -948,7 +966,7 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
     transform-origin: 58% 50%;
     animation: heroNebulaBreath 64s ease-in-out infinite alternate;
     filter: brightness(0.78) saturate(0.8) contrast(0.96);
-    opacity: 0.7;
+    opacity: 0.78;
     will-change: transform;
   }
 
@@ -1226,6 +1244,45 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
     opacity: 1;
     filter: blur(0);
     transform: translate3d(0, 0, 0);
+  }
+
+  .guide-quote-reveal.archive-reveal {
+    filter: none;
+    transform: none;
+    transition: opacity 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .guide-quote-line {
+    display: block;
+    opacity: 0;
+    filter: blur(2px);
+    transform: translate3d(0, 8px, 0);
+    transition:
+      opacity 1120ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 1120ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1120ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .guide-quote-reveal.archive-reveal-visible .guide-quote-line {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  .guide-quote-line:nth-child(1) {
+    transition-delay: 0ms;
+  }
+
+  .guide-quote-line:nth-child(2) {
+    transition-delay: 420ms;
+  }
+
+  .guide-quote-line:nth-child(3) {
+    transition-delay: 840ms;
+  }
+
+  .guide-quote-line:nth-child(4) {
+    transition-delay: 1260ms;
   }
 
   .hero-title-line {
@@ -2249,8 +2306,7 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
 
   .archive-route-item::before,
   .archive-route-item::after,
-  .archive-route-scan,
-  .archive-route-axis {
+  .archive-route-scan {
     content: "";
     pointer-events: none;
     position: absolute;
@@ -2311,28 +2367,6 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
       background-position 1500ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .archive-route-axis {
-    left: -1px;
-    top: 2rem;
-    z-index: 2;
-    width: 1px;
-    height: 5.5rem;
-    opacity: 0.16;
-    background: linear-gradient(
-      180deg,
-      transparent,
-      rgba(127, 199, 255, 0.24),
-      rgba(181, 156, 255, 0.32),
-      transparent
-    );
-    transform: scaleY(0.72);
-    transform-origin: top;
-    transition:
-      opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 780ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 620ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
   .archive-route-index,
   .archive-route-label,
   .archive-route-title,
@@ -2364,13 +2398,6 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
     transform: translate3d(0, 2px, 0);
   }
 
-  .archive-route-item:hover,
-  .archive-route-item:focus-within,
-  .archive-route-item:focus-visible,
-  .archive-route-item:active {
-    border-color: rgba(127, 199, 255, 0.13);
-  }
-
   .archive-route-item:hover::before,
   .archive-route-item:focus-within::before,
   .archive-route-item:focus-visible::before,
@@ -2394,16 +2421,6 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
     opacity: 0.34;
     background-position: 8px -6px, -7px 9px, 5px 5px, 92% 0;
     transform: translate3d(0, 0, 0);
-  }
-
-  .archive-route-item:hover .archive-route-axis,
-  .archive-route-item:focus-within .archive-route-axis,
-  .archive-route-item:focus-visible .archive-route-axis,
-  .archive-route-item:active .archive-route-axis {
-    opacity: 0.7;
-    transform: scaleY(1);
-    filter: drop-shadow(0 0 5px rgba(127, 199, 255, 0.18))
-      drop-shadow(0 0 10px rgba(141, 109, 255, 0.1));
   }
 
   .archive-route-item:hover .archive-route-index,
@@ -6162,6 +6179,12 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
   .hero-stardust {
     animation: none !important;
     transform: translate3d(0, 0, 0) !important;
+  }
+
+  .guide-quote-line {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
   }
 
   .hero-depth-title,

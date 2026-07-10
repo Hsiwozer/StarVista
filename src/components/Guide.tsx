@@ -27,9 +27,16 @@ export function Guide() {
         <ObservationStatus />
       </div>
 
-      <Reveal delay={160}>
-        <p className="mx-auto mt-8 max-w-3xl whitespace-pre-line text-center font-display text-3xl leading-snug text-starlight/68 md:mt-12 md:text-4xl md:leading-snug">
-          {"当你远离灯光，等待眼睛适应黑暗，\n你会发现星空并没有变亮，\n只是你终于学会了看见它。"}
+      <Reveal
+        className="guide-quote-reveal"
+        rootMargin="-50% 0px -49% 0px"
+        threshold={0}
+      >
+        <p className="mx-auto mt-8 max-w-3xl text-center font-display text-3xl leading-snug text-starlight/68 md:mt-12 md:text-4xl md:leading-snug">
+          <span className="guide-quote-line">当你远离灯光，</span>
+          <span className="guide-quote-line">等待眼睛适应黑暗，</span>
+          <span className="guide-quote-line">你会发现星空并没有变亮，</span>
+          <span className="guide-quote-line">只是你终于学会了看见它。</span>
         </p>
       </Reveal>
     </section>

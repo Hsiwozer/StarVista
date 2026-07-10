@@ -8,38 +8,30 @@ const explorationPath = [
     id: "01",
     title: "地球夜空",
     destination: "Observer’s Manual",
-    sectionId: "guide",
     text: "从熟悉的黑夜出发，辨认第一颗安静的亮星。",
   },
   {
     id: "02",
     title: "月球与行星",
     destination: "Deep Space Gallery",
-    sectionId: "gallery",
-    targetId: "gallery-moon",
     text: "近处的光，有山脉、环带与缓慢移动的轨道。",
   },
   {
     id: "03",
     title: "星云与恒星诞生",
     destination: "Deep Space Gallery",
-    sectionId: "gallery",
-    targetId: "gallery-nebula",
     text: "尘埃发光，年轻恒星在深处点亮第一束风。",
   },
   {
     id: "04",
     title: "星系与深空",
     destination: "Cosmic Archives",
-    sectionId: "articles",
     text: "光年之外，旋臂把时间整理成巨大的档案。",
   },
   {
     id: "05",
     title: "黑洞与未知宇宙",
     destination: "Deep Space Gallery",
-    sectionId: "gallery",
-    targetId: "gallery-black-hole",
     text: "在看不见的边界，宇宙保留最后的沉默。",
   },
 ];
@@ -100,21 +92,6 @@ const heroTitleParticles: HeroTitleParticle[] = [
   { id: 17, x: 79, y: 76, dx: 20, dy: 16, size: 1, delay: 300, color: "white" },
   { id: 18, x: 90, y: 64, dx: 24, dy: 8, size: 1, delay: 90, color: "blue" },
 ];
-
-function signalGalleryTarget(targetId?: string) {
-  if (!targetId) {
-    return;
-  }
-
-  window.dispatchEvent(
-    new CustomEvent("star-archive:gallery-target", { detail: { targetId } }),
-  );
-}
-
-function scrollToSection(id: string, targetId?: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  signalGalleryTarget(targetId);
-}
 
 function scrollToSectionSlowly(id: string) {
   const target = document.getElementById(id);
@@ -552,14 +529,8 @@ export function Hero({ ready }: HeroProps) {
         <div className="mt-14 grid gap-4 md:grid-cols-5">
           {explorationPath.map((item, index) => (
             <Reveal key={item.id} delay={index * 90} distance="short">
-              <button
-                type="button"
-                onClick={() => scrollToSection(item.sectionId, item.targetId)}
-                className="archive-route-item relative min-h-52 w-full overflow-hidden border-l border-white/[0.035] bg-transparent p-5 text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-galaxy-400/24 md:min-h-72"
-                aria-label={`打开${item.title}，前往 ${item.destination}`}
-              >
+              <article className="archive-route-item relative min-h-52 w-full overflow-hidden border-l border-white/[0.035] bg-transparent p-5 text-left md:min-h-72">
                 <span className="archive-route-scan" aria-hidden="true" />
-                <span className="archive-route-axis" aria-hidden="true" />
                 <span className="archive-route-index relative z-10 block font-display text-4xl">
                   {item.id}
                 </span>
@@ -572,7 +543,7 @@ export function Hero({ ready }: HeroProps) {
                 <p className="archive-route-copy relative z-10 mt-4 text-sm leading-7">
                   {item.text}
                 </p>
-              </button>
+              </article>
             </Reveal>
           ))}
         </div>

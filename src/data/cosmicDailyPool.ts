@@ -130,17 +130,6 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
     category: "Nebula",
   },
   {
-    id: "southern-ring-nebula",
-    title: "南环星云",
-    subtitle: "恒星谢幕时的层层回声",
-    image: "/images/daily/southern-ring-nebula.jpg",
-    description:
-      "濒死恒星将外壳一层层推向宇宙，留下精致而幽暗的光环，像时间缓慢散开的涟漪。",
-    source: "NASA / ESA / CSA / STScI",
-    link: "https://images.nasa.gov/details/southern_ring_nebula",
-    category: "Nebula",
-  },
-  {
     id: "butterfly-nebula",
     title: "双喷流星云",
     subtitle: "蝶翼般展开的恒星遗迹",
@@ -215,28 +204,6 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
       "两个星系相互穿越，潮汐尾如触须般伸出，碰撞区域则迸发出密集的新生恒星。",
     source: "ESA / Hubble / NASA",
     link: "https://esahubble.org/images/heic0615a/",
-    category: "Galaxy",
-  },
-  {
-    id: "stephans-quintet",
-    title: "斯蒂芬五重星系",
-    subtitle: "星系群中的引力剧场",
-    image: "/images/daily/stephans-quintet.jpg",
-    description:
-      "多个星系在彼此引力中靠近、扭曲与穿行，呈现宇宙结构演化的壮阔现场。",
-    source: "NASA / ESA / Hubble",
-    link: "https://images.nasa.gov/details/PIA04201",
-    category: "Galaxy",
-  },
-  {
-    id: "m82-cigar-galaxy",
-    title: "雪茄星系 M82",
-    subtitle: "恒星爆发吹出的红色星风",
-    image: "/images/daily/m82-cigar-galaxy.jpg",
-    description:
-      "剧烈恒星形成把红色气体从星系核心喷向两侧，像一场穿透星盘的深空风暴。",
-    source: "NASA / ESA / Hubble",
-    link: "https://images.nasa.gov/details/PIA04218",
     category: "Galaxy",
   },
   {
@@ -325,17 +292,6 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
       "星系核心的黑洞把高能喷流推出数百万光年，紫红色射电羽流像两片从星海中张开的巨大光翼。",
     source: "NASA / ESA / NRAO",
     link: "https://images.nasa.gov/details/GSFC_20171208_Archive_e001618",
-    category: "Black Hole",
-  },
-  {
-    id: "m87-black-hole-galaxy",
-    title: "M87 星系核心",
-    subtitle: "黑洞喷流穿过椭圆星光",
-    image: "/images/daily/m87-black-hole-galaxy.jpg",
-    description:
-      "M87 中央的超大质量黑洞驱动明亮喷流穿透星系核心，远处星海把这场极端能量释放衬得格外安静。",
-    source: "NASA / JPL-Caltech / IPAC",
-    link: "https://images.nasa.gov/details/PIA23122",
     category: "Black Hole",
   },
   {

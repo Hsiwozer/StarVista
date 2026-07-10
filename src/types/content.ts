@@ -1,6 +1,7 @@
 export type GalleryCategory =
   | "Nebula"
   | "Galaxy"
+  | "Star"
   | "Moon"
   | "Planet"
   | "Black Hole"

@@ -229,11 +229,22 @@ export function NavBar() {
           <button
             type="button"
             onClick={() => navigate("home")}
-            className="text-left font-display text-xl text-starlight/88 outline-none transition hover:text-nebula-300 focus-visible:ring-2 focus-visible:ring-galaxy-400/40 md:text-2xl"
+            className="inline-flex items-center gap-2 text-left font-display text-xl text-starlight/88 outline-none transition hover:text-nebula-300 focus-visible:ring-2 focus-visible:ring-galaxy-400/40 md:gap-2.5 md:text-2xl"
           >
-            星空档案馆
-            <span className="ml-2 hidden text-base text-white/54 sm:inline">
-              Star Archive
+            <img
+              src="/starvista-favicon.svg"
+              alt=""
+              aria-hidden="true"
+              width={32}
+              height={32}
+              draggable={false}
+              className="h-7 w-7 shrink-0 md:h-8 md:w-8"
+            />
+            <span>
+              星空档案馆
+              <span className="ml-2 hidden text-base text-white/54 sm:inline">
+                Star Archive
+              </span>
             </span>
           </button>
 

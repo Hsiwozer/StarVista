@@ -5,6 +5,8 @@ interface RevealProps {
   className?: string;
   delay?: number;
   distance?: "short" | "normal";
+  rootMargin?: string;
+  threshold?: number;
 }
 
 export function Reveal({
@@ -12,6 +14,8 @@ export function Reveal({
   className = "",
   delay = 0,
   distance = "normal",
+  rootMargin = "0px 0px -8% 0px",
+  threshold = 0.16,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
@@ -29,12 +33,12 @@ export function Reveal({
           observer.unobserve(entry.target);
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.16 },
+      { rootMargin, threshold },
     );
 
     observer.observe(current);
     return () => observer.disconnect();
-  }, []);
+  }, [rootMargin, threshold]);
 
   return (
     <div
