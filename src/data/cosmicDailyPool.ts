@@ -84,8 +84,8 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
     image: "/images/daily/rosette-nebula.jpg",
     description:
       "一圈巨大的星际云被中央星团照亮，像宇宙在寒冷黑暗中展开的火色花冠。",
-    source: "NASA / JPL-Caltech / WISE",
-    link: "https://images.nasa.gov/details/PIA13126",
+    source: "NASA / JPL-Caltech / UCLA",
+    link: "https://svs.gsfc.nasa.gov/14866/",
     category: "Nebula",
   },
   {
@@ -283,18 +283,18 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
     description:
       "濒死恒星将外壳一层层推向宇宙，留下精致而幽暗的光环，像时间缓慢散开的涟漪。",
     source: "NASA / ESA / CSA / STScI",
-    link: "https://images.nasa.gov/details/southern_ring_nebula",
+    link: "https://science.nasa.gov/asset/webb/southern-ring-nebula-nircam-image/",
     category: "Nebula",
   },
   {
     id: "saturn-grand-portrait",
     title: "土星宏像",
-    subtitle: "环影切过金色行星的寂静弧线",
+    subtitle: "旅行者二号凝望下的金色环影",
     image: "/images/daily/saturn-grand-portrait.jpg",
     description:
-      "卡西尼凝视下的土星被环系投下长影，柔亮球面与冰尘圆环共同组成深空里最优雅的几何。",
-    source: "NASA / JPL / Space Science Institute",
-    link: "https://images.nasa.gov/details/PIA06193",
+      "旅行者二号以真彩色记录土星与环系，柔亮球面、暗色辐条和两颗微小卫星共同悬在深空。",
+    source: "NASA / JPL / Voyager 2",
+    link: "https://science.nasa.gov/photojournal/saturn-with-rhea-and-dione-true-color/",
     category: "Planet",
   },
   {

@@ -52,7 +52,7 @@ export function DailyCosmos() {
               <img
                 src={imageSrc}
                 alt={`${dailyCosmos.title}，${dailyCosmos.subtitle}`}
-                className={`daily-media absolute inset-0 h-full w-full object-contain opacity-90 ${
+                className={`daily-media absolute inset-0 h-full w-full object-cover opacity-90 ${
                   imageReady ? "daily-media-ready" : ""
                 }`}
                 onLoad={() => setImageReady(true)}

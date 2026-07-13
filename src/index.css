@@ -1945,6 +1945,7 @@ html.page-transition-arriving #root > :not(.page-transition-overlay) {
   .daily-media {
     z-index: 1;
     filter: saturate(0.92) contrast(1.03);
+    object-position: center;
     transform: none;
   }
 
