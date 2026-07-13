@@ -18,18 +18,10 @@ export interface CosmicDailyItem {
   category: CosmicDailyCategory;
 }
 
+// New additions should avoid low-resolution files and obviously awkward crops.
+// Prefer images at least 1200px wide and 650px tall, with subjects that still
+// read well in the Daily Signal card's landscape-oriented media pane.
 export const cosmicDailyPool: CosmicDailyItem[] = [
-  {
-    id: "cosmic-cliffs",
-    title: "宇宙悬崖",
-    subtitle: "船底座星云边缘的恒星风暴",
-    image: "/images/daily/cosmic-cliffs.jpg",
-    description:
-      "年轻恒星将尘埃与气体雕刻成巨大的金色峭壁，像深空里一场正在升起的潮汐。",
-    source: "NASA / ESA / CSA / STScI",
-    link: "https://images.nasa.gov/details/carina_nebula",
-    category: "Nebula",
-  },
   {
     id: "carina-nebula",
     title: "船底座星云",
@@ -72,17 +64,6 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
       "冷暗尘埃在背后星光前投下庄严轮廓，像一座从红色星际雾气中浮现的暗色雕像。",
     source: "NASA / ESA / Hubble",
     link: "https://images.nasa.gov/details/PIA16008",
-    category: "Nebula",
-  },
-  {
-    id: "lagoon-nebula",
-    title: "礁湖星云",
-    subtitle: "明亮气体中的恒星潮汐",
-    image: "/images/daily/lagoon-nebula.jpg",
-    description:
-      "紫红色氢云与暗尘带交错，新生恒星在云海深处把整片星云点亮。",
-    source: "NASA / ESA / Hubble",
-    link: "https://images.nasa.gov/details/GSFC_20171208_Archive_e001955",
     category: "Nebula",
   },
   {
@@ -130,48 +111,15 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
     category: "Nebula",
   },
   {
-    id: "butterfly-nebula",
-    title: "双喷流星云",
-    subtitle: "蝶翼般展开的恒星遗迹",
-    image: "/images/daily/butterfly-nebula.jpg",
+    id: "downtown-milky-way",
+    title: "银河中心星场",
+    subtitle: "尘埃与恒星拥向银心",
+    image: "/images/daily/downtown-milky-way.jpg",
     description:
-      "高速气体从中央恒星向两侧喷涌，形成对称而锋利的光翼，安静却充满力量。",
-    source: "ESA / Hubble / NASA",
-    link: "https://esahubble.org/images/heic1518a/",
+      "红外视野穿透银心方向的暗尘，恒星、气体与发光云团沿着银河平面铺展成一条壮阔的蓝色星河。",
+    source: "NASA / JPL-Caltech / UCLA",
+    link: "https://images.nasa.gov/details/PIA13932",
     category: "Nebula",
-  },
-  {
-    id: "andromeda-galaxy",
-    title: "仙女座星系",
-    subtitle: "近邻星系的横跨光海",
-    image: "/images/daily/andromeda-galaxy.jpg",
-    description:
-      "数千亿颗恒星汇成倾斜的银色长河，提醒我们银河之外仍有辽阔而相似的岛宇宙。",
-    source: "NASA / ESA / Hubble",
-    link: "https://images.nasa.gov/details/GSFC_20171208_Archive_e000839",
-    category: "Galaxy",
-  },
-  {
-    id: "whirlpool-galaxy",
-    title: "涡状星系",
-    subtitle: "旋臂与伴星系的引力舞步",
-    image: "/images/daily/whirlpool-galaxy.jpg",
-    description:
-      "明亮旋臂向外舒展，尘埃带与恒星形成区共同勾勒出星系相互牵引的宏大轨迹。",
-    source: "NASA / JPL-Caltech",
-    link: "https://images.nasa.gov/details/PIA10200",
-    category: "Galaxy",
-  },
-  {
-    id: "sombrero-galaxy",
-    title: "草帽星系",
-    subtitle: "黑暗尘埃环切过星光穹顶",
-    image: "/images/daily/sombrero-galaxy.jpg",
-    description:
-      "明亮核心与宽阔尘埃环形成强烈对比，像深空中一座悬浮而沉默的发光圣殿。",
-    source: "NASA / ESA / Hubble",
-    link: "https://images.nasa.gov/details/PIA15226",
-    category: "Galaxy",
   },
   {
     id: "cartwheel-galaxy",
@@ -262,17 +210,6 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
     category: "Nebula",
   },
   {
-    id: "saturn-grand-portrait",
-    title: "土星宏像",
-    subtitle: "环影切过金色行星的寂静弧线",
-    image: "/images/daily/saturn-grand-portrait.jpg",
-    description:
-      "卡西尼凝视下的土星被环系投下长影，柔亮球面与冰尘圆环共同组成深空里最优雅的几何。",
-    source: "NASA / JPL / Space Science Institute",
-    link: "https://images.nasa.gov/details/PIA06193",
-    category: "Planet",
-  },
-  {
     id: "jupiter-marble",
     title: "木星大理石",
     subtitle: "风暴纹理卷成行星海洋",
@@ -304,6 +241,116 @@ export const cosmicDailyPool: CosmicDailyItem[] = [
     source: "NASA / ESA / CSA / STScI",
     link: "https://images.nasa.gov/details/webb_first_deep_field",
     category: "Deep Field",
+  },
+  {
+    id: "cosmic-cliffs",
+    title: "宇宙悬崖",
+    subtitle: "船底座星云边缘的恒星风暴",
+    image: "/images/daily/cosmic-cliffs.jpg",
+    description:
+      "年轻恒星将尘埃与气体雕刻成巨大的金色峭壁，像深空里一场正在升起的潮汐。",
+    source: "NASA / ESA / CSA / STScI",
+    link: "https://images.nasa.gov/details/carina_nebula",
+    category: "Nebula",
+  },
+  {
+    id: "lagoon-nebula",
+    title: "礁湖星云",
+    subtitle: "明亮气体中的恒星潮汐",
+    image: "/images/daily/lagoon-nebula.jpg",
+    description:
+      "紫红色氢云与暗尘带交错，新生恒星在云海深处把整片星云点亮。",
+    source: "NASA / ESA / Hubble",
+    link: "https://images.nasa.gov/details/GSFC_20171208_Archive_e001955",
+    category: "Nebula",
+  },
+  {
+    id: "sombrero-galaxy",
+    title: "草帽星系",
+    subtitle: "黑暗尘埃环切过星光穹顶",
+    image: "/images/daily/sombrero-galaxy.jpg",
+    description:
+      "明亮核心与宽阔尘埃环形成强烈对比，像深空中一座悬浮而沉默的发光圣殿。",
+    source: "NASA / ESA / Hubble",
+    link: "https://images.nasa.gov/details/PIA15226",
+    category: "Galaxy",
+  },
+  {
+    id: "southern-ring-nebula",
+    title: "南环星云",
+    subtitle: "恒星谢幕时的层层回声",
+    image: "/images/daily/southern-ring-nebula.jpg",
+    description:
+      "濒死恒星将外壳一层层推向宇宙，留下精致而幽暗的光环，像时间缓慢散开的涟漪。",
+    source: "NASA / ESA / CSA / STScI",
+    link: "https://images.nasa.gov/details/southern_ring_nebula",
+    category: "Nebula",
+  },
+  {
+    id: "saturn-grand-portrait",
+    title: "土星宏像",
+    subtitle: "环影切过金色行星的寂静弧线",
+    image: "/images/daily/saturn-grand-portrait.jpg",
+    description:
+      "卡西尼凝视下的土星被环系投下长影，柔亮球面与冰尘圆环共同组成深空里最优雅的几何。",
+    source: "NASA / JPL / Space Science Institute",
+    link: "https://images.nasa.gov/details/PIA06193",
+    category: "Planet",
+  },
+  {
+    id: "m87-black-hole-galaxy",
+    title: "M87 星系核心",
+    subtitle: "黑洞喷流穿过椭圆星光",
+    image: "/images/daily/m87-black-hole-galaxy.jpg",
+    description:
+      "M87 中央的超大质量黑洞驱动明亮喷流穿透星系核心，远处星海把这场极端能量释放衬得格外安静。",
+    source: "NASA / JPL-Caltech / IPAC",
+    link: "https://images.nasa.gov/details/PIA23122",
+    category: "Black Hole",
+  },
+  {
+    id: "monkey-head-nebula",
+    title: "猴头星云",
+    subtitle: "红外光揭开的恒星育婴室",
+    image: "/images/daily/monkey-head-nebula.jpg",
+    description:
+      "尘埃云在红外波段变得半透明，新生恒星与温暖气体交织成一片青绿与玫红流动的深空云海。",
+    source: "NASA / JPL-Caltech",
+    link: "https://images.nasa.gov/details/PIA19836",
+    category: "Nebula",
+  },
+  {
+    id: "ngc-1300-barred-spiral",
+    title: "NGC 1300",
+    subtitle: "棒旋星系的蓝色旋臂",
+    image: "/images/daily/ngc-1300-barred-spiral.jpg",
+    description:
+      "明亮星核横贯星系中心，两侧旋臂像银蓝色潮汐向外舒展，勾勒出精密而宏大的星系结构。",
+    source: "NASA / ESA / Hubble",
+    link: "https://images.nasa.gov/details/GSFC_20171208_Archive_e002154",
+    category: "Galaxy",
+  },
+  {
+    id: "soul-nebula",
+    title: "灵魂星云",
+    subtitle: "WISE 眼中的红外星际花园",
+    image: "/images/daily/soul-nebula.jpg",
+    description:
+      "新生恒星把周围气体加热成明亮云墙，红色尘埃与蓝色星点在广阔星场里层层展开。",
+    source: "NASA / JPL-Caltech / UCLA",
+    link: "https://images.nasa.gov/details/PIA13014",
+    category: "Nebula",
+  },
+  {
+    id: "triangulum-galaxy",
+    title: "三角座星系",
+    subtitle: "近邻星系的红外星海",
+    image: "/images/daily/triangulum-galaxy.jpg",
+    description:
+      "M33 的恒星形成区在红外合成图中泛起斑斓光雾，像一枚被星尘包裹的遥远宇宙岛屿。",
+    source: "NASA / JPL-Caltech",
+    link: "https://images.nasa.gov/details/PIA11969",
+    category: "Galaxy",
   },
 ];
 

@@ -14,9 +14,10 @@ import { SectionHeading } from "./SectionHeading";
 const FALLBACK_IMAGE = "/images/daily-cosmos.png";
 
 export function DailyCosmos() {
-  const [imageReady, setImageReady] = useState(false);
   const today = useMemo(() => new Date(), []);
   const dailyCosmos = useMemo(() => getDailyCosmicItem(today), [today]);
+  const [imageReady, setImageReady] = useState(false);
+  const [imageSrc, setImageSrc] = useState(dailyCosmos.image);
 
   return (
     <section
@@ -42,25 +43,30 @@ export function DailyCosmos() {
           <span className="daily-signal-scan" aria-hidden="true" />
           <span className="daily-signal-dust" aria-hidden="true" />
           <div className="grid min-h-[34rem] lg:grid-cols-[1.25fr_0.75fr]">
-            <figure className="relative min-h-[24rem] overflow-hidden lg:min-h-[38rem]">
+            <figure className="daily-media-frame relative min-h-[24rem] overflow-hidden lg:min-h-[38rem]">
+              <span
+                className="daily-media-backdrop"
+                style={{ backgroundImage: `url(${imageSrc})` }}
+                aria-hidden="true"
+              />
               <img
-                src={dailyCosmos.image}
+                src={imageSrc}
                 alt={`${dailyCosmos.title}，${dailyCosmos.subtitle}`}
-                className={`daily-media h-full w-full object-cover opacity-90 ${
+                className={`daily-media absolute inset-0 h-full w-full object-contain opacity-90 ${
                   imageReady ? "daily-media-ready" : ""
                 }`}
                 onLoad={() => setImageReady(true)}
-                onError={(event) => {
-                  if (event.currentTarget.src.endsWith(FALLBACK_IMAGE)) {
+                onError={() => {
+                  if (imageSrc === FALLBACK_IMAGE) {
                     return;
                   }
 
                   setImageReady(false);
-                  event.currentTarget.src = FALLBACK_IMAGE;
+                  setImageSrc(FALLBACK_IMAGE);
                 }}
               />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(141,109,255,0.12),transparent_24rem),linear-gradient(0deg,rgba(2,3,10,0.82),rgba(2,3,10,0.18)_46%,rgba(2,3,10,0.02))]" />
-              <figcaption className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8">
+              <div className="daily-media-shade absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(141,109,255,0.12),transparent_24rem),linear-gradient(0deg,rgba(2,3,10,0.82),rgba(2,3,10,0.18)_46%,rgba(2,3,10,0.02))]" />
+              <figcaption className="daily-media-caption absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8">
                 <p className="type-label inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.28em] text-galaxy-400/80">
                   <Radio size={14} />
                   Signal Received
